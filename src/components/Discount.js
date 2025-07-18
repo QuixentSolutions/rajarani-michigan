@@ -13,6 +13,7 @@ function Discount() {
 
   useEffect(() => {
     setValidImages(imageUrls);
+    // eslint-disable-next-line
   }, []);
 
   const handleImageError = (index) => {
@@ -80,6 +81,8 @@ function Discount() {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              color:"black",
+              fontSize: "18px"
             }}
           >
             No images available

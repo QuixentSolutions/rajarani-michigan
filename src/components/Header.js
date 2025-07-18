@@ -46,6 +46,7 @@ function Header() {
             <img
               className="header-logo"
               src="https://cd519987.rajarani-website.pages.dev/images/logosmall.png"
+              alt="logo"
             />
           </div>
           <div className="social-icons">
@@ -81,9 +82,13 @@ function Header() {
                 marginLeft: "10px",
               }}
             >
-              <a
+              <button
                 href="#"
                 aria-label="Cart"
+                style={{    border: "none",
+    background: "#fddfa0",
+    color: "black",
+    cursor: "pointer"}}
                 // style={{ color: "#000", textDecoration: "none" }}
                 onClick={(e) => {
                   e.preventDefault();
@@ -91,7 +96,7 @@ function Header() {
                 }}
               >
                 <FaShoppingCart size={24} />
-              </a>
+              </button>
               {totalItems > 0 && (
                 <span
                   style={{

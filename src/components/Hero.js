@@ -35,6 +35,7 @@ function Hero() {
       setIsLoading(false);
     };
     checkImages();
+    // eslint-disable-next-line
   }, []);
 
   return (
@@ -97,7 +98,7 @@ function Hero() {
               <div key={index} style={{ background: "white" }}>
                 <img
                   src={image}
-                  alt={`Gallery Image ${index + 1}`}
+                  alt={`Gallery View ${index + 1}`}
                   className="carousel-image"
                   onError={() => handleImageError(index)}
                 />

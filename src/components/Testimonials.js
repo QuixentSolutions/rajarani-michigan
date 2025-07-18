@@ -51,7 +51,7 @@ function Testimonials() {
         {loading ? (
           <p>Loading reviews...</p>
         ) : error ? (
-          <p>{error}</p>
+          <p style={{color: "black",fontSize: "18px"}}>{error}</p>
         ) : testimonials.length > 0 ? (
           testimonials.map((testimonial, index) => (
             <div className="testimonial" key={index}>

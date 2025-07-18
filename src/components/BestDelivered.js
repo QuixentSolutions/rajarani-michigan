@@ -13,6 +13,7 @@ function BestDelivered() {
 
   useEffect(() => {
     setValidImages(imageUrls);
+    // eslint-disable-next-line
   }, []);
 
   const handleImageError = (index) => {

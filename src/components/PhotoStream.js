@@ -16,6 +16,7 @@ function PhotoStream() {
 
   useEffect(() => {
     setValidImages(imageUrls);
+    // eslint-disable-next-line
   }, []);
 
   const handleImageError = (index) => {
@@ -68,7 +69,7 @@ function PhotoStream() {
               <img
                 src={image}
                 // src="https://cd519987.rajarani-website.pages.dev/images/photo/ChickenTikka.jpg"
-                alt={`Photo Stream ${index + 1}`}
+                alt={`Stream ${index + 1}`}
                 className="responsive-img"
                 // style={{
                 //   width: "100%",
@@ -89,15 +90,18 @@ function PhotoStream() {
           ))
         ) : (
           <p
-            style={{
-              textAlign: "center",
-              margin: "0 auto",
-              padding: "20px 0",
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+          style={{
+    gridColumn: "1 / -1", // ⬅️ This makes the <p> span all grid columns
+    textAlign: "center",
+    margin: "0 auto",
+    padding: "20px 0",
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    color:"black",
+    fontSize: "18px"
+  }}
           >
             No images available
           </p>
@@ -150,7 +154,7 @@ function PhotoStream() {
             <img
               src="https://cd519987.rajarani-website.pages.dev/images/photo/ChickenTikka.jpg"
               // src={selectedImage}
-              alt="Enlarged Photo"
+              alt="Enlarged view"
               style={{
                 maxWidth: "100%",
                 maxHeight: "80vh",

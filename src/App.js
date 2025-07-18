@@ -1,24 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+import Header from "./components/Header";
+import Hero from "./components/Hero";
+import Discount from "./components/Discount";
+import MenuCards from "./components/MenuCards";
+import Testimonials from "./components/Testimonials";
+import BestDelivered from "./components/BestDelivered";
+import Footer from "./components/Footer";
+import "./App.css";
+import WhatsAppFloatingButton from "./components/WhatsAppFloatingButton";
+import PhotoStream from "./components/PhotoStream";
+import { Provider } from "react-redux";
+import { store } from "./store";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Provider store={store}>
+      <div className="whole-container">
+        <Header />
+        <Hero />
+        <Discount />
+        <BestDelivered />
+        <MenuCards />
+        <PhotoStream />
+        <Testimonials />
+        {/* <MeetChefs /> */}
+        <Footer />
+        <WhatsAppFloatingButton />
+      </div>
+    </Provider>
   );
 }
 

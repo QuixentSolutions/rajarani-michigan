@@ -2,7 +2,6 @@ import Header from "./components/Header";
 import Hero from "./components/Hero";
 import Discount from "./components/Discount";
 import MenuCards from "./components/MenuCards";
-import Testimonials from "./components/Testimonials";
 import BestDelivered from "./components/BestDelivered";
 import Footer from "./components/Footer";
 import "./App.css";
@@ -10,6 +9,7 @@ import WhatsAppFloatingButton from "./components/WhatsAppFloatingButton";
 import PhotoStream from "./components/PhotoStream";
 import { Provider } from "react-redux";
 import { store } from "./store";
+import VideoStream from "./components/VideoStream";
 
 function App() {
   return (
@@ -20,8 +20,9 @@ function App() {
         <Discount />
         <BestDelivered />
         <MenuCards />
+        <VideoStream />
         <PhotoStream />
-        <Testimonials />
+        {/* <Testimonials /> */}
         {/* <MeetChefs /> */}
         <Footer />
         <WhatsAppFloatingButton />

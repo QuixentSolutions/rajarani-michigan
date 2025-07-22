@@ -1,12 +1,10 @@
-import React from "react";
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
 
 function Footer() {
   const iconStyle = {
-    fontSize: "1.1rem",
     marginRight: "15px",
     verticalAlign: "middle",
-    background: "#2a2a2a",
+    fontSize:"24px"
   };
 
   return (
@@ -16,25 +14,34 @@ function Footer() {
           <div className="footer-logo">
             <h3>Contact Info</h3>
           </div>
-          <div className="footer-details" style={{ background: "#2a2a2a" }}>
-            <p style={{ display: "flex", alignItems: "center" }}>
-              <FaMapMarkerAlt style={iconStyle} />
-              45172 Ford Road, Canton, MI 48187
+          <div className="footer-details"
+           >
+            <a
+      href="https://maps.app.goo.gl/NRvpEc4paaSJSgxE9"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ textDecoration: "none", color: "inherit" }}
+    >
+       <p style={{ display: "flex", alignItems: "center" }}>
+              <FaMapMarkerAlt style={{ ...iconStyle, color: "#FF4C4C" }} />
+              <p style={{ color: "#2a2a2a" }}>45172 Ford Road, Canton, MI 48187</p>
             </p>
+    </a>
+           
             <p style={{ display: "flex", alignItems: "center" }}>
-              <FaEnvelope style={iconStyle} />
-              <a href="mailto:rajaranicanton2@gmail.com">
+              <FaEnvelope style={{ ...iconStyle, color: "#007BFF" }} /> 
+              <a href="mailto:rajaranicanton2@gmail.com" style={{ color: "#2a2a2a" }}>
                 rajaranicanton2@gmail.com
               </a>
             </p>
             <p style={{ display: "flex", alignItems: "center" }}>
-              <FaPhoneAlt style={iconStyle} />
-              <a href="tel:7344045523">734-404-5523</a>
+              <FaPhoneAlt style={{ ...iconStyle, color: "#28A745" }} />   
+              <a href="tel:7344045523" style={{ color: "#2a2a2a" }}>734-404-5523</a>
             </p>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>© 2025 Raja Rani Restaurant All rights reserved</p>
+          <h4 style={{ color: "#2a2a2a" }}>© 2025 Raja Rani Restaurant All rights reserved</h4>
         </div>
       </div>
     </footer>

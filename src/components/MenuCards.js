@@ -1,4 +1,3 @@
-import React from "react";
 import { useDispatch, useSelector } from "react-redux"; // Added useSelector
 import { FaPlus, FaMinus } from "react-icons/fa";
 import menuData from "./menuData.json";
@@ -17,7 +16,6 @@ function Menu() {
       <h1
         style={{
           textAlign: "center",
-          // margin: "60px 0 20px",
           fontSize: "28px",
           fontWeight: "bold",
         }}

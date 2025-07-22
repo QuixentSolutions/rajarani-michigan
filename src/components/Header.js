@@ -1,11 +1,9 @@
+import { SocialIcon } from 'react-social-icons';
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import {
-  FaFacebookF,
-  FaInstagram,
   FaShoppingCart,
 } from "react-icons/fa";
-import { FaYelp, FaGoogle } from "react-icons/fa";
 
 function Header() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -50,31 +48,28 @@ function Header() {
             />
           </div>
           <div className="social-icons">
-            <a
-              href="https://www.facebook.com/people/RAJA-RANI-Indian-Restaurant/100085630432560/"
-              aria-label="Facebook"
-            >
-              <FaFacebookF size={24} />
-            </a>
-            <a
-              href="https://www.instagram.com/raja_rani_indian_restaurant/"
-              aria-label="Instagram"
-            >
-              <FaInstagram size={24} />
-            </a>
-            <a
-              href="https://www.yelp.com/biz/raja-rani-indian-restaurant-canton"
-              aria-label="Yelp"
-              style={{ marginRight: "10px" }}
-            >
-              <FaYelp size={24} />
-            </a>
-            <a
-              href="https://www.google.com/search?q=Raja+Rani+Restaurant&stick=H4sIAAAAAAAA_-NgU1I1qLCwME4yNTZMMTZPsTQ0MjK2MqhISbKwNDI0MzK0MDCySDNOWsQqEpSYlagQlJiXqRCUWlySWFqUmFcCAG2OMVdAAAAA&hl=en-GB&mat=CXkHHWDwBxApElcB8pgkaH1MxZK1YEYmOhr9L--IjKRUUN5SaGQDfjKXvZuHgOkyez4TJObGNWdGEsBGtuymvcWTJ0VYn47nPHxgyISdH8w_QHoLHJgIPbP9UAs8dZA7Ef8&authuser=0"
-              aria-label="Google"
-            >
-              <FaGoogle size={24} />
-            </a>
+            <SocialIcon
+            className="social-icon"
+        url="https://www.facebook.com/people/RAJA-RANI-Indian-Restaurant/100085630432560/"
+        target="_blank"
+        rel="noopener noreferrer"
+      />
+            <SocialIcon
+        url="https://www.instagram.com/raja_rani_indian_restaurant/"
+        target="_blank"
+        rel="noopener noreferrer"
+      />
+            <SocialIcon
+        url="https://www.yelp.com/biz/raja-rani-indian-restaurant-canton"
+        target="_blank"
+        rel="noopener noreferrer"
+      />
+             <SocialIcon
+        url="https://www.google.com/search?q=Raja+Rani+Restaurant&stick=H4sIAAAAAAAA_-NgU1I1qLCwME4yNTZMMTZPsTQ0MjK2MqhISbKwNDI0MzK0MDCySDNOWsQqEpSYlagQlJiXqRCUWlySWFqUmFcCAG2OMVdAAAAA&hl=en-GB&mat=CXkHHWDwBxApElcB8pgkaH1MxZK1YEYmOhr9L--IjKRUUN5SaGQDfjKXvZuHgOkyez4TJObGNWdGEsBGtuymvcWTJ0VYn47nPHxgyISdH8w_QHoLHJgIPbP9UAs8dZA7Ef8&authuser=0"
+        target="_blank"
+        rel="noopener noreferrer"
+        network="google"
+      />
             <div
               style={{
                 position: "relative",
@@ -86,10 +81,9 @@ function Header() {
                 href="#"
                 aria-label="Cart"
                 style={{    border: "none",
-    background: "#fddfa0",
+    background: "transparent",
     color: "black",
     cursor: "pointer"}}
-                // style={{ color: "#000", textDecoration: "none" }}
                 onClick={(e) => {
                   e.preventDefault();
                   handleCartClick();

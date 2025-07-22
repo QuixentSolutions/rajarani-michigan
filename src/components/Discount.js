@@ -4,9 +4,9 @@ function Discount() {
   const [validImages, setValidImages] = useState([]);
 
   const imageUrls = Array.from(
-    { length: 100 },
+    { length: 10 },
     (_, i) =>
-      `https://rajaranimichigan.s3.ap-south-1.amazonaws.com/promotion-${
+      `https://rajarani-michigan.s3.us-east-2.amazonaws.com/discounts/${
         i + 1
       }.png`
   );
@@ -52,15 +52,8 @@ function Discount() {
             >
               <img
               className="dis-img"
-                // src="https://cd519987.rajarani-website.pages.dev/images/photo/ChickenTikka.jpg"
                 src={image}
                 alt={`Promotion ${index + 1}`}
-                // style={{
-                //   width: "300px",
-                //   height: "300px",
-                //   display: "block",
-                //   transition: "transform 0.3s ease",
-                // }}
                 onError={() => handleImageError(index)}
                 onMouseOver={(e) =>
                   (e.currentTarget.style.transform = "scale(1.05)")

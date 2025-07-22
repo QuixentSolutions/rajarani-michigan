@@ -1,5 +1,3 @@
-import React from "react";
-
 function WhatsAppFloatingButton() {
   const phoneNumber = "+919962836787";
   const message = encodeURIComponent(

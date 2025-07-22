@@ -6,9 +6,9 @@ function BestDelivered() {
   const imageUrls = Array.from(
     { length: 10 },
     (_, i) =>
-      `https://rajaranimichigan.s3.ap-south-1.amazonaws.com/best-delivered-${
+      `https://rajarani-michigan.s3.us-east-2.amazonaws.com/best-delivered/${
         i + 1
-      }.png`
+      }.jpeg`
   );
 
   useEffect(() => {
@@ -29,7 +29,6 @@ function BestDelivered() {
             validImages.map((image, index) => (
               <div key={index} className="food-item">
                 <img
-                  // src="https://cd519987.rajarani-website.pages.dev/images/photo/ChickenTikka.jpg"
                   src={image}
                   alt={`Best Delivered ${index + 1}`}
                   onError={() => handleImageError(index)}

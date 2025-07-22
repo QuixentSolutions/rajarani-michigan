@@ -5,14 +5,23 @@ function PhotoStream() {
   const [validImages, setValidImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  // Generate array of image URLs (1 to 100)
+  // const tryExtensions = [".png", ".jpg", ".jpeg", ".webp"];
+
   const imageUrls = Array.from(
     { length: 10 },
     (_, i) =>
-      `https://rajaranimichigan.s3.ap-south-1.amazonaws.com/photo-stream-${
+      `https://rajarani-michigan.s3.us-east-2.amazonaws.com/photo-stream/${
         i + 1
       }.png`
   );
+
+//   const imageUrls = Array.from({ length: 10 }, (_, i) =>
+//   tryExtensions.map(
+//     (ext) =>
+//       `https://rajarani-michigan.s3.us-east-2.amazonaws.com/photo-stream/${i + 1}${ext}`
+//   )
+// ).flat();
+
 
   useEffect(() => {
     setValidImages(imageUrls);
@@ -68,15 +77,8 @@ function PhotoStream() {
             >
               <img
                 src={image}
-                // src="https://cd519987.rajarani-website.pages.dev/images/photo/ChickenTikka.jpg"
                 alt={`Stream ${index + 1}`}
                 className="responsive-img"
-                // style={{
-                //   width: "100%",
-                //   height: "auto",
-                //   display: "block",
-                //   transition: "transform 0.3s ease",
-                // }}
                 onError={() => handleImageError(index)}
                 onClick={() => handleImageClick(image)}
                 onMouseOver={(e) =>
@@ -91,7 +93,7 @@ function PhotoStream() {
         ) : (
           <p
           style={{
-    gridColumn: "1 / -1", // ⬅️ This makes the <p> span all grid columns
+    gridColumn: "1 / -1",
     textAlign: "center",
     margin: "0 auto",
     padding: "20px 0",
@@ -134,7 +136,7 @@ function PhotoStream() {
               maxHeight: "90%",
               overflow: "auto",
             }}
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the image container
+            onClick={(e) => e.stopPropagation()}
           >
             <FaTimes
               style={{
@@ -152,8 +154,7 @@ function PhotoStream() {
               onClick={handleClosePopup}
             />
             <img
-              src="https://cd519987.rajarani-website.pages.dev/images/photo/ChickenTikka.jpg"
-              // src={selectedImage}
+              src={selectedImage}
               alt="Enlarged view"
               style={{
                 maxWidth: "100%",

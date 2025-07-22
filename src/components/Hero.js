@@ -7,12 +7,21 @@ function Hero() {
   const [isLoading, setIsLoading] = useState(true);
 
   const galleryImages = Array.from(
-    { length: 100 },
+    { length: 10 },
     (_, i) =>
-      `https://rajaranimichigan.s3.ap-south-1.amazonaws.com/gallery-${
+      `https://rajarani-michigan.s3.us-east-2.amazonaws.com/gallery/${
         i + 1
-      }.png`
+      }.jpeg`
   );
+//   const tryExtensions = [".png", ".jpg", ".jpeg", ".webp"];
+
+//   const galleryImages = Array.from({ length: 10 }, (_, i) =>
+//   tryExtensions.map(
+//     (ext) =>
+//       `https://rajarani-michigan.s3.us-east-2.amazonaws.com/gallery/${i + 1}${ext}`
+//   )
+// ).flat();
+
 
   const handleImageError = (index) => {
     setValidImages((prev) => prev.filter((_, i) => i !== index));
@@ -54,7 +63,8 @@ function Hero() {
           >
             A divine blend of Indian tradition and authentic South Indian taste
             awaits you at{" "}
-            <strong style={{ background: "white" }}>
+            <strong 
+            >
               Raja Rani Indian Restaurant
             </strong>{" "}
             in Canton, MI. From crispy dosas to rich curries, biryanis, and
@@ -80,7 +90,6 @@ function Hero() {
         {isLoading || validImages.length === 0 ? (
           <div
             className="hero-carousel shimmer"
-            style={{ background: "white" }}
           >
             <div className="shimmer-effect">Loading......</div>
           </div>
@@ -92,10 +101,10 @@ function Hero() {
             showThumbs={false}
             showStatus={false}
             className="hero-carousel"
-            style={{ background: "white" }}
           >
             {validImages.map((image, index) => (
-              <div key={index} style={{ background: "white" }}>
+              <div key={index} 
+              >
                 <img
                   src={image}
                   alt={`Gallery View ${index + 1}`}

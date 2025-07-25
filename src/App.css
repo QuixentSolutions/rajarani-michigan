@@ -6,7 +6,7 @@
 }
 
 body {
-  background: url('/public/bg1.jpg') no-repeat center center fixed;
+  background: url('/public/bg1.png') no-repeat center center fixed;
   background-size: cover;
   color: #fff;
 }
@@ -49,6 +49,8 @@ header {
 .header-logo {
   width: 200px;
   background-color: black;
+  border-radius: 1rem;
+  padding: 0.5rem;
 }
 
 .nav ul {

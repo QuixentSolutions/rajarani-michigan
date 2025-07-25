@@ -3,7 +3,10 @@ import { useState, useEffect } from "react";
 function VideoStream() {
   const [validVideos, setValidVideos] = useState([]);
 
-  const potentialVideos = Array.from({ length: 10 }, (_, i) => `/videos/${i + 1}.mp4`);
+  const potentialVideos = Array.from(
+    { length: 10 },
+    (_, i) => `/videos/${i + 1}.mp4`
+  );
 
   useEffect(() => {
     const checkVideoExistence = async () => {
@@ -16,7 +19,10 @@ function VideoStream() {
               "Cache-Control": "no-cache",
             },
           });
-          if (response.ok && response.headers.get("Content-Type")?.includes("video/mp4")) {
+          if (
+            response.ok &&
+            response.headers.get("Content-Type")?.includes("video/mp4")
+          ) {
             existingVideos.push(video);
           }
         } catch (error) {
@@ -99,6 +105,7 @@ function VideoStream() {
                   },
                 }}
                 controls
+                muted
                 preload="metadata"
                 onError={() => handleVideoError(index)}
                 onMouseOver={handleMouseOver}

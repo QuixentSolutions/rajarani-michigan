@@ -1,12 +1,10 @@
-import { SocialIcon } from 'react-social-icons';
+import { SocialIcon } from "react-social-icons";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import {
-  FaShoppingCart,
-} from "react-icons/fa";
+import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { clearCart } from "../cartSlice";
-import emailjs from '@emailjs/browser';
+import emailjs from "@emailjs/browser";
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
 
 function Header() {
@@ -14,13 +12,43 @@ function Header() {
   const [mobileNumber, setMobileNumber] = useState("+1");
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [addressError, setAddressError] = useState("");
   const [tableNumber, setTableNumber] = useState("1");
+  const [orderMode, setOrderMode] = useState("dinein");
+  const [address, setAddress] = useState("");
+
   const totalItems = useSelector((state) => state.cart.totalItems);
   const cartItems = useSelector((state) => state.cart.items);
   const dispatch = useDispatch();
 
   const handleCartClick = () => {
     setIsPopupOpen(true);
+  };
+
+  const getLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const { latitude, longitude } = pos.coords;
+          try {
+            const res = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+            );
+            const data = await res.json();
+
+            setAddress(data.display_name);
+          } catch (error) {}
+        },
+        (err) => {
+          console.error("Error getting location:", err.message);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+    }
   };
 
   const handleOrderNow = (e) => {
@@ -33,31 +61,49 @@ function Header() {
     }
     setEmailError("");
 
+    if (orderMode === "delivery" && !address) {
+      setAddressError("Please enter a valid delivery address.");
+      return;
+    }
+    setAddressError("");
+
     const timestamp = Date.now();
     const orderId = `#ORD${timestamp.toString().slice(-4)}`;
 
-  const orderDetails = Object.entries(cartItems)
-  .map(([name, { quantity, price }]) => `${name} x ${quantity} ₹${(quantity * price).toFixed(2)}`) // Use stored price
-  .join("<br/>");
+    const total_amount = Object.entries(cartItems).reduce(
+      (sum, [_, { quantity, price }]) => sum + quantity * price,
+      0
+    );
+    const orderDetailsFlat = Object.entries(cartItems)
+      .map(
+        ([name, { quantity, price }]) =>
+          `${name} x ${quantity} =  ₹${(quantity * price).toFixed(2)}`
+      ) // Use stored price
+      .join("<br/>");
 
     const templateParams = {
       email: email.trim(),
-      name: "Raja Rani Restaurant",
-      mobile_number: mobileNumber,
-      table_number: tableNumber,
-      order_details: orderDetails,
-      order_id: orderId,
+      order_mode: String(orderMode),
+      order_id: String(orderId),
+      mobile_number: String(mobileNumber),
+      total_amount: String(total_amount),
+      address: address ? String(address) : String(tableNumber),
+      order_details: orderDetailsFlat,
     };
 
-    emailjs.send(
-      process.env.REACT_APP_EMAILJS_SERVICE_ID,
-      process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
-      templateParams,
-      {
-        publicKey: process.env.REACT_APP_EMAILJS_PUBLIC_KEY,
-      }
-    )
-      .then((response) => {
+    emailjs
+      .send(
+        process.env.REACT_APP_EMAILJS_SERVICE_ID,
+        process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+        templateParams,
+        {
+          publicKey: process.env.REACT_APP_EMAILJS_PUBLIC_KEY,
+        }
+      )
+      .then(async (response) => {
+        alert(
+          `Your order has been placed and a confirmation email has been sent with all the details. - ${orderId}`
+        );
         setIsPopupOpen(false);
         setMobileNumber("+1");
         setTableNumber("");
@@ -65,7 +111,11 @@ function Header() {
         dispatch(clearCart());
       })
       .catch((error) => {
-        console.log('Failed to send email...', error);
+        alert(
+          `We’re sorry, your order couldn’t be placed.
+          Please call us directly, or contact a waiter if you’re at the restaurant.`
+        );
+        console.log("Failed to send email...", error);
       });
 
     // const orderData = {
@@ -84,7 +134,7 @@ function Header() {
     dispatch(clearCart());
   };
 
-   const isCartEmpty = Object.keys(cartItems).length === 0;
+  const isCartEmpty = Object.keys(cartItems).length === 0;
 
   return (
     <>
@@ -137,11 +187,7 @@ function Header() {
         <div className="header-container">
           <div className="nav">
             <div className="logo">
-              <img
-                className="header-logo"
-                src="../logo-1.png"
-                alt="logo"
-              />
+              <img className="header-logo" src="../logo-1.png" alt="logo" />
             </div>
             <div className="social-icons">
               <SocialIcon
@@ -173,24 +219,40 @@ function Header() {
                 network="whatsapp"
                 bgColor="#25D366"
               />
-                <a
-      href="https://maps.app.goo.gl/NRvpEc4paaSJSgxE9"
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{ textDecoration: "none", color: "inherit" }}
-    >
-              <FaMapMarkerAlt className="icon-header" style={{color: "#FF4C4C" }} />
-    </a>
-           
-              <a href="mailto:rajaranicanton2@gmail.com" style={{ color: "#2a2a2a" }}>
-              <FaEnvelope className="icon-header" style={{color: "#007BFF" }} /> 
+              <a
+                href="https://maps.app.goo.gl/NRvpEc4paaSJSgxE9"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <FaMapMarkerAlt
+                  className="icon-header"
+                  style={{ color: "#FF4C4C" }}
+                />
+              </a>
+
+              <a
+                href="mailto:rajaranicanton2@gmail.com"
+                style={{ color: "#2a2a2a" }}
+              >
+                <FaEnvelope
+                  className="icon-header"
+                  style={{ color: "#007BFF" }}
+                />
               </a>
               <a href="tel:7344045523" style={{ color: "#2a2a2a" }}>
-                              <FaPhoneAlt className="icon-header" style={{color: "#28A745" }} />   
+                <FaPhoneAlt
+                  className="icon-header"
+                  style={{ color: "#28A745" }}
+                />
               </a>
               <button
                 onClick={() => {
-                  window.open("https://www.clover.com/online-ordering/raja-rani-restaurant-canton", "_blank", "noopener,noreferrer");
+                  window.open(
+                    "https://www.clover.com/online-ordering/raja-rani-restaurant-canton",
+                    "_blank",
+                    "noopener,noreferrer"
+                  );
                 }}
                 style={{
                   marginLeft: "10px",
@@ -219,7 +281,7 @@ function Header() {
                     border: "none",
                     background: "transparent",
                     color: "black",
-                    cursor: "pointer"
+                    cursor: "pointer",
                   }}
                   onClick={(e) => {
                     e.preventDefault();
@@ -279,8 +341,14 @@ function Header() {
                 background: "white",
               }}
             >
-              <h3 style={{ marginBottom: "15px", color: "#333333", background: "white" }}>
-                Place Your Order
+              <h3
+                style={{
+                  marginBottom: "15px",
+                  color: "#333333",
+                  background: "white",
+                }}
+              >
+                Order Confirmation
               </h3>
               <input
                 type="tel"
@@ -313,26 +381,98 @@ function Header() {
                 }}
               />
               {emailError && (
-                <div style={{ color: "red", marginBottom: "15px" }}>{emailError}</div>
+                <div style={{ color: "red", marginBottom: "15px" }}>
+                  {emailError}
+                </div>
               )}
-              <select
-                value={tableNumber}
-                onChange={(e) => setTableNumber(e.target.value)}
-                required
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  marginBottom: "15px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                }}
-              >
-                {[...Array(10)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    Table {i + 1}
-                  </option>
-                ))}
-              </select>
+              {orderMode === "dinein" && (
+                <select
+                  value={tableNumber}
+                  onChange={(e) => setTableNumber(e.target.value)}
+                  required
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    marginBottom: "15px",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                  }}
+                >
+                  {[...Array(10)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      Table {i + 1}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              <div class="option-group" style={{ marginTop: "10px" }}>
+                <label style={{ color: "black" }}>
+                  <input
+                    type="radio"
+                    name="orderType"
+                    value="Dine In"
+                    required
+                    checked={orderMode === "dinein"}
+                    onClick={() => setOrderMode("dinein")}
+                  />{" "}
+                  Dine In
+                </label>
+                <label style={{ color: "black", paddingLeft: "1rem" }}>
+                  <input
+                    type="radio"
+                    name="orderType"
+                    value="Delivery"
+                    required
+                    checked={orderMode === "delivery"}
+                    onClick={() => setOrderMode("delivery")}
+                  />{" "}
+                  Delivery
+                </label>
+              </div>
+              {orderMode === "delivery" && (
+                <>
+                  <br />
+                  <button
+                    variant="contained"
+                    color="primary"
+                    onClick={getLocation}
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      marginBottom: "15px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    Locate Me
+                  </button>
+
+                  <br />
+                  <br />
+                  <textarea
+                    id="address"
+                    name="address"
+                    rows="5"
+                    required
+                    value={address}
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      marginBottom: "15px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                    }}
+                  ></textarea>
+
+                  {addressError && (
+                    <div style={{ color: "red", marginBottom: "15px" }}>
+                      {addressError}
+                    </div>
+                  )}
+                </>
+              )}
+
               <button
                 onClick={handleOrderNow}
                 disabled={isCartEmpty}
@@ -344,9 +484,10 @@ function Header() {
                   borderRadius: "4px",
                   cursor: isCartEmpty ? "not-allowed" : "pointer",
                   marginRight: "10px",
+                  marginTop: "10px",
                 }}
               >
-                Order Now
+                {isCartEmpty ? `Add items to cart` : `Order Now`}
               </button>
               <button
                 onClick={() => setIsPopupOpen(false)}

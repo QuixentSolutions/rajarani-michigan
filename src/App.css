@@ -48,6 +48,7 @@ header {
 
 .header-logo {
   width: 200px;
+  background-color: black;
 }
 
 .nav ul {

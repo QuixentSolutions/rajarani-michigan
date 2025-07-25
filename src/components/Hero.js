@@ -22,7 +22,6 @@ function Hero() {
 //   )
 // ).flat();
 
-
   const handleImageError = (index) => {
     setValidImages((prev) => prev.filter((_, i) => i !== index));
   };
@@ -80,7 +79,7 @@ function Hero() {
           >
             We proudly serve 100%{" "}
             <strong>
-              <span className="halal-highlight">Halal</span>
+              Halal
             </strong>{" "}
             meat, ensuring both quality and authenticity. Come enjoy our
             flavorful vegetarian and non-vegetarian options prepared by expert

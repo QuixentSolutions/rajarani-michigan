@@ -5,43 +5,86 @@ function BestDelivered() {
 
   const imageUrls = Array.from(
     { length: 10 },
-    (_, i) =>
-      `https://rajarani-michigan.s3.us-east-2.amazonaws.com/best-delivered/${
-        i + 1
-      }.jpeg`
+    (_, i) => `https://rajarani-michigan.s3.us-east-2.amazonaws.com/best-delivered/${i + 1}.jpeg`
   );
 
   useEffect(() => {
-    setValidImages(imageUrls);
+    const loadImages = async () => {
+      const loadedImages = await Promise.all(
+        imageUrls.map((url) =>
+          new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve({ url, width: img.width, height: img.height });
+            img.onerror = () => resolve(null);
+            img.src = url;
+          })
+        )
+      );
+      setValidImages(loadedImages.filter((img) => img !== null));
+    };
+    loadImages();
     // eslint-disable-next-line
   }, []);
 
-  const handleImageError = (index) => {
-    setValidImages((prev) => prev.filter((_, i) => i !== index));
-  };
-
   return (
-    <div className="best-delivered-container">
-      <div className="best-delivered">
-        <h2>Our Best Delivered</h2>
-        <div className="content">
-          {validImages.length > 0 ? (
-            validImages.map((image, index) => (
-              <div key={index} className="food-item">
-                <img
-                  src={image}
-                  alt={`Best Delivered ${index + 1}`}
-                  onError={() => handleImageError(index)}
-                />
-              </div>
-            ))
-          ) : (
-            <p>No images available</p>
-          )}
-        </div>
+    <div className="bd-container">
+      <h2 style={{
+        color: "#333333",
+        textAlign: "center",
+        margin: "20px 0",
+        fontSize: "24px",
+        fontWeight: "bold",
+      }}>BEST DELIVERED</h2>
+      <div className="bd-wrapper">
+        {validImages.length > 0 ? (
+          validImages.map((image, index) => (
+            <div
+              key={index}
+              className={`bd-item ${image.width > image.height ? "bd-item-horizontal" : "bd-item-vertical"}`}
+              style={{
+                boxSizing: "border-box",
+                overflow: "hidden",
+                border: "2px solid #ccc",
+                background: "white",
+                padding: "2px",
+              }}
+            >
+              <img
+                src={image.url}
+                alt={`Best Delivered ${index + 1}`}
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  borderRadius: "10px",
+                  display: "block",
+                  padding:"10px"
+                }}
+                onError={() => handleImageError(index)}
+              />
+            </div>
+          ))
+        ) : (
+          <p style={{
+            textAlign: "center",
+            margin: "0 auto",
+            padding: "20px 0",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "black",
+            fontSize: "18px",
+          }}>
+            No images available
+          </p>
+        )}
       </div>
     </div>
   );
+
+  function handleImageError(index) {
+    setValidImages((prev) => prev.filter((_, i) => i !== index));
+  }
 }
 
 export default BestDelivered;

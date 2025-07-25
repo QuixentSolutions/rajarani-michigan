@@ -26,7 +26,7 @@ function Discount() {
     <div className="dis-container">
       <h2
         style={{
-          color: "#f4a261",
+          color: "#333333",
           textAlign: "center",
           margin: "20px 0",
           fontSize: "24px",

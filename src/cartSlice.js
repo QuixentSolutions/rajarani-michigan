@@ -8,8 +8,8 @@ const cartSlice = createSlice({
   },
   reducers: {
     updateQuantity: (state, action) => {
-      const { itemName, change } = action.payload;
-      const currentQty = state.items[itemName] || 0;
+      const { itemName, change, price } = action.payload;
+      const currentQty = state.items[itemName]?.quantity || 0;
       const newQty = Math.max(0, currentQty + change);
 
       if (newQty > currentQty) {
@@ -21,11 +21,15 @@ const cartSlice = createSlice({
       if (newQty === 0) {
         delete state.items[itemName];
       } else {
-        state.items[itemName] = newQty;
+        state.items[itemName] = { quantity: newQty, price };
       }
+    },
+    clearCart: (state) => {
+      state.items = {};
+      state.totalItems = 0;
     },
   },
 });
 
-export const { updateQuantity } = cartSlice.actions;
+export const { updateQuantity, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

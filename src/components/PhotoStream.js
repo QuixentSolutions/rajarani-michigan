@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 
 function PhotoStream() {
@@ -44,7 +44,7 @@ function PhotoStream() {
     <div className="photo-stream-container">
       <h2
         style={{
-          color: "#f4a261",
+          color: "#333333",
           textAlign: "center",
           margin: "20px 0",
           fontSize: "24px",

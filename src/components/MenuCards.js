@@ -1,14 +1,14 @@
-import { useDispatch, useSelector } from "react-redux"; // Added useSelector
+import { useDispatch, useSelector } from "react-redux";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import menuData from "./menuData.json";
 import { updateQuantity } from "../cartSlice";
 
 function Menu() {
   const dispatch = useDispatch();
-  const cartItems = useSelector((state) => state.cart.items); // Get cart items from Redux state
+  const cartItems = useSelector((state) => state.cart.items);
 
-  const handleQuantityChange = (itemName, change) => {
-    dispatch(updateQuantity({ itemName, change }));
+  const handleQuantityChange = (itemName, change, price) => {
+    dispatch(updateQuantity({ itemName, change, price }));
   };
 
   return (
@@ -20,7 +20,7 @@ function Menu() {
           fontWeight: "bold",
         }}
       >
-        Our Menu
+        OUR MENU
       </h1>
       <div className="menu-sections">
         {menuData.menuSections.map((section, index) => (
@@ -37,7 +37,8 @@ function Menu() {
             </h2>
             <ul className="menu-items">
               {section.items.map((item, itemIndex) => {
-                const qty = cartItems[item.name] || 0;
+                const qty = cartItems[item.name]?.quantity || 0;
+                const price = item.newPrice || item.price || 0; 
                 return (
                   <li
                     key={itemIndex}
@@ -62,6 +63,9 @@ function Menu() {
                       {item.newPrice && (
                         <span className="new-price">{item.newPrice}</span>
                       )}
+                      {!item.newPrice && item.price && (
+                        <span className="price">{item.price}</span>
+                      )}
                     </span>
                     <div
                       style={{
@@ -76,10 +80,10 @@ function Menu() {
                           cursor: "pointer",
                           fontSize: "16px",
                           marginRight: "5px",
-                          color: qty > 0 ? "#f4a261" : "#ccc",
+                          color: qty > 0 ? "#333333" : "#ccc",
                           background: "white",
                         }}
-                        onClick={() => handleQuantityChange(item.name, -1)}
+                        onClick={() => handleQuantityChange(item.name, -1, price)}
                       />
                       <span
                         style={{
@@ -96,10 +100,10 @@ function Menu() {
                           cursor: "pointer",
                           fontSize: "16px",
                           marginLeft: "5px",
-                          color: "#f4a261",
+                          color: "#333333",
                           background: "white",
                         }}
-                        onClick={() => handleQuantityChange(item.name, 1)}
+                        onClick={() => handleQuantityChange(item.name, 1, price)}
                       />
                     </div>
                   </li>

@@ -1,40 +1,41 @@
-function WhatsAppFloatingButton() {
-  const phoneNumber = "+919962836787";
-  const message = encodeURIComponent(
-    "Hello, I'm interested in ordering from Raja Rani Indian Restaurant!"
-  );
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+import { FaArrowUp } from "react-icons/fa";
+
+function TopScrollButton() {
+  const handleScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
-    <a
-      href={whatsappUrl}
-      target="_blank"
-      rel="noopener noreferrer"
+    <button
+      onClick={handleScrollToTop}
       style={{
         position: "fixed",
         bottom: "24px",
-        right: "24px",
+        right: "10px",
         zIndex: 50,
         background: "transparent",
+        border: "none",
+        padding: 0,
+        cursor: "pointer",
       }}
-      aria-label="Contact us on WhatsApp"
+      aria-label="Scroll to top"
     >
-      <img
-        src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-        alt="WhatsApp Icon"
+      <FaArrowUp
         style={{
-          width: "48px",
-          height: "48px",
+          width: "40px",
+          height: "40px",
+          padding: "5px",
           borderRadius: "50%",
           boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
           transition: "transform 0.3s ease",
           background: "transparent",
+          color: "#000",
         }}
         onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
         onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
       />
-    </a>
+    </button>
   );
 }
 
-export default WhatsAppFloatingButton;
+export default TopScrollButton;

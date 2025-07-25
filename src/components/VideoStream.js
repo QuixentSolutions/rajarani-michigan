@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 function VideoStream() {
   const [validVideos, setValidVideos] = useState([]);
@@ -55,7 +55,7 @@ function VideoStream() {
     <div className="video-stream-container">
       <h2
         style={{
-          color: "#f4a261",
+          color: "#333333",
           textAlign: "center",
           margin: "20px 0",
           fontSize: "24px",

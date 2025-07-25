@@ -12,7 +12,7 @@ function Footer() {
       <div className="footer-container">
         <div className="footer-content">
           <div className="footer-logo">
-            <h3>Contact Info</h3>
+            <h3>CONTACT INFO</h3>
           </div>
           <div className="footer-details"
            >

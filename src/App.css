@@ -6,7 +6,7 @@
 }
 
 body {
-  background: url('/public/bg.jpeg') no-repeat center center fixed;
+  background: url('/public/bg1.jpg') no-repeat center center fixed;
   background-size: cover;
   color: #fff;
 }
@@ -25,13 +25,12 @@ body {
 
 header {
   padding: 20px 0;
-  position: fixed;
+  /* position: fixed; */
   width: 100%;
   top: 0;
   left: 0;
   z-index: 1000;
-  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
-  background:#F1F1F1;
+  background: #EFEFEF;
 }
 
 .nav {
@@ -63,10 +62,6 @@ header {
 .nav ul li a {
   color: #f4a261;
   text-decoration: none;
-}
-
-.hero {
-  padding: 100px 0 50px;
 }
 
 .hero h1 {
@@ -353,7 +348,7 @@ footer p {
 
 .hero h1 {
   font-size: 48px;
-  color: #f4a261;
+  color: #333333;
 }
 
 .hero h1 span {
@@ -518,7 +513,7 @@ footer p {
 
 .best-delivered h2 {
   font-size: 36px;
-  color: #f4a261;
+  color: #333333;
   font-weight: bold;
   text-align: center;
 }
@@ -603,6 +598,7 @@ footer p {
 
   .best-delivered h2 {
     font-size: 28px;
+    margin-bottom: 20px;
   }
   .content {
     grid-template-columns: 1fr;
@@ -696,7 +692,6 @@ footer p {
 
 header {
   padding: 10px 0;
-  position: fixed;
   width: 100%;
   z-index: 1000;
 }
@@ -704,7 +699,6 @@ header {
 .header-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
 }
 
 .nav {
@@ -815,7 +809,7 @@ header {
 .footer-logo h3 {
   font-size: 24px;
   font-weight: bold;
-  color: rgb(244, 162, 97);
+  color: #333333;
 }
 
 .footer-details p {
@@ -887,7 +881,7 @@ header {
 
 .menu-container h1 {
   font-size: 48px;
-  color: #f4a261;
+  color: #333333;
   margin-bottom: 20px;
   text-align: center;
   font-weight: bold;
@@ -1004,6 +998,7 @@ header {
   flex-wrap: wrap;
   gap: 2rem;
   align-items: center;
+  /* margin-top: 70px; */
 }
 
 .hero-content {
@@ -1177,4 +1172,291 @@ header {
   align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: flex;
+  }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: #1a1a1a;
+    flex-direction: column;
+    padding: 20px;
+    text-align: center;
+  }
+  .nav-links.open {
+    display: flex;
+  }
+  .nav-links li {
+    margin: 10px 0;
+  }
+  .nav-links li a {
+    font-size: 18px;
+  }
+
+  .social-icons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 3px;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+  }
+
+  .social-icons::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .social-icons::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .social-icons::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+  }
+
+  .social-icons a {
+    margin: 0;
+    display: inline-flex;
+    width: 25px !important;
+    height: 25px !important;
+    position: relative;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .social-container {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+  }
+
+  .header-logo {
+            height: 76px;
+        width: 140px;
+        object-fit: cover;
+  }
+
+  .social-icons a svg {
+    width: 18px;
+    height: 18px;
+    margin: auto;
+  }
+  
+  .hero-content p {
+    margin-right: 20px;
+  }
+  .dis-img {
+    width: 235px;
+    height: 235px;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+}
+
+@media (max-width: 425px) {
+  .social-icons a {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .social-icons a svg {
+    width: 15px;
+    height: 15px;
+  }
+  .header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+}
+
+.bd-container {
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.bd-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  padding: 0 10px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.bd-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  background: white;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.bd-item img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+  margin-bottom: 0;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .best-delivered img {
+    width: 300px;
+    height: 300px;
+    border-radius: 10px;
+    margin-bottom: 0;
+  }
+
+  .nav ul {
+    display: none;
+  }
+
+  .hero h1 {
+    font-size: 36px;
+  }
+
+  .best-delivered,
+  .meet-chefs {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .best-delivered img,
+  .meet-chefs img {
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  .testimonials {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .bd-wrapper {
+    gap: 15px;
+    padding: 0 10px;
+  }
+
+  .bd-item img {
+    object-fit: contain;
+    width: auto;
+    border-radius: 10px;
+    margin-bottom: 0;
+  }
+
+  .bd-item {
+    padding: 2px;
+  }
+
+  .bd-item-horizontal {
+    height: 185px;
+        width: 300px;
+  }
+
+  .bd-item-vertical {
+    height: 300px;
+  }
+
+  .best-delivered h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+}
+
+@media (min-width: 769px) {
+  .bd-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 400px));
+    gap: 15px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    justify-content: center;
+  }
+
+  .bd-item {
+    padding: 2px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    background: white;
+    border: 2px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 0;
+  }
+
+  .bd-item img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+    margin-bottom: 0;
+    display: block;
+  }
+
+  .bd-item-horizontal {
+    width: 400px;
+    height: 235px;
+  }
+
+  .bd-item-vertical {
+    width: 300px;
+    height: 370px;
+  }
+}
+
+button[aria-label="Cart"]{
+  font-size: 40px;
+}
+
+.icon-header{
+    font-size: 36px;
+  }
+
+@media (max-width: 769px) {
+  button[aria-label="Cart"] {
+    font-size: 24px;
+  }
+  .icon-header{
+    font-size: 24px;
+  }
+}
+
+button[aria-label="Cart"] {
+  border: none;
+  background: transparent;
+  color: black;
+  cursor: pointer;
 }

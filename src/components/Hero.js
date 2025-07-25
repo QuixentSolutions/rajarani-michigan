@@ -50,11 +50,6 @@ function Hero() {
     <section className="hero">
       <div className="container">
         <div className="hero-content">
-          {/* <h1>
-            <span>
-              <i>Taste of South India</i>
-            </span>
-          </h1> */}
           <h1>
             Experience the <span>Taste</span> of the South
           </h1>

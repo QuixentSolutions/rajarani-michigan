@@ -18,7 +18,7 @@ function App() {
         <Header />
         <Hero />
         <Discount />
-        <BestDelivered />
+        {/* <BestDelivered /> */}
         <MenuCards />
         <VideoStream />
         <PhotoStream />

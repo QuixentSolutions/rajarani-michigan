@@ -13,6 +13,7 @@ function Header() {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [addressError, setAddressError] = useState("");
+  const [mobileError, setMobileError] = useState("");
   const [tableNumber, setTableNumber] = useState("1");
   const [orderMode, setOrderMode] = useState("dinein");
   const [address, setAddress] = useState("");
@@ -53,7 +54,17 @@ function Header() {
 
   const handleOrderNow = (e) => {
     e.preventDefault();
+    const mobileRegex = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}$/;
 
+    if (
+      !mobileNumber ||
+      mobileNumber === "+1" ||
+      !mobileRegex.test(mobileNumber.trim())
+    ) {
+      setMobileError("Please enter a valid mobile number.");
+      return;
+    }
+    setMobileError("");
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email.trim())) {
       setEmailError("Please enter a valid email address.");
@@ -363,6 +374,11 @@ function Header() {
                   borderRadius: "4px",
                 }}
               />
+              {mobileError && (
+                <div style={{ color: "red", marginBottom: "15px" }}>
+                  {mobileError}
+                </div>
+              )}
               <input
                 type="email"
                 placeholder="Email (required)"

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Carousel } from "react-responsive-carousel";
 
 function Discount() {
   const [validImages, setValidImages] = useState([]);
@@ -33,10 +34,41 @@ function Discount() {
           fontWeight: "bold",
         }}
       >
-        DISCOUNT OFFERS
+        PROMOTIONS
       </h2>
       <div className="responsive-wrapper">
-        {discountImages.length > 0 ? (
+        <Carousel
+          infiniteLoop
+          autoPlay
+          interval={3000}
+          showThumbs={false}
+          showStatus={false}
+          className="hero-carousel"
+        >
+          {discountImages.map((image, index) => (
+            <div
+              key={index}
+              style={{
+                // flex: "1 1 calc(33.33% - 20px)",
+                // maxWidth: "calc(33.33% - 20px)",
+                boxSizing: "border-box",
+                overflow: "hidden",
+                border: "2px solid #ccc",
+                background: "white",
+                padding: "12px",
+              }}
+            >
+              <img
+                src={image}
+                alt={`Gallery View ${index + 1}`}
+                className="carousel-image"
+                onError={() => handleImageError(index)}
+              />
+            </div>
+          ))}
+        </Carousel>
+
+        {/* {discountImages.length > 0 ? (
           discountImages.map((image, index) => (
             <div
               key={index}
@@ -51,7 +83,7 @@ function Discount() {
               }}
             >
               <img
-              className="dis-img"
+                className="dis-img"
                 src={image}
                 alt={`Promotion ${index + 1}`}
                 onError={() => handleImageError(index)}
@@ -74,13 +106,13 @@ function Discount() {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              color:"black",
-              fontSize: "18px"
+              color: "black",
+              fontSize: "18px",
             }}
           >
             No images available
           </p>
-        )}
+        )} */}
       </div>
     </div>
   );

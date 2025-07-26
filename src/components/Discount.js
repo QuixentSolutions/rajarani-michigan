@@ -20,9 +20,7 @@ function Discount() {
   const handleImageError = (index) => {
     setValidImages((prev) => prev.filter((_, i) => i !== index));
   };
-
   const discountImages = validImages.slice(0, 10);
-
   return (
     <div className="dis-container">
       <h2

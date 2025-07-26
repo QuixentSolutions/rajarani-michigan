@@ -1,0 +1,56 @@
+.order-container {
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.item-name {
+  flex: 2;
+}
+
+.item-qty {
+  flex: 1;
+  text-align: center;
+}
+
+.item-price {
+  flex: 1;
+  text-align: right;
+  font-weight: bold;
+}
+
+
+
+.clear-button {
+  background-color: #e53935;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 1rem;
+}
+
+.clear-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

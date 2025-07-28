@@ -19,6 +19,7 @@ function Header() {
   const [address, setAddress] = useState("");
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
   const [successOrderId, setSuccessOrderId] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const totalItems = useSelector((state) => state.cart.totalItems);
   const cartItems = useSelector((state) => state.cart.items);
@@ -26,6 +27,28 @@ function Header() {
 
   const handleCartClick = () => {
     setIsPopupOpen(true);
+  };
+
+const formatPhoneNumber = (value) => {
+  const digits = value.replace(/^\+1/, '').replace(/\D/g, '');
+  
+  if (digits.length <= 3) {
+    return `+1 ${digits}`;
+  } else if (digits.length <= 6) {
+    return `+1 (${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  } else {
+    return `+1 (${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  }
+};
+
+ const handleChange = (e) => {
+    const input = e.target.value;
+    if (!input.startsWith('+1')) {
+      setMobileNumber('+1');
+      return;
+    }
+    const formatted = formatPhoneNumber(input);
+    setMobileNumber(formatted);
   };
 
   const getLocation = () => {
@@ -103,7 +126,7 @@ function Header() {
       address: address ? String(address) : String(tableNumber),
       order_details: orderDetailsFlat,
     };
-
+    setIsLoading(true);
     emailjs
       .send(
         process.env.REACT_APP_EMAILJS_SERVICE_ID,
@@ -114,9 +137,6 @@ function Header() {
         }
       )
       .then(async (response) => {
-        alert(
-          `Your order has been placed and a confirmation email has been sent with all the details. - ${orderId}`
-        );
         setSuccessOrderId(orderId);
       setIsSuccessPopupOpen(true);
         setIsPopupOpen(false);
@@ -124,6 +144,7 @@ function Header() {
         setTableNumber("");
         setEmail("");
         dispatch(clearCart());
+        setIsLoading(false);
       })
       .catch((error) => {
         alert(
@@ -131,6 +152,7 @@ function Header() {
           Please call us directly, or contact a waiter if you’re at the restaurant.`
         );
         console.log("Failed to send email...", error);
+        setIsLoading(false);
       });
 
     // const orderData = {
@@ -202,8 +224,41 @@ function Header() {
     );
   };
 
+   const Loader = () => (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1000,
+    }}>
+      <div style={{
+        border: '8px solid #f3f3f3',
+        borderTop: '8px solid #3498db',
+        borderRadius: '50%',
+        width: '50px',
+        height: '50px',
+        animation: 'spin 1s linear infinite',
+      }} />
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
+    </div>
+  );
+
   return (
     <>
+    {isLoading && <Loader />}
      {isSuccessPopupOpen && <SuccessPopup />}
       <style>
         {`
@@ -417,8 +472,7 @@ function Header() {
               >
                 Order Confirmation
               </h3>
-          
-      {Object.keys(cartItems).length > 0 && (
+{Object.keys(cartItems).length > 0 && (
   <div
     style={{
       maxHeight: "150px",
@@ -428,38 +482,39 @@ function Header() {
       paddingTop: "10px",
     }}
   >
-    <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
+    <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 10px", tableLayout: "fixed" }}>
       <thead>
-        <tr style={{ textAlign: "center", borderBottom: "1px solid #ccc", color: "black" }}>
-          <th style={{ width: "60%", wordWrap: "break-word" }}>Name</th>
-          <th style={{ width: "20%" }}>Qty</th>
-          <th style={{ width: "20%" }}>Price</th>
+        <tr style={{ textAlign: "center", padding: "10px 0", borderBottom: "2px solid #ccc", color: "#333", backgroundColor: "#f5f5f5" }}>
+          <th style={{ width: "60%", wordWrap: "break-word", padding: "10px" }}>Name</th>
+          <th style={{ width: "20%", padding: "10px" }}>Qty</th>
+          <th style={{ width: "20%", padding: "10px" }}>Price</th>
         </tr>
       </thead>
       <tbody style={{ color: "black" }}>
         {Object.entries(cartItems).map(([name, { quantity, price }]) => (
-          <tr key={name}>
-            <td style={{ wordWrap: "break-word", whiteSpace: "normal" }}>{name}</td>
-            <td>{quantity}</td>
-            <td>{(quantity * price).toFixed(2)}</td>
+          <tr key={name} style={{ borderBottom: "1px solid #eee", padding: "5px 0" }}>
+            <td style={{ wordWrap: "break-word", whiteSpace: "normal", padding: "5px" }}>{name}</td>
+            <td >{quantity}</td>
+            <td >{(quantity * price).toFixed(2)}</td>
           </tr>
         ))}
       </tbody>
     </table>
   </div>
 )}
-
               <input
                 type="tel"
                 placeholder="Mobile Number"
                 value={mobileNumber}
-                onChange={(e) => setMobileNumber(e.target.value)}
+                onChange={handleChange}
+                // onChange={(e) => setMobileNumber(e.target.value)}
                 style={{
                   width: "100%",
                   padding: "8px",
                   marginBottom: "10px",
                   border: "1px solid #ccc",
                   borderRadius: "4px",
+                  marginTop: "20px"
                 }}
               />
               {mobileError && (

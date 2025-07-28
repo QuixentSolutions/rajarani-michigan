@@ -7,7 +7,7 @@ function Discount() {
   const imageUrls = Array.from(
     { length: 10 },
     (_, i) =>
-      `https://rajarani-michigan.s3.us-east-2.amazonaws.com/discounts/${
+      `https://rajarani-michigan.s3.us-east-2.amazonaws.com/promotions/${
         i + 1
       }.png`
   );

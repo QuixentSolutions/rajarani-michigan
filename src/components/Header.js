@@ -17,6 +17,8 @@ function Header() {
   const [tableNumber, setTableNumber] = useState("1");
   const [orderMode, setOrderMode] = useState("dinein");
   const [address, setAddress] = useState("");
+  const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
+  const [successOrderId, setSuccessOrderId] = useState('');
 
   const totalItems = useSelector((state) => state.cart.totalItems);
   const cartItems = useSelector((state) => state.cart.items);
@@ -97,7 +99,7 @@ function Header() {
       order_mode: String(orderMode),
       order_id: String(orderId),
       mobile_number: String(mobileNumber),
-      total_amount: String(total_amount),
+      total_amount: total_amount.toFixed(2),
       address: address ? String(address) : String(tableNumber),
       order_details: orderDetailsFlat,
     };
@@ -115,6 +117,8 @@ function Header() {
         alert(
           `Your order has been placed and a confirmation email has been sent with all the details. - ${orderId}`
         );
+        setSuccessOrderId(orderId);
+      setIsSuccessPopupOpen(true);
         setIsPopupOpen(false);
         setMobileNumber("+1");
         setTableNumber("");
@@ -147,8 +151,60 @@ function Header() {
 
   const isCartEmpty = Object.keys(cartItems).length === 0;
 
+  const SuccessPopup = () => {
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000
+      }}>
+        <div style={{
+          backgroundColor: '#fff',
+          padding: '20px',
+          borderRadius: '8px',
+          maxWidth: '500px',
+          textAlign: 'center',
+          color:"black",
+          position: 'relative'
+        }}>
+           <button 
+            onClick={() => setIsSuccessPopupOpen(false)}
+            style={{
+              position: 'absolute',
+              top: '10px',
+              right: '10px',
+              backgroundColor: 'transparent',
+              border: 'none',
+              fontSize: '20px',
+              cursor: 'pointer',
+              color: '#333'
+            }}
+          >
+            ×
+          </button>
+          <h2>Order Placed Successfully!</h2>
+          <p>Your order has been placed and a confirmation email has been sent with all the details. - <strong>{successOrderId}</strong></p>
+          <p style={{marginTop:"20px"}}><strong>Scan to Pay:</strong></p>
+          <img 
+            src="https://rajarani-michigan.s3.us-east-2.amazonaws.com/general/qr.png" 
+            alt="Payment QR Code" 
+            style={{ width: '250px', height: '250px', margin: '10px 0' }} 
+          />
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
+     {isSuccessPopupOpen && <SuccessPopup />}
       <style>
         {`
           @media (max-width: 768px) {
@@ -361,6 +417,38 @@ function Header() {
               >
                 Order Confirmation
               </h3>
+          
+      {Object.keys(cartItems).length > 0 && (
+  <div
+    style={{
+      maxHeight: "150px",
+      overflowY: Object.keys(cartItems).length > 5 ? "scroll" : "auto",
+      marginTop: "15px",
+      borderTop: "1px solid #ccc",
+      paddingTop: "10px",
+    }}
+  >
+    <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
+      <thead>
+        <tr style={{ textAlign: "center", borderBottom: "1px solid #ccc", color: "black" }}>
+          <th style={{ width: "60%", wordWrap: "break-word" }}>Name</th>
+          <th style={{ width: "20%" }}>Qty</th>
+          <th style={{ width: "20%" }}>Price</th>
+        </tr>
+      </thead>
+      <tbody style={{ color: "black" }}>
+        {Object.entries(cartItems).map(([name, { quantity, price }]) => (
+          <tr key={name}>
+            <td style={{ wordWrap: "break-word", whiteSpace: "normal" }}>{name}</td>
+            <td>{quantity}</td>
+            <td>{(quantity * price).toFixed(2)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
+
               <input
                 type="tel"
                 placeholder="Mobile Number"
@@ -421,31 +509,37 @@ function Header() {
                   ))}
                 </select>
               )}
-
-              <div class="option-group" style={{ marginTop: "10px" }}>
-                <label style={{ color: "black" }}>
-                  <input
-                    type="radio"
-                    name="orderType"
-                    value="Dine In"
-                    required
-                    checked={orderMode === "dinein"}
-                    onClick={() => setOrderMode("dinein")}
-                  />{" "}
-                  Dine In
-                </label>
-                <label style={{ color: "black", paddingLeft: "1rem" }}>
-                  <input
-                    type="radio"
-                    name="orderType"
-                    value="Delivery"
-                    required
-                    checked={orderMode === "delivery"}
-                    onClick={() => setOrderMode("delivery")}
-                  />{" "}
-                  Delivery
-                </label>
-              </div>
+            <div className="option-group" style={{ marginTop: "10px", display: "flex", gap: "3rem" }}>
+  {["dinein", "delivery", "grab"].map((mode) => (
+    <label
+      key={mode}
+      style={{
+        color: "black",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        textAlign: "center",
+        fontSize: "14px",
+      }}
+    >
+      <input
+        type="radio"
+        name="orderType"
+        value={mode}
+        checked={orderMode === mode}
+        onChange={() => setOrderMode(mode)}
+        style={{ marginBottom: "3px" }}
+      />
+      {mode === "grab" ? (
+        <>
+          Grab <br /> at Venue
+        </>
+      ) : (
+        mode.charAt(0).toUpperCase() + mode.slice(1)
+      )}
+    </label>
+  ))}
+</div>
               {orderMode === "delivery" && (
                 <>
                   <br />

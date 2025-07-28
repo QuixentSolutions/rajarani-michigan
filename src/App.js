@@ -6,7 +6,7 @@ import MenuCards from "./components/MenuCards";
 import Footer from "./components/Footer";
 import "./App.css";
 import WhatsAppFloatingButton from "./components/WhatsAppFloatingButton";
-import PhotoStream from "./components/PhotoStream";
+// import PhotoStream from "./components/PhotoStream";
 import { Provider } from "react-redux";
 import { store } from "./store";
 import VideoStream from "./components/VideoStream";
@@ -21,7 +21,7 @@ function App() {
         {/* <BestDelivered /> */}
         <MenuCards />
         <VideoStream />
-        <PhotoStream />
+        {/* <PhotoStream /> */}
         {/* <Testimonials /> */}
         {/* <MeetChefs /> */}
         <Footer />

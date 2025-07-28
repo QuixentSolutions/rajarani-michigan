@@ -11,7 +11,7 @@ function Hero() {
     (_, i) =>
       `https://rajarani-michigan.s3.us-east-2.amazonaws.com/gallery/${
         i + 1
-      }.jpeg`
+      }.png`
   );
   //   const tryExtensions = [".png", ".jpg", ".jpeg", ".webp"];
 
@@ -53,6 +53,7 @@ function Hero() {
           <h1>
             Experience the <span>Taste</span> of the South
           </h1>
+          <img src="https://cd519987.rajarani-website.pages.dev/images/halal_food.png" alt="Halal" />
           <p
             style={{
               fontSize: "18px",

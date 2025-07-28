@@ -1,11 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+// Load from localStorage if exists
+const savedCart = JSON.parse(localStorage.getItem("cart")) || {
+  items: {},
+  totalItems: 0,
+};
+
 const cartSlice = createSlice({
   name: "cart",
-  initialState: {
-    items: {},
-    totalItems: 0,
-  },
+  initialState: savedCart,
   reducers: {
     updateQuantity: (state, action) => {
       const { itemName, change, price } = action.payload;
@@ -14,7 +17,7 @@ const cartSlice = createSlice({
 
       if (newQty > currentQty) {
         state.totalItems += 1;
-      } else if (newQty < currentQty) {
+      } else if (newQty < currentQty && currentQty > 0) {
         state.totalItems = Math.max(0, state.totalItems - 1);
       }
 
@@ -23,10 +26,15 @@ const cartSlice = createSlice({
       } else {
         state.items[itemName] = { quantity: newQty, price };
       }
+
+      localStorage.setItem("cart", JSON.stringify(state));
     },
+
     clearCart: (state) => {
       state.items = {};
       state.totalItems = 0;
+
+      localStorage.removeItem("cart");
     },
   },
 });

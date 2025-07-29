@@ -53,7 +53,7 @@ function Hero() {
           <h1>
             Experience the <span>Taste</span> of the South
           </h1>
-          <img src="https://cd519987.rajarani-website.pages.dev/images/halal_food.png" alt="Halal" />
+          <img src="/halal_food.png" alt="Halal" />
           <p
             style={{
               fontSize: "18px",

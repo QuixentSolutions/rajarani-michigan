@@ -9,6 +9,9 @@ body {
   background: url('/public/bg1.png') no-repeat center center fixed;
   background-size: cover;
   color: #fff;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
 }
 
 .whole-container {
@@ -30,7 +33,7 @@ header {
   top: 0;
   left: 0;
   z-index: 1000;
-  background: #EFEFEF;
+  /* background: #EFEFEF; */
 }
 
 .nav {
@@ -48,7 +51,7 @@ header {
 
 .header-logo {
   width: 200px;
-  background-color: black;
+  background-color: white;
   border-radius: 1rem;
   padding: 0.5rem;
 }
@@ -172,7 +175,7 @@ header {
 
 .best-delivered p {
   font-size: 16px;
-      color: black;
+      color: white;
     margin-top: 30px;
 }
 
@@ -351,17 +354,17 @@ footer p {
 
 .hero h1 {
   font-size: 48px;
-  color: #333333;
+  color: white;
 }
 
 .hero h1 span {
-  color: #333;
+  color: white;
 }
 
 .hero p {
   font-size: 18px;
   margin: 20px 0;
-  color: #333;
+  color: white;
 }
 
 .hero .btn {
@@ -516,7 +519,7 @@ footer p {
 
 .best-delivered h2 {
   font-size: 36px;
-  color: #333333;
+  color: white;
   font-weight: bold;
   text-align: center;
 }
@@ -532,7 +535,7 @@ footer p {
   text-align: center;
   padding: 20px 0;
   font-size: 18px;
-  color: black;
+  color: white;
 }
 
 
@@ -812,7 +815,7 @@ header {
 .footer-logo h3 {
   font-size: 24px;
   font-weight: bold;
-  color: #333333;
+  color: white;
 }
 
 .footer-details p {
@@ -835,7 +838,7 @@ header {
 
 .social-icons a {
   margin: 0 10px;
-  color: #333;
+  color: white;
   font-size: 20px;
 }
 
@@ -884,7 +887,7 @@ header {
 
 .menu-container h1 {
   font-size: 48px;
-  color: #333333;
+  color: white;
   margin-bottom: 20px;
   text-align: center;
   font-weight: bold;
@@ -1460,6 +1463,6 @@ button[aria-label="Cart"]{
 button[aria-label="Cart"] {
   border: none;
   background: transparent;
-  color: black;
+  color: white;
   cursor: pointer;
 }

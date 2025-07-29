@@ -38,7 +38,7 @@ function Menu() {
             <ul className="menu-items">
               {section.items.map((item, itemIndex) => {
                 const qty = cartItems[item.name]?.quantity || 0;
-                const price = item.newPrice || item.price || 0; 
+                const price = item.newPrice || item.price || 0;
                 return (
                   <li
                     key={itemIndex}
@@ -72,7 +72,7 @@ function Menu() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        background: "white",
+                        // background: "white",
                       }}
                     >
                       <FaMinus
@@ -80,17 +80,19 @@ function Menu() {
                           cursor: "pointer",
                           fontSize: "16px",
                           marginRight: "5px",
-                          color: qty > 0 ? "#333333" : "#ccc",
-                          background: "white",
+                          // color: qty > 0 ? "white" : "#ccc",
+                          // background: "white",
                         }}
-                        onClick={() => handleQuantityChange(item.name, -1, price)}
+                        onClick={() =>
+                          handleQuantityChange(item.name, -1, price)
+                        }
                       />
                       <span
                         style={{
                           fontSize: "16px",
                           width: "20px",
                           textAlign: "center",
-                          background: "white",
+                          // background: "white",
                         }}
                       >
                         {qty}
@@ -100,10 +102,12 @@ function Menu() {
                           cursor: "pointer",
                           fontSize: "16px",
                           marginLeft: "5px",
-                          color: "#333333",
-                          background: "white",
+                          // color: "white",
+                          // background: "white",
                         }}
-                        onClick={() => handleQuantityChange(item.name, 1, price)}
+                        onClick={() =>
+                          handleQuantityChange(item.name, 1, price)
+                        }
                       />
                     </div>
                   </li>

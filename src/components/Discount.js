@@ -25,7 +25,7 @@ function Discount() {
     <div className="dis-container">
       <h2
         style={{
-          color: "#333333",
+          color: "white",
           textAlign: "center",
           margin: "20px 0",
           fontSize: "24px",
@@ -104,7 +104,7 @@ function Discount() {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              color: "black",
+              color: "white",
               fontSize: "18px",
             }}
           >

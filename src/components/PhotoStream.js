@@ -15,13 +15,12 @@ function PhotoStream() {
       }.png`
   );
 
-//   const imageUrls = Array.from({ length: 10 }, (_, i) =>
-//   tryExtensions.map(
-//     (ext) =>
-//       `https://rajarani-michigan.s3.us-east-2.amazonaws.com/photo-stream/${i + 1}${ext}`
-//   )
-// ).flat();
-
+  //   const imageUrls = Array.from({ length: 10 }, (_, i) =>
+  //   tryExtensions.map(
+  //     (ext) =>
+  //       `https://rajarani-michigan.s3.us-east-2.amazonaws.com/photo-stream/${i + 1}${ext}`
+  //   )
+  // ).flat();
 
   useEffect(() => {
     setValidImages(imageUrls);
@@ -44,7 +43,7 @@ function PhotoStream() {
     <div className="photo-stream-container">
       <h2
         style={{
-          color: "#333333",
+          color: "white",
           textAlign: "center",
           margin: "20px 0",
           fontSize: "24px",
@@ -92,18 +91,18 @@ function PhotoStream() {
           ))
         ) : (
           <p
-          style={{
-    gridColumn: "1 / -1",
-    textAlign: "center",
-    margin: "0 auto",
-    padding: "20px 0",
-    width: "100%",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    color:"black",
-    fontSize: "18px"
-  }}
+            style={{
+              gridColumn: "1 / -1",
+              textAlign: "center",
+              margin: "0 auto",
+              padding: "20px 0",
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              color: "white",
+              fontSize: "18px",
+            }}
           >
             No images available
           </p>

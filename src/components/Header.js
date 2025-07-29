@@ -1,5 +1,5 @@
 import { SocialIcon } from "react-social-icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -18,8 +18,9 @@ function Header() {
   const [orderMode, setOrderMode] = useState("dinein");
   const [address, setAddress] = useState("");
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
-  const [successOrderId, setSuccessOrderId] = useState('');
+  const [successOrderId, setSuccessOrderId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [totalAmount, setTotalAmount] = useState(0);
 
   const totalItems = useSelector((state) => state.cart.totalItems);
   const cartItems = useSelector((state) => state.cart.items);
@@ -29,22 +30,33 @@ function Header() {
     setIsPopupOpen(true);
   };
 
-const formatPhoneNumber = (value) => {
-  const digits = value.replace(/^\+1/, '').replace(/\D/g, '');
-  
-  if (digits.length <= 3) {
-    return `+1 ${digits}`;
-  } else if (digits.length <= 6) {
-    return `+1 (${digits.slice(0, 3)}) ${digits.slice(3)}`;
-  } else {
-    return `+1 (${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
-  }
-};
+  const formatPhoneNumber = (value) => {
+    const digits = value.replace(/^\+1/, "").replace(/\D/g, "");
 
- const handleChange = (e) => {
+    if (digits.length <= 3) {
+      return `+1 ${digits}`;
+    } else if (digits.length <= 6) {
+      return `+1 (${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    } else {
+      return `+1 (${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(
+        6,
+        10
+      )}`;
+    }
+  };
+
+  useEffect(() => {
+    const total_amount = Object.entries(cartItems).reduce(
+      (sum, [_, { quantity, price }]) => sum + quantity * price,
+      0
+    );
+    setTotalAmount(total_amount);
+  }, [cartItems]);
+
+  const handleChange = (e) => {
     const input = e.target.value;
-    if (!input.startsWith('+1')) {
-      setMobileNumber('+1');
+    if (!input.startsWith("+1")) {
+      setMobileNumber("+1");
       return;
     }
     const formatted = formatPhoneNumber(input);
@@ -138,7 +150,7 @@ const formatPhoneNumber = (value) => {
       )
       .then(async (response) => {
         setSuccessOrderId(orderId);
-      setIsSuccessPopupOpen(true);
+        setIsSuccessPopupOpen(true);
         setIsPopupOpen(false);
         setMobileNumber("+1");
         setTableNumber("");
@@ -175,76 +187,89 @@ const formatPhoneNumber = (value) => {
 
   const SuccessPopup = () => {
     return (
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000
-      }}>
-        <div style={{
-          backgroundColor: '#fff',
-          padding: '20px',
-          borderRadius: '8px',
-          maxWidth: '500px',
-          textAlign: 'center',
-          color:"black",
-          position: 'relative'
-        }}>
-           <button 
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1000,
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: "#fff",
+            padding: "20px",
+            borderRadius: "8px",
+            maxWidth: "500px",
+            textAlign: "center",
+            color: "white",
+            position: "relative",
+          }}
+        >
+          <button
             onClick={() => setIsSuccessPopupOpen(false)}
             style={{
-              position: 'absolute',
-              top: '10px',
-              right: '10px',
-              backgroundColor: 'transparent',
-              border: 'none',
-              fontSize: '20px',
-              cursor: 'pointer',
-              color: '#333'
+              position: "absolute",
+              top: "10px",
+              right: "10px",
+              backgroundColor: "transparent",
+              border: "none",
+              fontSize: "20px",
+              cursor: "pointer",
+              color: "#333",
             }}
           >
             ×
           </button>
           <h2>Order Placed Successfully!</h2>
-          <p>Your order has been placed and a confirmation email has been sent with all the details. - <strong>{successOrderId}</strong></p>
-          <p style={{marginTop:"20px"}}><strong>Scan to Pay:</strong></p>
-          <img 
-            src="https://rajarani-michigan.s3.us-east-2.amazonaws.com/general/qr.png" 
-            alt="Payment QR Code" 
-            style={{ width: '250px', height: '250px', margin: '10px 0' }} 
+          <p>
+            Your order has been placed and a confirmation email has been sent
+            with all the details. - <strong>{successOrderId}</strong>
+          </p>
+          <p style={{ marginTop: "20px" }}>
+            <strong>Scan to Pay:</strong>
+          </p>
+          <img
+            src="https://rajarani-michigan.s3.us-east-2.amazonaws.com/general/qr.png"
+            alt="Payment QR Code"
+            style={{ width: "250px", height: "250px", margin: "10px 0" }}
           />
         </div>
       </div>
     );
   };
 
-   const Loader = () => (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1000,
-    }}>
-      <div style={{
-        border: '8px solid #f3f3f3',
-        borderTop: '8px solid #3498db',
-        borderRadius: '50%',
-        width: '50px',
-        height: '50px',
-        animation: 'spin 1s linear infinite',
-      }} />
+  const Loader = () => (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 1000,
+      }}
+    >
+      <div
+        style={{
+          border: "8px solid #f3f3f3",
+          borderTop: "8px solid #3498db",
+          borderRadius: "50%",
+          width: "50px",
+          height: "50px",
+          animation: "spin 1s linear infinite",
+        }}
+      />
       <style>
         {`
           @keyframes spin {
@@ -258,8 +283,8 @@ const formatPhoneNumber = (value) => {
 
   return (
     <>
-    {isLoading && <Loader />}
-     {isSuccessPopupOpen && <SuccessPopup />}
+      {isLoading && <Loader />}
+      {isSuccessPopupOpen && <SuccessPopup />}
       <style>
         {`
           @media (max-width: 768px) {
@@ -368,7 +393,7 @@ const formatPhoneNumber = (value) => {
                   style={{ color: "#28A745" }}
                 />
               </a>
-              <button
+              {/* <button
                 onClick={() => {
                   window.open(
                     "https://www.clover.com/online-ordering/raja-rani-restaurant-canton",
@@ -378,7 +403,7 @@ const formatPhoneNumber = (value) => {
                 }}
                 style={{
                   marginLeft: "10px",
-                  backgroundColor: "#333333",
+                  backgroundColor: "white",
                   color: "#fff",
                   border: "none",
                   padding: "8px 15px",
@@ -388,7 +413,7 @@ const formatPhoneNumber = (value) => {
                 }}
               >
                 Order Online
-              </button>
+              </button> */}
               <div
                 style={{
                   position: "relative",
@@ -402,7 +427,7 @@ const formatPhoneNumber = (value) => {
                   style={{
                     border: "none",
                     background: "transparent",
-                    color: "black",
+                    color: "white",
                     cursor: "pointer",
                   }}
                   onClick={(e) => {
@@ -418,8 +443,8 @@ const formatPhoneNumber = (value) => {
                       position: "absolute",
                       top: "-10px",
                       right: "-10px",
-                      backgroundColor: "#333333",
-                      color: "#fff",
+                      backgroundColor: "white",
+                      color: "black",
                       borderRadius: "50%",
                       width: "18px",
                       height: "18px",
@@ -457,7 +482,7 @@ const formatPhoneNumber = (value) => {
                 backgroundColor: "#fff",
                 padding: "20px",
                 borderRadius: "8px",
-                width: "300px",
+                // width: "300px",
                 textAlign: "center",
                 position: "relative",
                 background: "white",
@@ -466,42 +491,97 @@ const formatPhoneNumber = (value) => {
               <h3
                 style={{
                   marginBottom: "15px",
-                  color: "#333333",
+                  color: "black",
                   background: "white",
                 }}
               >
                 Order Confirmation
               </h3>
-{Object.keys(cartItems).length > 0 && (
-  <div
-    style={{
-      maxHeight: "150px",
-      overflowY: Object.keys(cartItems).length > 5 ? "scroll" : "auto",
-      marginTop: "15px",
-      borderTop: "1px solid #ccc",
-      paddingTop: "10px",
-    }}
-  >
-    <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 10px", tableLayout: "fixed" }}>
-      <thead>
-        <tr style={{ textAlign: "center", padding: "10px 0", borderBottom: "2px solid #ccc", color: "#333", backgroundColor: "#f5f5f5" }}>
-          <th style={{ width: "60%", wordWrap: "break-word", padding: "10px" }}>Name</th>
-          <th style={{ width: "20%", padding: "10px" }}>Qty</th>
-          <th style={{ width: "20%", padding: "10px" }}>Price</th>
-        </tr>
-      </thead>
-      <tbody style={{ color: "black" }}>
-        {Object.entries(cartItems).map(([name, { quantity, price }]) => (
-          <tr key={name} style={{ borderBottom: "1px solid #eee", padding: "5px 0" }}>
-            <td style={{ wordWrap: "break-word", whiteSpace: "normal", padding: "5px" }}>{name}</td>
-            <td >{quantity}</td>
-            <td >{(quantity * price).toFixed(2)}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-)}
+              {Object.keys(cartItems).length > 0 && (
+                <div
+                  style={{
+                    maxHeight: "15rem",
+                    overflowY:
+                      Object.keys(cartItems).length > 5 ? "scroll" : "auto",
+                    marginTop: "15px",
+                    borderTop: "1px solid #ccc",
+                    paddingTop: "10px",
+                  }}
+                >
+                  <table
+                    style={{
+                      width: "100%",
+                      borderCollapse: "separate",
+                      borderSpacing: "0 10px",
+                      tableLayout: "fixed",
+                    }}
+                  >
+                    <thead>
+                      <tr
+                        style={{
+                          textAlign: "center",
+                          padding: "10px 0",
+                          borderBottom: "2px solid #ccc",
+                          color: "#333",
+                          backgroundColor: "#f5f5f5",
+                        }}
+                      >
+                        <th
+                          style={{
+                            width: "60%",
+                            wordWrap: "break-word",
+                            padding: "10px",
+                          }}
+                        >
+                          Name
+                        </th>
+                        <th style={{ width: "20%", padding: "10px" }}>Qty</th>
+                        <th style={{ width: "20%", padding: "10px" }}>Price</th>
+                      </tr>
+                    </thead>
+                    <tbody style={{ color: "black" }}>
+                      {Object.entries(cartItems).map(
+                        ([name, { quantity, price }]) => (
+                          <tr
+                            key={name}
+                            style={{
+                              borderBottom: "1px solid #eee",
+                              padding: "5px 0",
+                            }}
+                          >
+                            <td
+                              style={{
+                                wordWrap: "break-word",
+                                whiteSpace: "normal",
+                                padding: "5px",
+                              }}
+                            >
+                              {name}
+                            </td>
+                            <td>{quantity}</td>
+                            <td>{(quantity * price).toFixed(2)}</td>
+                          </tr>
+                        )
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <input
+                type="string"
+                placeholder="Total Amount"
+                disabled
+                value={`Total Amount : ${totalAmount.toFixed(2)}`}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  // marginBottom: "10px",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                  marginTop: "20px",
+                }}
+              />
               <input
                 type="tel"
                 placeholder="Mobile Number"
@@ -514,7 +594,7 @@ const formatPhoneNumber = (value) => {
                   marginBottom: "10px",
                   border: "1px solid #ccc",
                   borderRadius: "4px",
-                  marginTop: "20px"
+                  marginTop: "20px",
                 }}
               />
               {mobileError && (
@@ -564,37 +644,38 @@ const formatPhoneNumber = (value) => {
                   ))}
                 </select>
               )}
-            <div className="option-group" style={{ marginTop: "10px", display: "flex", gap: "3rem" }}>
-  {["dinein", "delivery", "grab"].map((mode) => (
-    <label
-      key={mode}
-      style={{
-        color: "black",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        textAlign: "center",
-        fontSize: "14px",
-      }}
-    >
-      <input
-        type="radio"
-        name="orderType"
-        value={mode}
-        checked={orderMode === mode}
-        onChange={() => setOrderMode(mode)}
-        style={{ marginBottom: "3px" }}
-      />
-      {mode === "grab" ? (
-        <>
-          Grab <br /> at Venue
-        </>
-      ) : (
-        mode.charAt(0).toUpperCase() + mode.slice(1)
-      )}
-    </label>
-  ))}
-</div>
+              <div
+                className="option-group"
+                style={{ marginTop: "10px", display: "flex", gap: "5rem" }}
+              >
+                {["dinein", "delivery", "grab"].map((mode) => (
+                  <label
+                    key={mode}
+                    style={{
+                      color: "black",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      textAlign: "center",
+                      fontSize: "14px",
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="orderType"
+                      value={mode}
+                      checked={orderMode === mode}
+                      onChange={() => setOrderMode(mode)}
+                      style={{ marginBottom: "3px" }}
+                    />
+                    {mode === "grab" ? (
+                      <>Grab</>
+                    ) : (
+                      mode.charAt(0).toUpperCase() + mode.slice(1)
+                    )}
+                  </label>
+                ))}
+              </div>
               {orderMode === "delivery" && (
                 <>
                   <br />
@@ -642,7 +723,7 @@ const formatPhoneNumber = (value) => {
                 onClick={handleOrderNow}
                 disabled={isCartEmpty}
                 style={{
-                  backgroundColor: isCartEmpty ? "#aaa" : "#333333",
+                  backgroundColor: isCartEmpty ? "#aaa" : "black",
                   color: "#fff",
                   border: "none",
                   padding: "10px 20px",
@@ -664,7 +745,7 @@ const formatPhoneNumber = (value) => {
                   border: "none",
                   fontSize: "20px",
                   cursor: "pointer",
-                  color: "#333333",
+                  color: "black",
                 }}
               >
                 ×

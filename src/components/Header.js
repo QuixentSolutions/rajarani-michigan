@@ -655,7 +655,8 @@ function Header() {
                 className="option-group"
                 style={{ marginTop: "10px", display: "flex", gap: "5rem" }}
               >
-                {["dinein", "delivery", "grab"].map((mode) => (
+                {/* {["dinein", "delivery", "grab"].map((mode) => ( */}
+                {["dinein", "grab"].map((mode) => (
                   <label
                     key={mode}
                     style={{

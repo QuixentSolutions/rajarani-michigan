@@ -1255,8 +1255,8 @@ header {
   }
 
   .header-logo {
-            height: 86px;
-        width: 140px;
+           height: 10rem;
+        width: 15rem;
         object-fit: cover;
   }
 

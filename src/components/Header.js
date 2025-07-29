@@ -94,9 +94,10 @@ function Header() {
     const mobileRegex = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}$/;
 
     if (
-      !mobileNumber ||
-      mobileNumber === "+1" ||
-      !mobileRegex.test(mobileNumber.trim())
+      orderMode !== "dinein" &&
+      (!mobileNumber ||
+        mobileNumber === "+1" ||
+        !mobileRegex.test(mobileNumber.trim()))
     ) {
       setMobileError("Please enter a valid mobile number.");
       return;
@@ -208,7 +209,7 @@ function Header() {
             borderRadius: "8px",
             maxWidth: "500px",
             textAlign: "center",
-            color: "white",
+            color: "black",
             position: "relative",
           }}
         >
@@ -227,7 +228,7 @@ function Header() {
           >
             ×
           </button>
-          <h2>Order Placed Successfully!</h2>
+          <h2 style={{ margin: "1rem" }}>Order Placed Successfully!</h2>
           <p>
             Your order has been placed and a confirmation email has been sent
             with all the details. - <strong>{successOrderId}</strong>
@@ -582,26 +583,31 @@ function Header() {
                   marginTop: "20px",
                 }}
               />
-              <input
-                type="tel"
-                placeholder="Mobile Number"
-                value={mobileNumber}
-                onChange={handleChange}
-                // onChange={(e) => setMobileNumber(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  marginBottom: "10px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                  marginTop: "20px",
-                }}
-              />
-              {mobileError && (
-                <div style={{ color: "red", marginBottom: "15px" }}>
-                  {mobileError}
-                </div>
+              {orderMode !== "dinein" && (
+                <>
+                  <input
+                    type="tel"
+                    placeholder="Mobile Number"
+                    value={mobileNumber}
+                    onChange={handleChange}
+                    // onChange={(e) => setMobileNumber(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      marginTop: "5px",
+                      marginBottom: "5px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                    }}
+                  />
+                  {mobileError && (
+                    <div style={{ color: "red", marginBottom: "15px" }}>
+                      {mobileError}
+                    </div>
+                  )}
+                </>
               )}
+
               <input
                 type="email"
                 placeholder="Email (required)"
@@ -614,6 +620,7 @@ function Header() {
                 style={{
                   width: "100%",
                   padding: "8px",
+                  marginTop: "5px",
                   marginBottom: "5px",
                   border: "1px solid #ccc",
                   borderRadius: "4px",

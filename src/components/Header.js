@@ -306,7 +306,7 @@ function Header() {
               order: 1;
               width: 100%;
               display: flex;
-              justify-content: center;
+              justify-content: space-evenly;
               align-items: center;
               flex-wrap: nowrap;
             }

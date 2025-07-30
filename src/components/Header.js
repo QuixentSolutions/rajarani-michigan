@@ -233,6 +233,7 @@ function Header() {
             Your order has been placed and a confirmation email has been sent
             with all the details. - <strong>{successOrderId}</strong>
           </p>
+          <p style={{fontWeight: "bold",marginTop: "20px"}}>You can scan to pay or pay at the counter</p>
           <p style={{ marginTop: "20px" }}>
             <strong>Scan to Pay:</strong>
           </p>
@@ -361,7 +362,7 @@ function Header() {
                 network="google"
               />
               <SocialIcon
-                url="https://wa.me/+919962836787?text=Hello, I'm interested in ordering from Raja Rani Indian Restaurant!"
+                url="https://chat.whatsapp.com/JVMf5MZJCEp2XPakE4YYaW?mode=ac_t"
                 target="_blank"
                 rel="noopener noreferrer"
                 network="whatsapp"
@@ -499,90 +500,114 @@ function Header() {
                 Order Confirmation
               </h3>
               {Object.keys(cartItems).length > 0 && (
-                <div
-                  style={{
-                    maxHeight: "15rem",
-                    overflowY:
-                      Object.keys(cartItems).length > 5 ? "scroll" : "auto",
-                    marginTop: "15px",
-                    borderTop: "1px solid #ccc",
-                    paddingTop: "10px",
-                  }}
-                >
-                  <table
-                    style={{
-                      width: "100%",
-                      borderCollapse: "separate",
-                      borderSpacing: "0 10px",
-                      tableLayout: "fixed",
-                    }}
-                  >
-                    <thead>
-                      <tr
-                        style={{
-                          textAlign: "center",
-                          padding: "10px 0",
-                          borderBottom: "2px solid #ccc",
-                          color: "#333",
-                          backgroundColor: "#f5f5f5",
-                        }}
-                      >
-                        <th
-                          style={{
-                            width: "60%",
-                            wordWrap: "break-word",
-                            padding: "10px",
-                          }}
-                        >
-                          Name
-                        </th>
-                        <th style={{ width: "20%", padding: "10px" }}>Qty</th>
-                        <th style={{ width: "20%", padding: "10px" }}>Price</th>
-                      </tr>
-                    </thead>
-                    <tbody style={{ color: "black" }}>
-                      {Object.entries(cartItems).map(
-                        ([name, { quantity, price }]) => (
-                          <tr
-                            key={name}
-                            style={{
-                              borderBottom: "1px solid #eee",
-                              padding: "5px 0",
-                            }}
-                          >
-                            <td
-                              style={{
-                                wordWrap: "break-word",
-                                whiteSpace: "normal",
-                                padding: "5px",
-                              }}
-                            >
-                              {name}
-                            </td>
-                            <td>{quantity}</td>
-                            <td>{(quantity * price).toFixed(2)}</td>
-                          </tr>
-                        )
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+  <div
+    style={{
+      maxHeight: "15rem",
+      overflowY: Object.keys(cartItems).length > 5 ? "scroll" : "auto",
+      marginTop: "15px",
+      borderTop: "1px solid #ccc",
+      paddingTop: "10px",
+    }}
+  >
+    <table
+      style={{
+        width: "100%",
+        borderCollapse: "separate",
+        borderSpacing: "0 10px",
+        tableLayout: "fixed",
+      }}
+    >
+      <thead>
+        <tr
+          style={{
+            textAlign: "center",
+            padding: "10px 0",
+            borderBottom: "2px solid #ccc",
+            color: "#333",
+            backgroundColor: "#f5f5f5",
+          }}
+        >
+          <th
+            style={{
+              width: "60%",
+              wordWrap: "break-word",
+              padding: "10px",
+            }}
+          >
+            Name
+          </th>
+          <th style={{ width: "20%", padding: "10px" }}>Qty</th>
+          <th style={{ width: "20%", padding: "10px" }}>Price</th>
+        </tr>
+      </thead>
+      <tbody style={{ color: "black" }}>
+        {Object.entries(cartItems).map(([name, { quantity, price }]) => (
+          <tr
+            key={name}
+            style={{
+              borderBottom: "1px solid #eee",
+              padding: "5px 0",
+            }}
+          >
+            <td
+              style={{
+                wordWrap: "break-word",
+                whiteSpace: "normal",
+                padding: "5px",
+              }}
+            >
+              {name}
+            </td>
+            <td>{quantity}</td>
+            <td>{(quantity * price).toFixed(2)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
 
-              <input
-                type="string"
-                placeholder="Total Amount"
-                disabled
-                value={`Total Amount : ${totalAmount.toFixed(2)}`}
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  // marginBottom: "10px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                  marginTop: "20px",
-                }}
-              />
+<input
+  type="text"
+  placeholder="Subtotal"
+  disabled
+  value={`Subtotal: $${totalAmount.toFixed(2)}`}
+  style={{
+    width: "100%",
+    padding: "8px",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    marginTop: "20px",
+  }}
+/>
+
+<input
+  type="text"
+  placeholder="Sales Tax"
+  disabled
+  value={`Sales Tax (6%): $${(totalAmount * 0.06).toFixed(2)}`}
+  style={{
+    width: "100%",
+    padding: "8px",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    marginTop: "10px",
+  }}
+/>
+
+<input
+  type="text"
+  placeholder="Total Amount"
+  disabled
+  value={`Total Amount: $${(totalAmount * 1.06).toFixed(2)}`}
+  style={{
+    width: "100%",
+    padding: "8px",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    marginTop: "10px",
+  }}
+/>
               {orderMode !== "dinein" && (
                 <>
                   <input
@@ -653,10 +678,10 @@ function Header() {
               )}
               <div
                 className="option-group"
-                style={{ marginTop: "10px", display: "flex", gap: "5rem" }}
+                style={{ marginTop: "10px", display: "flex", gap: "5rem", justifyContent: "space-evenly" }}
               >
                 {/* {["dinein", "delivery", "grab"].map((mode) => ( */}
-                {["dinein", "grab"].map((mode) => (
+                {["dinein", "pickup"].map((mode) => (
                   <label
                     key={mode}
                     style={{

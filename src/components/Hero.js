@@ -50,10 +50,12 @@ function Hero() {
     <section className="hero">
       <div className="container">
         <div className="hero-content">
+          <div className="header-container-div">
           <h1>
             Experience the <span>Taste</span> of the South
           </h1>
           <img src="/halal_food.png" alt="Halal" />
+          </div>
           <p
             style={{
               fontSize: "18px",

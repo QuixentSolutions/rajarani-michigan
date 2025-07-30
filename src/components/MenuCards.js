@@ -13,6 +13,37 @@ function Menu() {
 
   return (
     <div className="menu-container">
+      <div className="section-titles" style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "10px", padding: "10px",marginBottom:"20px"}}>
+        {menuData.menuSections.map((section, index) => {
+          // eslint-disable-next-line
+          const sectionId = section.title.replace(/[\/\s]+/g, '-'); // Replace / and spaces with -
+          return (
+            <a
+              key={index}
+              href={`#${sectionId}`}
+              style={{
+                textDecoration: "none",
+                color: "white",
+                fontWeight: "bold",
+                padding: "5px 10px",
+                border: "1px solid #ccc",
+                borderRadius: "5px",
+                cursor: "pointer",
+                backgroundColor: "#333",
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                const target = document.querySelector(`#${sectionId}`);
+                if (target) {
+                  target.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+            >
+              {section.title}
+            </a>
+          );
+        })}
+      </div>
       <h1
         style={{
           textAlign: "center",
@@ -23,99 +54,103 @@ function Menu() {
         OUR MENU
       </h1>
       <div className="menu-sections">
-        {menuData.menuSections.map((section, index) => (
-          <div key={index} className="menu-section">
-            <h2
-              className={`section-title ${
-                section.title.includes("Non-Veg") ||
-                section.title.includes("N Veg")
-                  ? "non-veg"
-                  : ""
-              }`}
-            >
-              {section.title}
-            </h2>
-            <ul className="menu-items">
-              {section.items.map((item, itemIndex) => {
-                const qty = cartItems[item.name]?.quantity || 0;
-                const price = item.newPrice || item.price || 0;
-                return (
-                  <li
-                    key={itemIndex}
-                    className="menu-item"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      marginBottom: "10px",
-                    }}
-                  >
-                    <span style={{ flex: "1", background: "white" }}>
-                      {item.name}
-                    </span>
-                    <span
-                      className="price"
-                      style={{
-                        margin: "0 10px",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {item.newPrice && (
-                        <span className="new-price">{item.newPrice}</span>
-                      )}
-                      {!item.newPrice && item.price && (
-                        <span className="price">{item.price}</span>
-                      )}
-                    </span>
-                    <div
+        {menuData.menuSections.map((section, index) => {
+          // eslint-disable-next-line
+          const sectionId = section.title.replace(/[\/\s]+/g, '-'); // Replace / and spaces with -
+          return (
+            <div key={index} className="menu-section">
+              <h2
+                id={sectionId}
+                className={`section-title ${
+                  section.title.includes("Non-Veg") || section.title.includes("N Veg")
+                    ? "non-veg"
+                    : ""
+                }`}
+              >
+                {section.title}
+              </h2>
+              <ul className="menu-items">
+                {section.items.map((item, itemIndex) => {
+                  const qty = cartItems[item.name]?.quantity || 0;
+                  const price = item.newPrice || item.price || 0;
+                  return (
+                    <li
+                      key={itemIndex}
+                      className="menu-item"
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
-                        // background: "white",
+                        justifyContent: "space-between",
+                        marginBottom: "10px",
                       }}
                     >
-                      <FaMinus
-                        style={{
-                          cursor: "pointer",
-                          fontSize: "16px",
-                          marginRight: "5px",
-                          // color: qty > 0 ? "white" : "#ccc",
-                          // background: "white",
-                        }}
-                        onClick={() =>
-                          handleQuantityChange(item.name, -1, price)
-                        }
-                      />
+                      <span style={{ flex: "1", background: "white" }}>
+                        {item.name}
+                      </span>
                       <span
+                        className="price"
                         style={{
-                          fontSize: "16px",
-                          width: "20px",
-                          textAlign: "center",
+                          margin: "0 10px",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {item.newPrice && (
+                          <span className="new-price">{item.newPrice}</span>
+                        )}
+                        {!item.newPrice && item.price && (
+                          <span className="price">{item.price}</span>
+                        )}
+                      </span>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
                           // background: "white",
                         }}
                       >
-                        {qty}
-                      </span>
-                      <FaPlus
-                        style={{
-                          cursor: "pointer",
-                          fontSize: "16px",
-                          marginLeft: "5px",
-                          // color: "white",
-                          // background: "white",
-                        }}
-                        onClick={() =>
-                          handleQuantityChange(item.name, 1, price)
-                        }
-                      />
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+                        <FaMinus
+                          style={{
+                            cursor: "pointer",
+                            fontSize: "16px",
+                            marginRight: "5px",
+                            // color: qty > 0 ? "white" : "#ccc",
+                            // background: "white",
+                          }}
+                          onClick={() =>
+                            handleQuantityChange(item.name, -1, price)
+                          }
+                        />
+                        <span
+                          style={{
+                            fontSize: "16px",
+                            width: "20px",
+                            textAlign: "center",
+                            // background: "white",
+                          }}
+                        >
+                          {qty}
+                        </span>
+                        <FaPlus
+                          style={{
+                            cursor: "pointer",
+                            fontSize: "16px",
+                            marginLeft: "5px",
+                            // color: "white",
+                            // background: "white",
+                          }}
+                          onClick={() =>
+                            handleQuantityChange(item.name, 1, price)
+                          }
+                        />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

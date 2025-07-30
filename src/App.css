@@ -6,7 +6,7 @@
 }
 
 body {
-  background: url('/public/bg1.png') no-repeat center center fixed;
+  background: url('/public/bg-2.jpeg') no-repeat center center fixed;
   background-size: cover;
   color: #fff;
   background-size: cover;
@@ -343,13 +343,13 @@ footer p {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  display: flex;
+  /* display: flex; */
   justify-content: space-between;
   align-items: center;
 }
 
 .hero-content {
-  max-width: 50%;
+  /* max-width: 50%; */
 }
 
 .hero h1 {
@@ -901,6 +901,7 @@ header {
 }
 
 .menu-section {
+  height: max-content;
   background: #fff;
   border-radius: 10px;
   padding: 20px;
@@ -1000,8 +1001,8 @@ header {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
+  /* display: flex; */
+  /* flex-wrap: wrap; */
   gap: 2rem;
   align-items: center;
   /* margin-top: 70px; */
@@ -1009,7 +1010,7 @@ header {
 
 .hero-content {
   flex: 1;
-  min-width: 300px;
+  /* min-width: 300px; */
 }
 
 .hero-carousel {
@@ -1465,4 +1466,59 @@ button[aria-label="Cart"] {
   background: transparent;
   color: white;
   cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .header-container-div {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+  }
+}
+
+.footer-section {
+  flex: 1;
+  min-width: 250px;
+}
+
+.footer-section h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  margin-top: 20px;
+}
+
+.hours-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap:20px;
+}
+
+.hours-item {
+  margin: 5px 0;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #555;
+}
+
+@media (max-width: 767px) {
+  .footer-section {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .hours-list {
+    text-align: left;
+    margin: 0 auto;
+    max-width: 250px;
+    display: block;
+  }
+  .footer-details p {
+    justify-content: center;
+  }
 }

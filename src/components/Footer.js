@@ -8,13 +8,13 @@ function Footer() {
   };
 
   const operatingHours = {
+    Monday: "Closed",
+    Tuesday: "11:30 am–3 pm, 5–9:30 pm",
     Wednesday: "11:30 am–3 pm, 5–9:30 pm",
     Thursday: "11:30 am–3 pm, 5–9:30 pm",
     Friday: "11:30 am–3 pm, 5–10 pm",
     Saturday: "11:30 am–3 pm, 5–10 pm",
     Sunday: "11:30 am–3 pm, 5–9 pm",
-    Monday: "Closed",
-    Tuesday: "11:30 am–3 pm, 5–9:30 pm",
   };
 
   return (

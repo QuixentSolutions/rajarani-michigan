@@ -119,10 +119,6 @@ function Header() {
     const timestamp = Date.now();
     const orderId = `#ORD${timestamp.toString().slice(-4)}`;
 
-    const total_amount = Object.entries(cartItems).reduce(
-      (sum, [_, { quantity, price }]) => sum + quantity * price,
-      0
-    );
     const orderDetailsFlat = Object.entries(cartItems)
       .map(
         ([name, { quantity, price }]) =>
@@ -135,8 +131,10 @@ function Header() {
       order_mode: String(orderMode),
       order_id: String(orderId),
       mobile_number: String(mobileNumber),
-      total_amount: total_amount.toFixed(2),
-      address: address ? String(address) : String(tableNumber),
+      sub_total:totalAmount.toFixed(2),
+      sales_tax:(totalAmount * 0.06).toFixed(2),
+      total_amount:(totalAmount * 1.06).toFixed(2),
+      address: address ? String(address) : `Table ${tableNumber}`,
       order_details: orderDetailsFlat,
     };
     setIsLoading(true);
@@ -233,9 +231,8 @@ function Header() {
             Your order has been placed and a confirmation email has been sent
             with all the details. - <strong>{successOrderId}</strong>
           </p>
-          <p style={{fontWeight: "bold",marginTop: "20px"}}>You can scan to pay or pay at the counter</p>
           <p style={{ marginTop: "20px" }}>
-            <strong>Scan to Pay:</strong>
+            <strong>You can scan to pay or pay at the counter</strong>
           </p>
           <img
             src="https://rajarani-michigan.s3.us-east-2.amazonaws.com/general/qr.png"
@@ -698,7 +695,12 @@ function Header() {
                       name="orderType"
                       value={mode}
                       checked={orderMode === mode}
-                      onChange={() => setOrderMode(mode)}
+                      onChange={() => {
+                                setOrderMode(mode);
+                                if (mode === "pickup") {
+                                  setAddress("Pickup");
+                                }
+                              }}
                       style={{ marginBottom: "3px" }}
                     />
                     {mode === "grab" ? (

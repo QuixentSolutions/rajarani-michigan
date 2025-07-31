@@ -348,9 +348,9 @@ footer p {
   align-items: center;
 }
 
-.hero-content {
-  /* max-width: 50%; */
-}
+/* .hero-content {
+  max-width: 50%;
+} */
 
 .hero h1 {
   font-size: 48px;
@@ -1048,7 +1048,7 @@ header {
 
 .shimmer-effect {
   width: 100%;
-  padding-top: 100%;
+  padding-top: 40%;
   background: linear-gradient(
     to right,
     #f0f0f0 0%,

@@ -1,38 +1,13 @@
 .review-banner {
-  position: relative;
-    background-color: white;
-    padding: 20px;
-    font-weight: bold;
-    font-size: 1.2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    width: 85%;
-    /* max-width: 353px; */
-    margin: 20px auto;
-    padding: 35px;
-        color: #333;
+   display: flex;
+  justify-content: center;  /* center horizontally */
+  align-items: center;      /* center vertically */
+  height: 300px;            /* set a height */
+  /* border: 1px solid #ccc;   */
 }
 
-.review-text {
+
+.review-banner a img {
   display: block;
-  text-align: center;
-  padding-right: 40px;
-}
-
-.google-icon {
-     position: absolute;
-    right: 20px;
-    bottom: 10px;
-    color: #DB4437;
-    font-size: 30px;
-}
-
-@media (max-width: 768px) {
-    .google-icon {
-    position: absolute;
-    right: 15px;
-    bottom: 10px;
-    color: #DB4437;
-    font-size: 30px;
-    }
+  margin: 0 auto;
 }

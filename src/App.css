@@ -1581,3 +1581,25 @@ button[aria-label="Cart"] {
     column-count: 1;
   }
 }
+
+
+.hours-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+.hours-table th,
+.hours-table td {
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.hours-table th {
+  font-weight: bold;
+}
+
+

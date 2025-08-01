@@ -56,13 +56,22 @@ function Footer() {
           </div>
           <div className="footer-section">
             <h3>OPERATING HOURS</h3>
-            <ul className="hours-list">
-              {Object.entries(operatingHours).map(([day, hours]) => (
-                <li key={day} className="hours-item">
-                  <strong>{day}:</strong> {hours}
-                </li>
-              ))}
-            </ul>
+            <table className="hours-table">
+              <thead>
+                <tr>
+                  <th>Day</th>
+                  <th>Hours</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(operatingHours).map(([day, hours]) => (
+                  <tr key={day}>
+                    <td>{day}</td>
+                    <td>{hours}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
         <div className="footer-bottom">

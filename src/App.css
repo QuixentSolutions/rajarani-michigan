@@ -941,17 +941,6 @@ header {
   transform: translateY(-50%);
 }
 
-.section-title:not(.non-veg):not(.n-veg) {
-  background: #006600;
-}
-
-.non-veg {
-  background: #cc0000;
-}
-
-.n-veg {
-  background: #cc0000;
-}
 
 .menu-items {
   list-style: none;

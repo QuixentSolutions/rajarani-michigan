@@ -72,12 +72,17 @@ function Menu() {
             <div key={index} className="menu-section">
               <h2
                 id={sectionId}
-                className={`section-title ${
-                  section.title.includes("Non-Veg") ||
-                  section.title.includes("N Veg")
-                    ? "non-veg"
-                    : ""
-                }`}
+                style={{
+                  textDecoration: "none",
+                  color: "white",
+                  fontWeight: "bold",
+                  padding: "5px 10px",
+                  border: "1px solid #ccc",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  backgroundColor: section.color,
+                }}
+                className={`section-title`}
               >
                 {section.title}
               </h2>

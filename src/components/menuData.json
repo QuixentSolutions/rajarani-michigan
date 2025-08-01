@@ -1,29 +1,35 @@
 {
   "menuSections": [
     {
-      "title": "Must Try/People Choice/People Favorite",
+      "title": "People Choice",
+      "color": "#FFA500",
       "items": [
         { "name": "Veg Samosa", "newPrice": "5.99", "oldPrice": null },
         {
-          "name": "Butter Chicken/Tikka Masala",
+          "name": "Butter Chicken Masala",
           "newPrice": "15.99",
           "oldPrice": "16.99"
         },
         {
-          "name": "Shrimp Tikka Masala",
-          "newPrice": "17.99",
-          "oldPrice": null
-        },
-        {
-          "name": "Paneer Butter/Tikka Masala",
+          "name": "Chicken Tikka Masala",
           "newPrice": "15.99",
           "oldPrice": "16.99"
         },
-        { "name": "Lamb Tikka Masala", "newPrice": "17.99", "oldPrice": null }
+        {
+          "name": "Paneer Butter Masala",
+          "newPrice": "15.99",
+          "oldPrice": "16.99"
+        },
+        {
+          "name": "Paneer Tikka Masala",
+          "newPrice": "15.99",
+          "oldPrice": "16.99"
+        }
       ]
     },
     {
       "title": "Raja Rani Hand Crafted Menu",
+      "color": "#FFA500",
       "items": [
         { "name": "Broccoli 65", "newPrice": "14.99", "oldPrice": null },
         { "name": "Parotta Veg Salna", "newPrice": "16.99", "oldPrice": null },
@@ -38,6 +44,7 @@
     },
     {
       "title": "Idly & Vada",
+      "color": "green",
       "items": [
         { "name": "Idly (3pcs)", "newPrice": "9.99", "oldPrice": "52" },
         { "name": "Ghee Podi Idly", "newPrice": "9.99", "oldPrice": "2" },
@@ -58,6 +65,7 @@
     },
     {
       "title": "Dosa Varieties",
+      "color": "#FFA500",
       "items": [
         { "name": "Plain Dosa", "newPrice": "10.99", "oldPrice": "11" },
         { "name": "Andhra Kara Dosa", "newPrice": "11.99", "oldPrice": null },
@@ -76,16 +84,8 @@
       ]
     },
     {
-      "title": "South Indian Patti Special",
-      "items": [
-        { "name": "Thutuvilai Dosa", "newPrice": null, "oldPrice": null },
-        { "name": "Mudakathan Dosa", "newPrice": null, "oldPrice": null },
-        { "name": "Gongura Dos", "newPrice": null, "oldPrice": null },
-        { "name": "Pirandai Dosa", "newPrice": null, "oldPrice": null }
-      ]
-    },
-    {
       "title": "Soups & Broth",
+      "color": "#FFA500",
       "items": [
         {
           "name": "Nattu Kozhi Chicken Soup",
@@ -103,6 +103,7 @@
     },
     {
       "title": "Chats",
+      "color": "green",
       "items": [
         { "name": "Aloo Tikki Chat", "newPrice": "8.99", "oldPrice": "10" },
         { "name": "Kachori Chat", "newPrice": "8.99", "oldPrice": "17" },
@@ -117,6 +118,7 @@
     },
     {
       "title": "Street Side Specials",
+      "color": "#FFA500",
       "items": [
         { "name": "Chole Bhature", "newPrice": "13.99", "oldPrice": "41" },
         { "name": "Egg Kothu Parota", "newPrice": "15.99", "oldPrice": "33" },
@@ -140,6 +142,7 @@
     },
     {
       "title": "Appetizer Veg",
+      "color": "green",
       "items": [
         { "name": "Onion Pakoda", "newPrice": "7.99", "oldPrice": "71" },
         { "name": "Onion Samosa", "newPrice": "6.99", "oldPrice": "33" },
@@ -156,6 +159,7 @@
     },
     {
       "title": "Appetizer Non Veg",
+      "color": "red",
       "items": [
         { "name": "Chicken 65", "newPrice": "14.99", "oldPrice": "75" },
         { "name": "Chicken 555", "newPrice": "15.99", "oldPrice": "43" },
@@ -203,16 +207,12 @@
           "name": "Chicken Majestic Appetizer",
           "newPrice": "15.99",
           "oldPrice": null
-        },
-        {
-          "name": "Shrimp Majestic Appetizer",
-          "newPrice": "17.99",
-          "oldPrice": null
         }
       ]
     },
     {
       "title": "Tandoori",
+      "color": "#FFA500",
       "items": [
         { "name": "Paneer Tikka", "newPrice": "16.99", "oldPrice": null },
         { "name": "Chicken Tikka", "newPrice": "17.99", "oldPrice": null },
@@ -233,6 +233,7 @@
     },
     {
       "title": "Veg Entrée",
+      "color": "green",
       "items": [
         { "name": "Malai Kofta", "newPrice": "14.99", "oldPrice": null },
         {
@@ -266,6 +267,7 @@
     },
     {
       "title": "Non-Veg Entrée / Chicken",
+      "color": "red",
       "items": [
         {
           "name": "Hyderabadi Chicken Curry",
@@ -297,6 +299,7 @@
     },
     {
       "title": "Non-Veg Entrée / Goat or Lamb",
+      "color": "red",
       "items": [
         {
           "name": "Hyderabadi Goat / Lamb Curry",
@@ -324,6 +327,7 @@
     },
     {
       "title": "Non-Veg Entrée / Seafood",
+      "color": "red",
       "items": [
         { "name": "Fish Curry", "newPrice": "16.99", "oldPrice": "8" },
         { "name": "Malabar Fish Curry", "newPrice": "16.99", "oldPrice": "9" },
@@ -333,6 +337,7 @@
     },
     {
       "title": "Biryani",
+      "color": "#FFA500",
       "items": [
         {
           "name": "Vegetable Dum Biryani",
@@ -358,7 +363,8 @@
       ]
     },
     {
-      "title": "Special Biryani",
+      "title": "#FFA500 Biryani",
+      "color": "green",
       "items": [
         { "name": "Gongura Veg Biryani", "newPrice": "15.99", "oldPrice": "8" },
         {
@@ -395,6 +401,7 @@
     },
     {
       "title": "Breads",
+      "color": "green",
       "items": [
         { "name": "Tandoor Roti", "newPrice": "1.99", "oldPrice": null },
         { "name": "Plain Naan", "newPrice": "1.99", "oldPrice": null },
@@ -408,6 +415,7 @@
     },
     {
       "title": "Kids Menu",
+      "color": "#FFA500",
       "items": [
         { "name": "Cone Cheese Dosa", "newPrice": "5.99", "oldPrice": "6" },
         { "name": "French Fries", "newPrice": "5.99", "oldPrice": null },
@@ -417,6 +425,7 @@
     },
     {
       "title": "Desserts",
+      "color": "green",
       "items": [
         { "name": "Gulab Jamun", "newPrice": "4.99", "oldPrice": null },
         { "name": "Rasamalai", "newPrice": "4.99", "oldPrice": null }
@@ -424,6 +433,7 @@
     },
     {
       "title": "Beverages",
+      "color": "green",
       "items": [
         { "name": "Masala Chai", "newPrice": "2.99", "oldPrice": null },
         { "name": "Madras Coffee", "newPrice": "3.99", "oldPrice": null },
@@ -436,6 +446,7 @@
     },
     {
       "title": "Lunch Platters",
+      "color": "#FFA500",
       "items": [
         { "name": "Veg Thali", "newPrice": "12.99", "oldPrice": null },
         { "name": "Non Veg Thali", "newPrice": "14.99", "oldPrice": null },
@@ -453,6 +464,7 @@
     },
     {
       "title": "Extras",
+      "color": "green",
       "items": [
         { "name": "Raitha (4oz)", "newPrice": "0.99", "oldPrice": "34" },
         { "name": "Sweet Paan", "newPrice": "2.99", "oldPrice": "22" },

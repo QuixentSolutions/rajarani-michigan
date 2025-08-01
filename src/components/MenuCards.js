@@ -13,10 +13,30 @@ function Menu() {
 
   return (
     <div className="menu-container">
-      <div className="section-titles" style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "10px", padding: "10px",marginBottom:"20px"}}>
+      <h1
+        style={{
+          textAlign: "center",
+          fontSize: "28px",
+          fontWeight: "bold",
+        }}
+      >
+        OUR MENU
+      </h1>
+      <div
+        className="section-titles"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          gap: "10px",
+          padding: "10px",
+          marginBottom: "20px",
+        }}
+      >
         {menuData.menuSections.map((section, index) => {
           // eslint-disable-next-line
-          const sectionId = section.title.replace(/[\/\s]+/g, '-'); // Replace / and spaces with -
+          const sectionId = section.title.replace(/[\/\s]+/g, "-"); // Replace / and spaces with -
+          console.log(sectionId);
           return (
             <a
               key={index}
@@ -29,7 +49,7 @@ function Menu() {
                 border: "1px solid #ccc",
                 borderRadius: "5px",
                 cursor: "pointer",
-                backgroundColor: "#333",
+                backgroundColor: section.color,
               }}
               onClick={(e) => {
                 e.preventDefault();
@@ -44,25 +64,17 @@ function Menu() {
           );
         })}
       </div>
-      <h1
-        style={{
-          textAlign: "center",
-          fontSize: "28px",
-          fontWeight: "bold",
-        }}
-      >
-        OUR MENU
-      </h1>
       <div className="menu-sections">
         {menuData.menuSections.map((section, index) => {
           // eslint-disable-next-line
-          const sectionId = section.title.replace(/[\/\s]+/g, '-'); // Replace / and spaces with -
+          const sectionId = section.title.replace(/[\/\s]+/g, "-"); // Replace / and spaces with -
           return (
             <div key={index} className="menu-section">
               <h2
                 id={sectionId}
                 className={`section-title ${
-                  section.title.includes("Non-Veg") || section.title.includes("N Veg")
+                  section.title.includes("Non-Veg") ||
+                  section.title.includes("N Veg")
                     ? "non-veg"
                     : ""
                 }`}

@@ -9,6 +9,7 @@ import WhatsAppFloatingButton from "./components/WhatsAppFloatingButton";
 // import PhotoStream from "./components/PhotoStream";
 import { Provider } from "react-redux";
 import { store } from "./store";
+import ReviewBanner from "./components/ReviewBanner";
 // import VideoStream from "./components/VideoStream";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
     <Provider store={store}>
       <div className="whole-container">
         <Header />
+        <ReviewBanner />
         <Hero />
         <Discount />
         {/* <BestDelivered /> */}

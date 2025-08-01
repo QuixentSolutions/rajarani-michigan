@@ -22,8 +22,101 @@ function Discount() {
   };
   const discountImages = validImages.slice(0, 10);
   return (
-    <div className="dis-container">
-      <h2
+    // <div className="dis-container">
+    //   <h2
+    //     style={{
+    //       color: "white",
+    //       textAlign: "center",
+    //       margin: "20px 0",
+    //       fontSize: "24px",
+    //       fontWeight: "bold",
+    //     }}
+    //   >
+    //     PROMOTIONS
+    //   </h2>
+    //   <div className="responsive-wrapper">
+    //     <Carousel
+    //       infiniteLoop
+    //       autoPlay
+    //       interval={3000}
+    //       showThumbs={false}
+    //       showStatus={false}
+    //       className="hero-carousel"
+    //     >
+    //       {discountImages.map((image, index) => (
+    //         <div
+    //           key={index}
+    //           style={{
+    //             // flex: "1 1 calc(33.33% - 20px)",
+    //             // maxWidth: "calc(33.33% - 20px)",
+    //             boxSizing: "border-box",
+    //             overflow: "hidden",
+    //             border: "2px solid #ccc",
+    //             background: "white",
+    //             padding: "12px",
+    //           }}
+    //         >
+    //           <img
+    //             src={image}
+    //             alt={`Gallery View ${index + 1}`}
+    //             className="carousel-image"
+    //             onError={() => handleImageError(index)}
+    //           />
+    //         </div>
+    //       ))}
+    //     </Carousel>
+
+    //     {/* {discountImages.length > 0 ? (
+    //       discountImages.map((image, index) => (
+    //         <div
+    //           key={index}
+    //           style={{
+    //             // flex: "1 1 calc(33.33% - 20px)",
+    //             // maxWidth: "calc(33.33% - 20px)",
+    //             boxSizing: "border-box",
+    //             overflow: "hidden",
+    //             border: "2px solid #ccc",
+    //             background: "white",
+    //             padding: "12px",
+    //           }}
+    //         >
+    //           <img
+    //             className="dis-img"
+    //             src={image}
+    //             alt={`Promotion ${index + 1}`}
+    //             onError={() => handleImageError(index)}
+    //             onMouseOver={(e) =>
+    //               (e.currentTarget.style.transform = "scale(1.05)")
+    //             }
+    //             onMouseOut={(e) =>
+    //               (e.currentTarget.style.transform = "scale(1)")
+    //             }
+    //           />
+    //         </div>
+    //       ))
+    //     ) : (
+    //       <p
+    //         style={{
+    //           textAlign: "center",
+    //           margin: "0 auto",
+    //           padding: "20px 0",
+    //           width: "100%",
+    //           display: "flex",
+    //           justifyContent: "center",
+    //           alignItems: "center",
+    //           color: "white",
+    //           fontSize: "18px",
+    //         }}
+    //       >
+    //         No images available
+    //       </p>
+    //     )} */}
+    //   </div>
+    // </div>
+     <section className="hero">
+          
+          <div className="container">
+             <h2
         style={{
           color: "white",
           textAlign: "center",
@@ -34,85 +127,33 @@ function Discount() {
       >
         PROMOTIONS
       </h2>
-      <div className="responsive-wrapper">
-        <Carousel
-          infiniteLoop
-          autoPlay
-          interval={3000}
-          showThumbs={false}
-          showStatus={false}
-          className="hero-carousel"
-        >
-          {discountImages.map((image, index) => (
-            <div
-              key={index}
-              style={{
-                // flex: "1 1 calc(33.33% - 20px)",
-                // maxWidth: "calc(33.33% - 20px)",
-                boxSizing: "border-box",
-                overflow: "hidden",
-                border: "2px solid #ccc",
-                background: "white",
-                padding: "12px",
-              }}
-            >
-              <img
-                src={image}
-                alt={`Gallery View ${index + 1}`}
-                className="carousel-image"
-                onError={() => handleImageError(index)}
-              />
-            </div>
-          ))}
-        </Carousel>
-
-        {/* {discountImages.length > 0 ? (
-          discountImages.map((image, index) => (
-            <div
-              key={index}
-              style={{
-                // flex: "1 1 calc(33.33% - 20px)",
-                // maxWidth: "calc(33.33% - 20px)",
-                boxSizing: "border-box",
-                overflow: "hidden",
-                border: "2px solid #ccc",
-                background: "white",
-                padding: "12px",
-              }}
-            >
-              <img
-                className="dis-img"
-                src={image}
-                alt={`Promotion ${index + 1}`}
-                onError={() => handleImageError(index)}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.transform = "scale(1.05)")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.transform = "scale(1)")
-                }
-              />
-            </div>
-          ))
-        ) : (
-          <p
-            style={{
-              textAlign: "center",
-              margin: "0 auto",
-              padding: "20px 0",
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              color: "white",
-              fontSize: "18px",
-            }}
-          >
-            No images available
-          </p>
-        )} */}
-      </div>
-    </div>
+            { discountImages.length === 0 ? (
+              <div className="hero-carousel shimmer">
+                <div className="shimmer-effect">Loading......</div>
+              </div>
+            ) : (
+              <Carousel
+                infiniteLoop
+                autoPlay
+                interval={3000}
+                showThumbs={false}
+                showStatus={false}
+                className="hero-carousel"
+              >
+                {discountImages.map((image, index) => (
+                  <div key={index}>
+                    <img
+                      src={image}
+                      alt={`Gallery View ${index + 1}`}
+                      className="carousel-image"
+                      onError={() => handleImageError(index)}
+                    />
+                  </div>
+                ))}
+              </Carousel>
+            )}
+          </div>
+        </section>
   );
 }
 

@@ -6,12 +6,12 @@
       "items": [
         { "name": "Veg Samosa", "newPrice": "5.99", "oldPrice": null },
         {
-          "name": "Butter Chicken Masala",
+          "name": "Butter Chicken",
           "newPrice": "15.99",
           "oldPrice": "16.99"
         },
         {
-          "name": "Chicken Tikka Masala",
+          "name": "Chicken vindaloo",
           "newPrice": "15.99",
           "oldPrice": "16.99"
         },
@@ -21,7 +21,7 @@
           "oldPrice": "16.99"
         },
         {
-          "name": "Paneer Tikka Masala",
+          "name": "Palak Paneer",
           "newPrice": "15.99",
           "oldPrice": "16.99"
         }
@@ -57,7 +57,7 @@
         { "name": "Medu Vada (2 pcs)", "newPrice": "5.99", "oldPrice": "47" },
         { "name": "Curd Vada (2pcs)", "newPrice": "8.99", "oldPrice": null },
         {
-          "name": "Punugulu w Aplli Chutney",
+          "name": "Pongal w Palli Chutney",
           "newPrice": "9.99",
           "oldPrice": null
         }
@@ -204,8 +204,13 @@
         { "name": "Shrimp 65", "newPrice": "17.99", "oldPrice": "5" },
         { "name": "Karampodi Shrimp", "newPrice": "17.99", "oldPrice": "6" },
         {
-          "name": "Chicken Majestic Appetizer",
+          "name": "Chicken Majestic",
           "newPrice": "15.99",
+          "oldPrice": null
+        },
+        {
+          "name": "Shrimp Majestic",
+          "newPrice": "17.99",
           "oldPrice": null
         }
       ]
@@ -298,30 +303,47 @@
       ]
     },
     {
-      "title": "Non-Veg Entrée / Goat or Lamb",
+      "title": "Non-Veg Entrée Goat",
       "color": "red",
       "items": [
         {
-          "name": "Hyderabadi Goat / Lamb Curry",
+          "name": "Hyderabadi Goat Curry",
           "newPrice": "17.99",
           "oldPrice": "31"
         },
-        { "name": "Goat / Lamb Kurma", "newPrice": "17.99", "oldPrice": "18" },
+        { "name": "Goat Kurma", "newPrice": "17.99", "oldPrice": "18" },
         {
-          "name": "Goat / Lamb Chettinad",
+          "name": "Goat Chettinad",
           "newPrice": "17.99",
           "oldPrice": "12"
         },
         {
-          "name": "Goat / Lamb Rogan Josh",
+          "name": "Goat Rogan Josh",
           "newPrice": "17.99",
           "oldPrice": "16"
         },
-        { "name": "Kadai Ghosh", "newPrice": "17.99", "oldPrice": "5" },
+        { "name": "Kadai Ghosh", "newPrice": "17.99", "oldPrice": "5" }
+      ]
+    },
+    {
+      "title": "Non-Veg Entrée Lamb",
+      "color": "red",
+      "items": [
         {
-          "name": "Mutton/Lamb Kali Mirchi",
+          "name": "Hyderabadi Lamb Curry",
           "newPrice": "17.99",
-          "oldPrice": null
+          "oldPrice": "31"
+        },
+        { "name": "Lamb Kurma", "newPrice": "17.99", "oldPrice": "18" },
+        {
+          "name": "Lamb Chettinad",
+          "newPrice": "17.99",
+          "oldPrice": "12"
+        },
+        {
+          "name": "Lamb Rogan Josh",
+          "newPrice": "17.99",
+          "oldPrice": "16"
         }
       ]
     },
@@ -363,8 +385,8 @@
       ]
     },
     {
-      "title": "#FFA500 Biryani",
-      "color": "green",
+      "title": "Special Biryani",
+      "color": "#FFA500",
       "items": [
         { "name": "Gongura Veg Biryani", "newPrice": "15.99", "oldPrice": "8" },
         {
@@ -396,6 +418,11 @@
           "name": "Mutton Ghee Roast with Khuska (Jeeraga Samba)",
           "newPrice": "19.99",
           "oldPrice": "17"
+        },
+        {
+          "name": "Egg Ghee Roast with Khuska (Jeeraga Samba)",
+          "newPrice": "16.99",
+          "oldPrice": null
         }
       ]
     },
@@ -417,7 +444,7 @@
       "title": "Kids Menu",
       "color": "#FFA500",
       "items": [
-        { "name": "Cone Cheese Dosa", "newPrice": "5.99", "oldPrice": "6" },
+        { "name": "Cone Cheese Dosa", "newPrice": "6.99", "oldPrice": "6" },
         { "name": "French Fries", "newPrice": "5.99", "oldPrice": null },
         { "name": "Chicken Nugget", "newPrice": "6.99", "oldPrice": null },
         { "name": "Cheese Nugget", "newPrice": "5.99", "oldPrice": null }
@@ -448,8 +475,6 @@
       "title": "Lunch Platters",
       "color": "#FFA500",
       "items": [
-        { "name": "Veg Thali", "newPrice": "12.99", "oldPrice": null },
-        { "name": "Non Veg Thali", "newPrice": "14.99", "oldPrice": null },
         {
           "name": "Vegetarian Lunch Platter",
           "newPrice": "12.99",

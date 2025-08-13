@@ -2,6 +2,7 @@ import Header from "./components/Header";
 import Hero from "./components/Hero";
 import Discount from "./components/Discount";
 import MenuCards from "./components/MenuCards";
+import RegistrationCard from "./components/RegistrationCard";
 // import BestDelivered from "./components/BestDelivered";
 import Footer from "./components/Footer";
 import "./App.css";
@@ -20,6 +21,7 @@ function App() {
         <ReviewBanner />
         <Hero />
         <Discount />
+        <RegistrationCard />
         {/* <BestDelivered /> */}
         <MenuCards />
         {/* <VideoStream /> */}

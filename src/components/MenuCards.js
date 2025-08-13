@@ -1,18 +1,33 @@
 import { useDispatch, useSelector } from "react-redux";
-import { FaPlus, FaMinus } from "react-icons/fa";
+import { FaPlus, FaMinus, FaShoppingCart } from "react-icons/fa";
 import menuData from "./menuData.json";
 import { updateQuantity } from "../cartSlice";
+import { useState, useEffect } from "react";
+import "./MenuCards.css";
 
 function Menu() {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
+  const [notification, setNotification] = useState(null);
 
-  const handleQuantityChange = (itemName, change, price) => {
+  const handleQuantityChange = (itemName, change, price, event) => {
+    // Dispatch the action first
     dispatch(updateQuantity({ itemName, change, price }));
+
+    if (change === 1) {
+      // Calculate the new quantity based on the current cart state and the change
+      const currentQty = cartItems[itemName]?.quantity || 0;
+      const newQty = currentQty + change;
+      setNotification(<span><FaShoppingCart /> {itemName} ({newQty}) added!</span>);
+      setTimeout(() => {
+        setNotification(null);
+      }, 1500); 
+    }
   };
 
   return (
     <div className="menu-container">
+      {notification && <div className="item-added-notification">{notification}</div>}
       <h1
         style={{
           textAlign: "center",
@@ -123,7 +138,7 @@ function Menu() {
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          // background: "white",
+                          
                         }}
                       >
                         <FaMinus
@@ -131,8 +146,7 @@ function Menu() {
                             cursor: "pointer",
                             fontSize: "16px",
                             marginRight: "5px",
-                            // color: qty > 0 ? "white" : "#ccc",
-                            // background: "white",
+                            
                           }}
                           onClick={() =>
                             handleQuantityChange(item.name, -1, price)
@@ -143,7 +157,7 @@ function Menu() {
                             fontSize: "16px",
                             width: "20px",
                             textAlign: "center",
-                            // background: "white",
+                            
                           }}
                         >
                           {qty}
@@ -153,11 +167,10 @@ function Menu() {
                             cursor: "pointer",
                             fontSize: "16px",
                             marginLeft: "5px",
-                            // color: "white",
-                            // background: "white",
+                           
                           }}
-                          onClick={() =>
-                            handleQuantityChange(item.name, 1, price)
+                          onClick={(e) =>
+                            handleQuantityChange(item.name, 1, price, e)
                           }
                         />
                       </div>

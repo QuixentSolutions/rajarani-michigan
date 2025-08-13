@@ -1,0 +1,32 @@
+.item-added-notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #FFA500; 
+  color: black; 
+  padding: 12px 20px; 
+  border-radius: 6px; 
+  z-index: 2000; 
+  font-size: 1.1em; 
+  animation: slide-in-fade-out 1.5s ease-out forwards; 
+}
+
+@keyframes slide-in-fade-out {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 20px) scale(0.9);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -20px) scale(1.1);
+  }
+}

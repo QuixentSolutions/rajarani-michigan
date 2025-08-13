@@ -36,7 +36,12 @@
         { "name": "Madurai Kari Dosa", "newPrice": "15.99", "oldPrice": null },
         { "name": "Kizhi Parotta", "newPrice": "15.99", "oldPrice": null },
         {
-          "name": "Parotta/Idly Natu Kozhi Salna",
+          "name": "Parotta W Natu Kozhi Salna",
+          "newPrice": "19.99",
+          "oldPrice": null
+        },
+        {
+          "name": "Idly W Natu Kozhi Salna",
           "newPrice": "19.99",
           "oldPrice": null
         }
@@ -149,7 +154,11 @@
         { "name": "Gobi 65", "newPrice": "13.99", "oldPrice": "43" },
         { "name": "Gobi Manchurian", "newPrice": "14.99", "oldPrice": "49" },
         { "name": "Paneer 65", "newPrice": "14.99", "oldPrice": "15" },
+        { "name": " Paneer Manchurian", "newPrice": "15.99", "oldPrice": "49" },
         { "name": "Chilli Paneer", "newPrice": "15.99", "oldPrice": "26" },
+        { "name": "Chilli Baby Corn", "newPrice": "14.99", "oldPrice": "26" },
+        { "name": " Baby Corn 65", "newPrice": "14.99", "oldPrice": "15" },
+
         {
           "name": "Baby Corn Manchurian",
           "newPrice": "14.99",
@@ -444,7 +453,7 @@
       "title": "Kids Menu",
       "color": "#FFA500",
       "items": [
-        { "name": "Cone Cheese Dosa", "newPrice": "6.99", "oldPrice": "6" },
+        { "name": "Cone Cheese Dosa", "newPrice": "9.99", "oldPrice": "6" },
         { "name": "French Fries", "newPrice": "5.99", "oldPrice": null },
         { "name": "Chicken Nugget", "newPrice": "6.99", "oldPrice": null },
         { "name": "Cheese Nugget", "newPrice": "5.99", "oldPrice": null }

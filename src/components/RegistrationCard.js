@@ -34,7 +34,7 @@ function RegistrationCard() {
       address: "N/A - Online Registration"
     };
 
-    emailjs.send('service_otcs6w9', 'template_l7xjm52', templateParams)
+    emailjs.send(process.env.REACT_APP_EMAILJS_SERVICE_ID, process.env.REACT_APP_EMAILJS_TEMPLATE_ID, templateParams)
       .then((response) => {
          console.log('SUCCESS!', response.status, response.text);
          alert('Registration Successful!');

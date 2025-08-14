@@ -5,17 +5,20 @@
   transform: translate(-50%, -50%);
   background-color: #FFA500; 
   color: black; 
-  padding: 12px 20px; 
-  border-radius: 6px; 
+  padding: 20px 30px; /* Increased padding for larger size */
+  border-radius: 8px; /* Slightly more rounded */
   z-index: 2000; 
-  font-size: 1.1em; 
+  font-size: 1.3em; /* Slightly larger font size */
   animation: slide-in-fade-out 1.5s ease-out forwards; 
+  text-align: center; /* Ensure text is centered */
+  min-width: 250px; /* Ensure a minimum width */
+  box-sizing: border-box; /* Include padding in width/height calculation */
 }
 
 @keyframes slide-in-fade-out {
   0% {
     opacity: 0;
-    transform: translate(-50%, 20px) scale(0.9);
+    transform: translate(-50%, 40px) scale(0.8);
   }
   20% {
     opacity: 1;
@@ -27,6 +30,6 @@
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -20px) scale(1.1);
+    transform: translate(-50%, -40px) scale(1.1);
   }
 }

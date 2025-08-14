@@ -1,70 +1,210 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 .registration-card-container {
-  background-color: #fff; /* Lighter background for contrast */
-  border-radius: 10px; /* Slightly more rounded corners */
-  padding: 30px; /* Increased padding */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* More prominent shadow */
-  max-width: 550px; /* Slightly wider */
-  margin: 60px auto; /* More margin to separate from other sections */
-  text-align: center;
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 25px 35px;
+    box-shadow: 
+        0 12px 28px rgba(0, 0, 0, 0.15),
+        0 2px 8px rgba(0, 0, 0, 0.08);
+    max-width: 480px;
+    margin: 50px auto;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
+}
+
+.registration-card-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #FFD700, #FFA500);
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.4s ease;
+}
+
+.registration-card-container:hover {
+    transform: translateY(-10px) scale(1.03);
+    box-shadow: 
+        0 20px 40px rgba(255, 165, 0, 0.25),
+        0 8px 25px rgba(0, 0, 0, 0.12);
+    border-color: #FFA500;
+}
+
+.registration-card-container:hover::before {
+    transform: scaleX(1);
 }
 
 .registration-card-container h2 {
-  color: #333; /* Darker text for headings */
-  margin-bottom: 30px; /* Increased margin below heading */
-  font-size: 2em; /* Larger heading */
-  font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 18px;
+    font-size: 2.4em;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    position: relative;
+    font-family: 'Poppins', sans-serif;
+}
+
+.registration-card-container h2::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #FFD700, #FFA500);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.registration-card-container:hover h2::after {
+    width: 80px;
 }
 
 .registration-form .form-group {
-  margin-bottom: 20px; /* Increased space between form groups */
-  text-align: left;
+    margin-bottom: 25px;
+    text-align: left;
+    position: relative;
 }
 
 .registration-form label {
-  display: block;
-  margin-bottom: 8px; /* Slightly more space below label */
-  font-weight: 500; /* Slightly lighter font weight */
-  color: #444; /* Slightly darker text for labels */
-  font-size: 1.1em;
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #34495e;
+    font-size: 1em;
+    letter-spacing: 0.3px;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.form-group:hover label {
+    color: #f39c12;
+    transform: translateX(3px);
 }
 
 .registration-form input[type="text"],
 .registration-form input[type="email"],
-.registration-form input[type="date"] {
-  width: 100%;
-  padding: 12px; /* Increased padding */
-  border: 1px solid #ccc; /* Softer border */
-  border-radius: 6px; /* Slightly more rounded input fields */
-  box-sizing: border-box;
-  font-size: 1em;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+.registration-form input[type="tel"] {
+    width: 100%;
+    padding: 14px 20px;
+    border: 2px solid #e1e8ed;
+    border-radius: 12px;
+    box-sizing: border-box;
+    font-size: 1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    background-color: #fff;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
 }
 
 .registration-form input[type="text"]:focus,
 .registration-form input[type="email"]:focus,
-.registration-form input[type="date"]:focus {
-  outline: none;
-  border-color: #FFA500; /* Yellow border on focus */
-  box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.2); /* Soft yellow shadow on focus */
+.registration-form input[type="tel"]:focus {
+    outline: none;
+    border-color: #FFA500;
+    box-shadow: 
+        0 0 0 4px rgba(255, 165, 0, 0.15),
+        0 4px 12px rgba(255, 165, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.registration-form input[type="text"]:hover,
+.registration-form input[type="email"]:hover,
+.registration-form input[type="tel"]:hover {
+    border-color: #f5c542;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .registration-form .register-button {
-  background-color: #FFA500; /* Project's yellow color */
-  color: white;
-  padding: 15px 30px; /* Larger button padding */
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1.1em; /* Slightly larger font */
-  font-weight: 600;
-  transition: background-color 0.3s ease, transform 0.2s ease; /* Added transform for subtle press effect */
+    background: linear-gradient(135deg, #FFA500, #FF8C00);
+    color: white;
+    padding: 18px 35px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1.15em;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.5px;
+    width: 100%;
+    margin-top: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 6px 20px rgba(255, 165, 0, 0.3);
+}
+
+.register-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    transition: left 0.6s ease;
 }
 
 .registration-form .register-button:hover {
-  background-color: #e69500; /* Slightly darker yellow on hover */
-  transform: translateY(-2px); /* Subtle lift on hover */
+    background: linear-gradient(135deg, #e69500, #cc7a00);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(255, 165, 0, 0.4);
+}
+
+.registration-form .register-button:hover::before {
+    left: 100%;
 }
 
 .registration-form .register-button:active {
-  transform: translateY(0); /* Press effect */
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(255, 165, 0, 0.3);
+}
+
+/* Input focus glow effect */
+.form-group::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255, 165, 0, 0.1), transparent);
+    border-radius: 12px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.form-group:hover::before {
+    opacity: 1;
+}
+
+/* Responsive design */
+@media (max-width: 520px) {
+    .registration-card-container {
+        max-width: 90%;
+        padding: 25px;
+        margin: 30px auto;
+    }
+    
+    .registration-card-container h2 {
+        font-size: 2em;
+    }
+    
+    .registration-form input[type="text"],
+    .registration-form input[type="email"],
+    .registration-form input[type="tel"] {
+        padding: 14px 16px;
+    }
 }

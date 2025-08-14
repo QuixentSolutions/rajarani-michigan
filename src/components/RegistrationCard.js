@@ -6,52 +6,75 @@ function RegistrationCard() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    date: ''
+    mobileNumber: '', // Add mobileNumber to state
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // Update all fields
     setFormData(prevState => ({
       ...prevState,
       [name]: value
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Registration Data:', formData);
 
-    // EmailJS parameters - mapping form data and providing placeholders
     const templateParams = {
       name: formData.name,
       email: formData.email,
-      date: formData.date, 
-      mobile_number: "N/A", 
+      to_email: formData.email, 
+      mobile_number: formData.mobileNumber, 
       order_mode: "3rd Anniversary Registration",
       sub_total: "0.00",
       sales_tax: "0.00",
       total_amount: "0.00",
-      address: "N/A - Online Registration"
+      address: "Online Registration for Anniversary Event"
     };
 
-    emailjs.send(process.env.REACT_APP_EMAILJS_SERVICE_ID, process.env.REACT_APP_EMAILJS_TEMPLATE_ID, templateParams)
-      .then((response) => {
-         console.log('SUCCESS!', response.status, response.text);
-         alert('Registration Successful!');
-         setFormData({
-          name: '',
-          email: '',
-          date: ''
-         });
-      },
-      (err) => {
-         console.log('FAILED...', err);
-         alert('Registration Failed. Please try again later.');
+    // Send data to MongoDB backend
+    try {
+      const response = await fetch('http://localhost:5000/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData), // Send formData to backend
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to save registration to database.');
+      }
+
+      console.log('Registration saved to DB:', data);
+
+      // Proceed with EmailJS only if DB save is successful
+      emailjs.send(process.env.REACT_APP_EMAILJS_SERVICE_ID, process.env.REACT_APP_EMAILJS_TEMPLATE_ID, templateParams)
+        .then((response) => {
+           console.log('EmailJS SUCCESS!', response.status, response.text);
+           alert('Registration Successful! Check your email for confirmation.');
+           setFormData({
+            name: '',
+            email: '',
+            mobileNumber: '', 
+           });
+        },
+        (err) => {
+           console.log('EmailJS FAILED...', err);
+           alert('Registration Failed (Email not sent). Please try again later.');
+        });
+    } catch (dbError) {
+      console.error('Database save FAILED:', dbError);
+      alert(`Registration Failed: ${dbError.message || 'Could not save to database.'} Please try again later.`);
+    }
   };
 
   return (
-    <div className="registration-card-container">
+    <div className="registration-card-container" id="anniversary-registration">
       <h2>3rd Anniversary Celebration Registration</h2>
       <form onSubmit={handleSubmit} className="registration-form">
         <div className="form-group">
@@ -77,12 +100,12 @@ function RegistrationCard() {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="date">Date:</label>
+          <label htmlFor="mobileNumber">Mobile Number:</label>
           <input
-            type="date"
-            id="date"
-            name="date"
-            value={formData.date}
+            type="tel"
+            id="mobileNumber"
+            name="mobileNumber"
+            value={formData.mobileNumber}
             onChange={handleChange}
             required
           />

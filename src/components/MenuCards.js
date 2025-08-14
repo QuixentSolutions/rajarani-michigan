@@ -18,7 +18,7 @@ function Menu() {
       // Calculate the new quantity based on the current cart state and the change
       const currentQty = cartItems[itemName]?.quantity || 0;
       const newQty = currentQty + change;
-      setNotification(<span><FaShoppingCart /> {itemName} ({newQty}) added!</span>);
+      setNotification(<span>{itemName} ({newQty}) added!</span>);
       setTimeout(() => {
         setNotification(null);
       }, 1500); 

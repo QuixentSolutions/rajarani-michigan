@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { clearCart } from "../cartSlice";
 import emailjs from "@emailjs/browser";
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
+import AnniversaryPopup from "./AnniversaryPopup";
 
 function Header() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -89,7 +90,7 @@ function Header() {
     }
   };
 
-  const handleOrderNow = (e) => {
+  const handleOrderNow = async (e) => {
     e.preventDefault();
     const mobileRegex = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}$/;
 
@@ -137,49 +138,80 @@ function Header() {
       address: address ? String(address) : `Table ${tableNumber}`,
       order_details: orderDetailsFlat,
     };
+
+    // Prepare data for MongoDB
+    const orderData = {
+      orderId: String(orderId),
+      mobileNumber: String(mobileNumber),
+      email: email.trim(),
+      orderMode: String(orderMode),
+      tableNumber: orderMode === "dinein" ? String(tableNumber) : undefined,
+      address: orderMode === "delivery" ? String(address) : undefined,
+      // Map cartItems to the schema's items array (name, quantity, price)
+      items: Object.entries(cartItems).map(([name, { quantity, price }]) => ({
+        name,
+        quantity,
+        price,
+      })),
+      subTotal: parseFloat(totalAmount.toFixed(2)),
+      salesTax: parseFloat((totalAmount * 0.06).toFixed(2)),
+      totalAmount: parseFloat((totalAmount * 1.06).toFixed(2)),
+    };
+
     setIsLoading(true);
-    emailjs
-      .send(
-        process.env.REACT_APP_EMAILJS_SERVICE_ID,
-        process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
-        templateParams,
-        {
-          publicKey: process.env.REACT_APP_EMAILJS_PUBLIC_KEY,
-        }
-      )
-      .then(async (response) => {
-        setSuccessOrderId(orderId);
-        setIsSuccessPopupOpen(true);
-        setIsPopupOpen(false);
-        setMobileNumber("+1");
-        setTableNumber("");
-        setEmail("");
-        dispatch(clearCart());
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        alert(
-          `We’re sorry, your order couldn’t be placed.
-          Please call us directly, or contact a waiter if you’re at the restaurant.`
-        );
-        console.log("Failed to send email...", error);
-        setIsLoading(false);
+
+    try {
+      // Send data to MongoDB backend
+      const dbResponse = await fetch('http://localhost:5000/api/order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
       });
 
-    // const orderData = {
-    //   mobileNumber,
-    //   email,
-    //   tableNumber,
-    //   items: Object.entries(cartItems).map(([name, qty]) => ({
-    //     name,
-    //     quantity: qty,
-    //   })),
-    // };
-    setIsPopupOpen(false);
-    setMobileNumber("+1");
-    setTableNumber("");
-    setEmail("");
-    dispatch(clearCart());
+      const dbData = await dbResponse.json();
+
+      if (!dbResponse.ok) {
+        throw new Error(dbData.message || 'Failed to save order to database.');
+      }
+
+      console.log('Order saved to DB:', dbData);
+
+      // Proceed with EmailJS only if DB save is successful
+      emailjs
+        .send(
+          process.env.REACT_APP_EMAILJS_SERVICE_ID,
+          process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+          templateParams,
+          {
+            publicKey: process.env.REACT_APP_EMAILJS_PUBLIC_KEY,
+          }
+        )
+        .then(async (response) => {
+          setSuccessOrderId(orderId);
+          setIsSuccessPopupOpen(true);
+          setIsPopupOpen(false);
+          setMobileNumber("+1");
+          setTableNumber("");
+          setEmail("");
+          dispatch(clearCart());
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          alert(
+            `We’re sorry, your order couldn’t be placed (Email not sent).
+            Please call us directly, or contact a waiter if you’re at the restaurant.`
+          );
+          console.log("Failed to send email...", error);
+          setIsLoading(false);
+        });
+    } catch (dbError) {
+      alert(`We’re sorry, your order couldn’t be placed (Database error: ${dbError.message}).
+        Please call us directly, or contact a waiter if you’re at the restaurant.`);
+      console.error('Database save FAILED:', dbError);
+      setIsLoading(false);
+    }
   };
 
   const isCartEmpty = Object.keys(cartItems).length === 0;
@@ -335,6 +367,7 @@ function Header() {
             <div className="logo">
               <img className="header-logo" src="../logo-1.png" alt="logo" />
             </div>
+            <AnniversaryPopup /> {/* Place the new component here */}
             <div className="social-icons">
               <SocialIcon
                 className="social-icon"

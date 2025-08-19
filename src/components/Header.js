@@ -33,25 +33,14 @@ function Header() {
 
   const formatPhoneNumber = (value) => {
     const digits = value.replace(/^\+1/, "").replace(/\D/g, "");
-
-    if (digits.length <= 3) {
-      return `+1 ${digits}`;
-    } else if (digits.length <= 6) {
-      return `+1 (${digits.slice(0, 3)}) ${digits.slice(3)}`;
-    } else {
-      return `+1 (${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(
-        6,
-        10
-      )}`;
-    }
+    if (digits.length <= 3) return `+1 ${digits}`;
+    if (digits.length <= 6) return `+1 (${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    return `+1 (${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
   };
 
   useEffect(() => {
-    const total_amount = Object.entries(cartItems).reduce(
-      (sum, [_, { quantity, price }]) => sum + quantity * price,
-      0
-    );
-    setTotalAmount(total_amount);
+    const subTotal = Object.values(cartItems).reduce((sum, { quantity, price }) => sum + quantity * price, 0);
+    setTotalAmount(subTotal);
   }, [cartItems]);
 
   const handleChange = (e) => {
@@ -70,22 +59,15 @@ function Header() {
         async (pos) => {
           const { latitude, longitude } = pos.coords;
           try {
-            const res = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
-            );
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`);
             const data = await res.json();
-
             setAddress(data.display_name);
-          } catch (error) {}
+          } catch (error) {
+            console.error("Error fetching address:", error);
+          }
         },
-        (err) => {
-          console.error("Error getting location:", err.message);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0,
-        }
+        (err) => console.error("Error getting location:", err.message),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     }
   };
@@ -93,17 +75,12 @@ function Header() {
   const handleOrderNow = async (e) => {
     e.preventDefault();
     const mobileRegex = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}$/;
-
-    if (
-      orderMode !== "dinein" &&
-      (!mobileNumber ||
-        mobileNumber === "+1" ||
-        !mobileRegex.test(mobileNumber.trim()))
-    ) {
+    if (orderMode !== "dinein" && (!mobileNumber || !mobileRegex.test(mobileNumber.trim()))) {
       setMobileError("Please enter a valid mobile number.");
       return;
     }
     setMobileError("");
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email.trim())) {
       setEmailError("Please enter a valid email address.");
@@ -120,26 +97,25 @@ function Header() {
     const timestamp = Date.now();
     const orderId = `#ORD${timestamp.toString().slice(-4)}`;
 
-    const orderDetailsFlat = Object.entries(cartItems)
-      .map(
-        ([name, { quantity, price }]) =>
-          `${name} x ${quantity} =  ₹${(quantity * price).toFixed(2)}`
-      ) // Use stored price
-      .join("<br/>");
+    const orderDetailsHtml = Object.entries(cartItems)
+      .map(([name, { quantity, price }]) => `<div>${quantity} x ${name} - $${(quantity * price).toFixed(2)}</div>`)
+      .join("");
+
+    const finalTotalAmount = totalAmount * 1.06;
+    const salesTaxAmount = totalAmount * 0.06;
 
     const templateParams = {
       email: email.trim(),
       order_mode: String(orderMode),
       order_id: String(orderId),
       mobile_number: String(mobileNumber),
-      sub_total:totalAmount.toFixed(2),
-      sales_tax:(totalAmount * 0.06).toFixed(2),
-      total_amount:(totalAmount * 1.06).toFixed(2),
+      sub_total: totalAmount.toFixed(2),
+      sales_tax: salesTaxAmount.toFixed(2),
+      total_amount: finalTotalAmount.toFixed(2),
       address: address ? String(address) : `Table ${tableNumber}`,
-      order_details: orderDetailsFlat,
+      order_details: orderDetailsHtml,
     };
 
-    // Prepare data for MongoDB
     const orderData = {
       orderId: String(orderId),
       mobileNumber: String(mobileNumber),
@@ -147,69 +123,47 @@ function Header() {
       orderMode: String(orderMode),
       tableNumber: orderMode === "dinein" ? String(tableNumber) : undefined,
       address: orderMode === "delivery" ? String(address) : undefined,
-      // Map cartItems to the schema's items array (name, quantity, price)
-      items: Object.entries(cartItems).map(([name, { quantity, price }]) => ({
-        name,
-        quantity,
-        price,
-      })),
+      items: Object.entries(cartItems).map(([name, { quantity, price }]) => ({ name, quantity, price })),
       subTotal: parseFloat(totalAmount.toFixed(2)),
-      salesTax: parseFloat((totalAmount * 0.06).toFixed(2)),
-      totalAmount: parseFloat((totalAmount * 1.06).toFixed(2)),
+      salesTax: parseFloat(salesTaxAmount.toFixed(2)),
+      totalAmount: parseFloat(finalTotalAmount.toFixed(2)),
     };
 
     setIsLoading(true);
 
     try {
-      // Send data to MongoDB backend
       const dbResponse = await fetch('http://localhost:5000/api/order', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),
       });
 
       const dbData = await dbResponse.json();
-
       if (!dbResponse.ok) {
         throw new Error(dbData.message || 'Failed to save order to database.');
       }
-
       console.log('Order saved to DB:', dbData);
 
-      // Proceed with EmailJS only if DB save is successful
-      emailjs
-        .send(
-          process.env.REACT_APP_EMAILJS_SERVICE_ID,
-          process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
-          templateParams,
-          {
-            publicKey: process.env.REACT_APP_EMAILJS_PUBLIC_KEY,
-          }
-        )
-        .then(async (response) => {
-          setSuccessOrderId(orderId);
-          setIsSuccessPopupOpen(true);
-          setIsPopupOpen(false);
-          setMobileNumber("+1");
-          setTableNumber("");
-          setEmail("");
-          dispatch(clearCart());
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          alert(
-            `We’re sorry, your order couldn’t be placed (Email not sent).
-            Please call us directly, or contact a waiter if you’re at the restaurant.`
-          );
-          console.log("Failed to send email...", error);
-          setIsLoading(false);
-        });
-    } catch (dbError) {
-      alert(`We’re sorry, your order couldn’t be placed (Database error: ${dbError.message}).
-        Please call us directly, or contact a waiter if you’re at the restaurant.`);
-      console.error('Database save FAILED:', dbError);
+      // THIS IS THE FIX: It now uses your new environment variable for the order template.
+      await emailjs.send(
+        process.env.REACT_APP_EMAILJS_SERVICE_ID,
+        process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+        templateParams,
+        { publicKey: process.env.REACT_APP_EMAILJS_PUBLIC_KEY }
+      );
+      
+      setSuccessOrderId(orderId);
+      setIsSuccessPopupOpen(true);
+      setIsPopupOpen(false);
+      setMobileNumber("+1");
+      setTableNumber("");
+      setEmail("");
+      dispatch(clearCart());
+
+    } catch (err) {
+      alert(`We’re sorry, your order couldn’t be placed (Error: ${err.message}). Please call us directly.`);
+      console.error('Order process FAILED:', err);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -367,7 +321,7 @@ function Header() {
             <div className="logo">
               <img className="header-logo" src="../logo-1.png" alt="logo" />
             </div>
-            <AnniversaryPopup /> {/* Place the new component here */}
+            <AnniversaryPopup />
             <div className="social-icons">
               <SocialIcon
                 className="social-icon"
@@ -385,12 +339,6 @@ function Header() {
                 target="_blank"
                 rel="noopener noreferrer"
               />
-              {/* <SocialIcon
-                url="https://www.google.com/search?q=Raja+Rani+Restaurant&stick=H4sIAAAAAAAA_-NgU1I1qLCwME4yNTZMMTZPsTQ0MjK2MqhISbKwNDI0MzK0MDCySDNOWsQqEpSYlagQlJiXqRCUWlySWFqUmFcCAG2OMVdAAAAA&hl=en-GB&mat=CXkHHWDwBxApElcB8pgkaH1MxZK1YEYmOhr9L--IjKRUUN5SaGQDfjKXvZuHgOkyez4TJObGNWdGEsBGtuymvcWTJ0VYn47nPHxgyISdH8w_QHoLHJgIPbP9UAs8dZA7Ef8&authuser=0"
-                target="_blank"
-                rel="noopener noreferrer"
-                network="google"
-              /> */}
               <SocialIcon
                 url="https://chat.whatsapp.com/JVMf5MZJCEp2XPakE4YYaW?mode=ac_t"
                 target="_blank"
@@ -425,27 +373,6 @@ function Header() {
                   style={{ color: "#28A745" }}
                 />
               </a>
-              {/* <button
-                onClick={() => {
-                  window.open(
-                    "https://www.clover.com/online-ordering/raja-rani-restaurant-canton",
-                    "_blank",
-                    "noopener,noreferrer"
-                  );
-                }}
-                style={{
-                  marginLeft: "10px",
-                  backgroundColor: "white",
-                  color: "#fff",
-                  border: "none",
-                  padding: "8px 15px",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                }}
-              >
-                Order Online
-              </button> */}
               <div
                 style={{
                   position: "relative",
@@ -514,7 +441,6 @@ function Header() {
                 backgroundColor: "#fff",
                 padding: "20px",
                 borderRadius: "8px",
-                // width: "300px",
                 textAlign: "center",
                 position: "relative",
                 background: "white",
@@ -530,292 +456,94 @@ function Header() {
                 Order Confirmation
               </h3>
               {Object.keys(cartItems).length > 0 && (
-  <div
-    style={{
-      maxHeight: "15rem",
-      overflowY: Object.keys(cartItems).length > 5 ? "scroll" : "auto",
-      marginTop: "15px",
-      borderTop: "1px solid #ccc",
-      paddingTop: "10px",
-    }}
-  >
-    <table
-      style={{
-        width: "100%",
-        borderCollapse: "separate",
-        borderSpacing: "0 10px",
-        tableLayout: "fixed",
-      }}
-    >
-      <thead>
-        <tr
-          style={{
-            textAlign: "center",
-            padding: "10px 0",
-            borderBottom: "2px solid #ccc",
-            color: "#333",
-            backgroundColor: "#f5f5f5",
-          }}
-        >
-          <th
-            style={{
-              width: "60%",
-              wordWrap: "break-word",
-              padding: "10px",
-            }}
-          >
-            Name
-          </th>
-          <th style={{ width: "20%", padding: "10px" }}>Qty</th>
-          <th style={{ width: "20%", padding: "10px" }}>Price</th>
-        </tr>
-      </thead>
-      <tbody style={{ color: "black" }}>
-        {Object.entries(cartItems).map(([name, { quantity, price }]) => (
-          <tr
-            key={name}
-            style={{
-              borderBottom: "1px solid #eee",
-              padding: "5px 0",
-            }}
-          >
-            <td
-              style={{
-                wordWrap: "break-word",
-                whiteSpace: "normal",
-                padding: "5px",
-              }}
-            >
-              {name}
-            </td>
-            <td>{quantity}</td>
-            <td>{(quantity * price).toFixed(2)}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-)}
-
-<input
-  type="text"
-  placeholder="Subtotal"
-  disabled
-  value={`Subtotal: $${totalAmount.toFixed(2)}`}
-  style={{
-    width: "100%",
-    padding: "8px",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    marginTop: "20px",
-  }}
-/>
-
-<input
-  type="text"
-  placeholder="Sales Tax"
-  disabled
-  value={`Sales Tax (6%): $${(totalAmount * 0.06).toFixed(2)}`}
-  style={{
-    width: "100%",
-    padding: "8px",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    marginTop: "10px",
-  }}
-/>
-
-<input
-  type="text"
-  placeholder="Total Amount"
-  disabled
-  value={`Total Amount: $${(totalAmount * 1.06).toFixed(2)}`}
-  style={{
-    width: "100%",
-    padding: "8px",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    marginTop: "10px",
-  }}
-/>
-              {orderMode !== "dinein" && (
-                <>
-                  <input
-                    type="tel"
-                    placeholder="Mobile Number"
-                    value={mobileNumber}
-                    onChange={handleChange}
-                    // onChange={(e) => setMobileNumber(e.target.value)}
+                <div
+                  style={{
+                    maxHeight: "15rem",
+                    overflowY: Object.keys(cartItems).length > 5 ? "scroll" : "auto",
+                    marginTop: "15px",
+                    borderTop: "1px solid #ccc",
+                    paddingTop: "10px",
+                  }}
+                >
+                  <table
                     style={{
                       width: "100%",
-                      padding: "8px",
-                      marginTop: "5px",
-                      marginBottom: "5px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
+                      borderCollapse: "separate",
+                      borderSpacing: "0 10px",
+                      tableLayout: "fixed",
                     }}
-                  />
-                  {mobileError && (
-                    <div style={{ color: "red", marginBottom: "15px" }}>
-                      {mobileError}
-                    </div>
-                  )}
+                  >
+                    <thead>
+                      <tr
+                        style={{
+                          textAlign: "center",
+                          padding: "10px 0",
+                          borderBottom: "2px solid #ccc",
+                          color: "#333",
+                          backgroundColor: "#f5f5f5",
+                        }}
+                      >
+                        <th style={{ width: "60%", wordWrap: "break-word", padding: "10px" }}>Name</th>
+                        <th style={{ width: "20%", padding: "10px" }}>Qty</th>
+                        <th style={{ width: "20%", padding: "10px" }}>Price</th>
+                      </tr>
+                    </thead>
+                    <tbody style={{ color: "black" }}>
+                      {Object.entries(cartItems).map(([name, { quantity, price }]) => (
+                        <tr key={name} style={{ borderBottom: "1px solid #eee", padding: "5px 0" }}>
+                          <td style={{ wordWrap: "break-word", whiteSpace: "normal", padding: "5px" }}>{name}</td>
+                          <td>{quantity}</td>
+                          <td>{(quantity * price).toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <input type="text" placeholder="Subtotal" disabled value={`Subtotal: $${totalAmount.toFixed(2)}`} style={{ width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", marginTop: "20px" }} />
+              <input type="text" placeholder="Sales Tax" disabled value={`Sales Tax (6%): $${(totalAmount * 0.06).toFixed(2)}`} style={{ width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", marginTop: "10px" }} />
+              <input type="text" placeholder="Total Amount" disabled value={`Total Amount: $${(totalAmount * 1.06).toFixed(2)}`} style={{ width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", marginTop: "10px" }} />
+              
+              {orderMode !== "dinein" && (
+                <>
+                  <input type="tel" placeholder="Mobile Number" value={mobileNumber} onChange={handleChange} style={{ width: "100%", padding: "8px", marginTop: "5px", marginBottom: "5px", border: "1px solid #ccc", borderRadius: "4px" }} />
+                  {mobileError && <div style={{ color: "red", marginBottom: "15px" }}>{mobileError}</div>}
                 </>
               )}
 
-              <input
-                type="email"
-                placeholder="Email (required)"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setEmailError("");
-                }}
-                required
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  marginTop: "5px",
-                  marginBottom: "5px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                }}
-              />
-              {emailError && (
-                <div style={{ color: "red", marginBottom: "15px" }}>
-                  {emailError}
-                </div>
-              )}
+              <input type="email" placeholder="Email (required)" value={email} onChange={(e) => { setEmail(e.target.value); setEmailError(""); }} required style={{ width: "100%", padding: "8px", marginTop: "5px", marginBottom: "5px", border: "1px solid #ccc", borderRadius: "4px" }} />
+              {emailError && <div style={{ color: "red", marginBottom: "15px" }}>{emailError}</div>}
+              
               {orderMode === "dinein" && (
-                <select
-                  value={tableNumber}
-                  onChange={(e) => setTableNumber(e.target.value)}
-                  required
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    marginBottom: "15px",
-                    border: "1px solid #ccc",
-                    borderRadius: "4px",
-                  }}
-                >
-                  {[...Array(10)].map((_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      Table {i + 1}
-                    </option>
-                  ))}
+                <select value={tableNumber} onChange={(e) => setTableNumber(e.target.value)} required style={{ width: "100%", padding: "8px", marginBottom: "15px", border: "1px solid #ccc", borderRadius: "4px" }}>
+                  {[...Array(10)].map((_, i) => (<option key={i + 1} value={i + 1}>Table {i + 1}</option>))}
                 </select>
               )}
-              <div
-                className="option-group"
-                style={{ marginTop: "10px", display: "flex", gap: "5rem", justifyContent: "space-evenly" }}
-              >
-                {/* {["dinein", "delivery", "grab"].map((mode) => ( */}
+              
+              <div className="option-group" style={{ marginTop: "10px", display: "flex", gap: "5rem", justifyContent: "space-evenly" }}>
                 {["dinein", "pickup"].map((mode) => (
-                  <label
-                    key={mode}
-                    style={{
-                      color: "black",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      textAlign: "center",
-                      fontSize: "14px",
-                    }}
-                  >
-                    <input
-                      type="radio"
-                      name="orderType"
-                      value={mode}
-                      checked={orderMode === mode}
-                      onChange={() => {
-                                setOrderMode(mode);
-                                if (mode === "pickup") {
-                                  setAddress("Pickup");
-                                }
-                              }}
-                      style={{ marginBottom: "3px" }}
-                    />
-                    {mode === "grab" ? (
-                      <>Grab</>
-                    ) : (
-                      mode.charAt(0).toUpperCase() + mode.slice(1)
-                    )}
+                  <label key={mode} style={{ color: "black", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", fontSize: "14px" }}>
+                    <input type="radio" name="orderType" value={mode} checked={orderMode === mode} onChange={() => { setOrderMode(mode); if (mode === "pickup") { setAddress("Pickup"); } }} style={{ marginBottom: "3px" }} />
+                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
                   </label>
                 ))}
               </div>
+              
               {orderMode === "delivery" && (
                 <>
                   <br />
-                  <button
-                    variant="contained"
-                    color="primary"
-                    onClick={getLocation}
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      marginBottom: "15px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                    }}
-                  >
-                    Locate Me
-                  </button>
-
-                  <br />
-                  <br />
-                  <textarea
-                    id="address"
-                    name="address"
-                    rows="5"
-                    required
-                    value={address}
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      marginBottom: "15px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                    }}
-                  ></textarea>
-
-                  {addressError && (
-                    <div style={{ color: "red", marginBottom: "15px" }}>
-                      {addressError}
-                    </div>
-                  )}
+                  <button onClick={getLocation} style={{ width: "100%", padding: "8px", marginBottom: "15px", border: "1px solid #ccc", borderRadius: "4px" }}>Locate Me</button>
+                  <br /><br />
+                  <textarea id="address" name="address" rows="5" required value={address} onChange={(e) => setAddress(e.target.value)} style={{ width: "100%", padding: "8px", marginBottom: "15px", border: "1px solid #ccc", borderRadius: "4px" }}></textarea>
+                  {addressError && <div style={{ color: "red", marginBottom: "15px" }}>{addressError}</div>}
                 </>
               )}
 
-              <button
-                onClick={handleOrderNow}
-                disabled={isCartEmpty}
-                style={{
-                  backgroundColor: isCartEmpty ? "#aaa" : "black",
-                  color: "#fff",
-                  border: "none",
-                  padding: "10px 20px",
-                  borderRadius: "4px",
-                  cursor: isCartEmpty ? "not-allowed" : "pointer",
-                  marginRight: "10px",
-                  marginTop: "10px",
-                }}
-              >
+              <button onClick={handleOrderNow} disabled={isCartEmpty} style={{ backgroundColor: isCartEmpty ? "#aaa" : "black", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "4px", cursor: isCartEmpty ? "not-allowed" : "pointer", marginRight: "10px", marginTop: "10px" }}>
                 {isCartEmpty ? `Add items to cart` : `Order Now`}
               </button>
-              <button
-                onClick={() => setIsPopupOpen(false)}
-                style={{
-                  position: "absolute",
-                  top: "10px",
-                  right: "10px",
-                  background: "none",
-                  border: "none",
-                  fontSize: "20px",
-                  cursor: "pointer",
-                  color: "black",
-                }}
-              >
+              <button onClick={() => setIsPopupOpen(false)} style={{ position: "absolute", top: "10px", right: "10px", background: "none", border: "none", fontSize: "20px", cursor: "pointer", color: "black" }}>
                 ×
               </button>
             </div>

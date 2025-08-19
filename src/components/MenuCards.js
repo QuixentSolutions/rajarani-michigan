@@ -1,8 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
-import { FaPlus, FaMinus, FaShoppingCart } from "react-icons/fa";
+import { FaPlus, FaMinus } from "react-icons/fa";
 import menuData from "./menuData.json";
 import { updateQuantity } from "../cartSlice";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./MenuCards.css";
 
 function Menu() {

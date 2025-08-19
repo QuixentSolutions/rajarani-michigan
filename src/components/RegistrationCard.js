@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import './RegistrationCard.css';
-import emailjs from 'emailjs-com';
+import emailjs from '@emailjs/browser'; // Use the modern emailjs package
 
 function RegistrationCard() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    mobileNumber: '', // Add mobileNumber to state
+    mobileNumber: '',
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Update all fields
     setFormData(prevState => ({
       ...prevState,
       [name]: value
@@ -34,14 +33,13 @@ function RegistrationCard() {
       address: "Online Registration for Anniversary Event"
     };
 
-    // Send data to MongoDB backend
     try {
       const response = await fetch('http://localhost:5000/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData), // Send formData to backend
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
@@ -52,24 +50,25 @@ function RegistrationCard() {
 
       console.log('Registration saved to DB:', data);
 
-      // Proceed with EmailJS only if DB save is successful
-      emailjs.send(process.env.REACT_APP_EMAILJS_SERVICE_ID, process.env.REACT_APP_EMAILJS_TEMPLATE_ID, templateParams)
-        .then((response) => {
-           console.log('EmailJS SUCCESS!', response.status, response.text);
-           alert('Registration Successful! Check your email for confirmation.');
-           setFormData({
-            name: '',
-            email: '',
-            mobileNumber: '', 
-           });
-        },
-        (err) => {
-           console.log('EmailJS FAILED...', err);
-           alert('Registration Failed (Email not sent). Please try again later.');
-        });
-    } catch (dbError) {
-      console.error('Database save FAILED:', dbError);
-      alert(`Registration Failed: ${dbError.message || 'Could not save to database.'} Please try again later.`);
+      // THIS IS THE FIX: Use the new anniversary template ID and modern syntax
+      await emailjs.send(
+        process.env.REACT_APP_EMAILJS_SERVICE_ID, 
+        process.env.REACT_APP_EMAILJS_ANNIVERSARY_TEMPLATE_ID, // <-- THE FIX IS HERE
+        templateParams,
+        { publicKey: process.env.REACT_APP_EMAILJS_PUBLIC_KEY }
+      );
+
+      console.log('EmailJS SUCCESS!');
+      alert('Registration Successful! Check your email for confirmation.');
+      setFormData({
+        name: '',
+        email: '',
+        mobileNumber: '', 
+      });
+
+    } catch (err) {
+      console.error('Process FAILED:', err);
+      alert(`Registration Failed: ${err.message || 'An unknown error occurred.'} Please try again later.`);
     }
   };
 

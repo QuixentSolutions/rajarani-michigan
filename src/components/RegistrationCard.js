@@ -6,7 +6,6 @@ function RegistrationCard() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    mobileNumber: '',
   });
 
   const handleChange = (e) => {
@@ -24,8 +23,7 @@ function RegistrationCard() {
     const templateParams = {
       name: formData.name,
       email: formData.email,
-      to_email: formData.email, 
-      mobile_number: formData.mobileNumber, 
+      to_email: formData.email,
       order_mode: "3rd Anniversary Registration",
       sub_total: "0.00",
       sales_tax: "0.00",
@@ -52,7 +50,7 @@ function RegistrationCard() {
 
       // THIS IS THE FIX: Use the new anniversary template ID and modern syntax
       await emailjs.send(
-        process.env.REACT_APP_EMAILJS_SERVICE_ID, 
+        process.env.REACT_APP_EMAILJS_SERVICE_ID,
         process.env.REACT_APP_EMAILJS_ANNIVERSARY_TEMPLATE_ID, // <-- THE FIX IS HERE
         templateParams,
         { publicKey: process.env.REACT_APP_EMAILJS_PUBLIC_KEY }
@@ -63,7 +61,6 @@ function RegistrationCard() {
       setFormData({
         name: '',
         email: '',
-        mobileNumber: '', 
       });
 
     } catch (err) {
@@ -94,17 +91,6 @@ function RegistrationCard() {
             id="email"
             name="email"
             value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="mobileNumber">Mobile Number:</label>
-          <input
-            type="tel"
-            id="mobileNumber"
-            name="mobileNumber"
-            value={formData.mobileNumber}
             onChange={handleChange}
             required
           />

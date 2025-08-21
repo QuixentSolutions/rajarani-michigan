@@ -14,11 +14,7 @@ const registrationSchema = new mongoose.Schema({
     lowercase: true,
     match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address.']
   },
-  mobileNumber: {
-    type: String,
-    required: true,
-    trim: true,
-  },
+  
   registrationDate: {
     type: Date,
     default: Date.now 

@@ -44,10 +44,19 @@ const securityHeaders = (req, res, next) => {
 }
 
 // --- Apply Security Middleware ---
+
+// --- START OF THE FIX ---
+// 1. CORS must come FIRST to handle preflight requests before they are rate-limited or blocked.
+app.use(cors({ origin: "http://localhost:3000" }))
+
+// 2. Body parser should come before other middleware that needs to read the request body.
+app.use(express.json({ limit: "10mb" }))
+
+// 3. Other security middleware can come after.
 app.use(securityHeaders)
 app.use(generalRateLimit)
-app.use(cors())
-app.use(express.json({ limit: "10mb" }))
+// --- END OF THE FIX ---
+
 
 // --- MongoDB Connection ---
 mongoose

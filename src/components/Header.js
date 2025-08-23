@@ -22,6 +22,7 @@ function Header() {
   const [successOrderId, setSuccessOrderId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [finalOrderAmount, setFinalOrderAmount] = useState(0);
 
   const totalItems = useSelector((state) => state.cart.totalItems);
   const cartItems = useSelector((state) => state.cart.items);
@@ -104,6 +105,26 @@ function Header() {
     const finalTotalAmount = totalAmount * 1.06;
     const salesTaxAmount = totalAmount * 0.06;
 
+    // Store final amount for success popup
+    setFinalOrderAmount(finalTotalAmount);
+
+    // Add Venmo payment section to email
+    const venmoPaymentHtml = `
+      <div style="margin: 20px 0; text-align: center; padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
+        <h3 style="color: #333; margin-bottom: 15px;">Pay with Venmo</h3>
+        <a href="https://venmo.com/Rajarani1?txn=pay&amount=${finalTotalAmount.toFixed(2)}&note=${orderId}" 
+           target="_blank" 
+           style="display: inline-block; text-decoration: none;">
+          <img src="https://cdn.iconscout.com/icon/free/png-256/venmo-2-569346.png" 
+               alt="Pay with Venmo" 
+               style="width: 120px; height: auto; border-radius: 8px;">
+        </a>
+        <p style="margin-top: 10px; color: #666; font-size: 14px;">
+          Click the Venmo logo above to pay securely
+        </p>
+      </div>
+    `;
+
     const templateParams = {
       email: email.trim(),
       order_mode: String(orderMode),
@@ -113,7 +134,7 @@ function Header() {
       sales_tax: salesTaxAmount.toFixed(2),
       total_amount: finalTotalAmount.toFixed(2),
       address: address ? String(address) : `Table ${tableNumber}`,
-      order_details: orderDetailsHtml,
+      order_details: orderDetailsHtml + venmoPaymentHtml,
     };
 
     const orderData = {
@@ -144,12 +165,11 @@ function Header() {
       }
       console.log('Order saved to DB:', dbData);
 
-      // THIS IS THE FIX: It now uses your new environment variable for the order template.
       await emailjs.send(
         process.env.REACT_APP_EMAILJS_SERVICE_ID,
         process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
         templateParams,
-        { publicKey: process.env.REACT_APP_EMAILJS_PUBLIC_KEY }
+        process.env.REACT_APP_EMAILJS_PUBLIC_KEY 
       );
       
       setSuccessOrderId(orderId);
@@ -161,7 +181,8 @@ function Header() {
       dispatch(clearCart());
 
     } catch (err) {
-      alert(`We’re sorry, your order couldn’t be placed (Error: ${err.message}). Please call us directly.`);
+      const errorMessage = err.text || err.message || 'An unknown error occurred.';
+      alert(`We’re sorry, your order couldn’t be placed (Error: ${errorMessage}). Please call us directly.`);
       console.error('Order process FAILED:', err);
     } finally {
       setIsLoading(false);
@@ -225,6 +246,26 @@ function Header() {
             alt="Payment QR Code"
             style={{ width: "250px", height: "250px", margin: "10px 0" }}
           />
+          
+          {/* Venmo Payment Button */}
+          <div style={{ textAlign: "center", margin: "20px 0" }}>
+            <h4 style={{ marginBottom: "15px", color: "#333" }}>Pay with Venmo</h4>
+            <a 
+              href={`https://venmo.com/Rajarani1?txn=pay&amount=${finalOrderAmount.toFixed(2)}&note=${successOrderId}`}
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ display: "inline-block" }}
+            >
+              <img 
+                src="https://cdn.iconscout.com/icon/free/png-256/venmo-2-569346.png" 
+                alt="Pay with Venmo" 
+                style={{ width: "120px", height: "auto" }}
+              />
+            </a>
+            <p style={{ marginTop: "10px", color: "#666", fontSize: "14px" }}>
+              Total Amount: ${finalOrderAmount.toFixed(2)}
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -444,6 +485,11 @@ function Header() {
                 textAlign: "center",
                 position: "relative",
                 background: "white",
+                width: "90vw",
+                maxWidth: "520px",
+                maxHeight: "85vh",
+                overflowY: "auto",
+                boxSizing: "border-box",
               }}
             >
               <h3
@@ -504,7 +550,7 @@ function Header() {
               <input type="text" placeholder="Subtotal" disabled value={`Subtotal: $${totalAmount.toFixed(2)}`} style={{ width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", marginTop: "20px" }} />
               <input type="text" placeholder="Sales Tax" disabled value={`Sales Tax (6%): $${(totalAmount * 0.06).toFixed(2)}`} style={{ width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", marginTop: "10px" }} />
               <input type="text" placeholder="Total Amount" disabled value={`Total Amount: $${(totalAmount * 1.06).toFixed(2)}`} style={{ width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", marginTop: "10px" }} />
-              
+
               {orderMode !== "dinein" && (
                 <>
                   <input type="tel" placeholder="Mobile Number" value={mobileNumber} onChange={handleChange} style={{ width: "100%", padding: "8px", marginTop: "5px", marginBottom: "5px", border: "1px solid #ccc", borderRadius: "4px" }} />

@@ -13,13 +13,15 @@ const AdminLogin = ({ onLoginSuccess }) => {
             justifyContent: 'center',
             alignItems: 'center',
             height: '100vh',
-            backgroundColor: '#f8f9fa',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            // backgroundColor: '#f8f9fa',
+            // background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: "url('/public/bg-2.jpeg') no-repeat center center fixed",
+            backgroundSize: 'cover',
             fontFamily: 'Arial, sans-serif',
         },
         loginBox: {
             padding: '2.5em',
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            backgroundColor: '#fff',
             borderRadius: '20px',
             boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
             backdropFilter: 'blur(10px)',
@@ -29,7 +31,7 @@ const AdminLogin = ({ onLoginSuccess }) => {
         logo: {
             fontSize: '2.5rem',
             fontWeight: 'bold',
-            color: '#FFA500',
+            color: '#2c3e50',
             marginBottom: '30px',
             textShadow: '2px 2px 4px rgba(0, 0, 0, 0.1)',
         },
@@ -40,42 +42,55 @@ const AdminLogin = ({ onLoginSuccess }) => {
         label: {
             display: 'block',
             marginBottom: '8px',
-            color: '#333',
-            fontWeight: 'bold',
+            fontFamily: 'Poppins, sans-serif',
+            fontWeight: '600',
+            color: '#34495e',
+            fontSize: '1em',
+            letterSpacing: '0.3px',
+            transition: 'all 0.3s ease',
         },
         input: {
             width: '100%',
-            padding: '15px',
-            border: '2px solid #e0e0e0',
-            borderRadius: '10px',
-            fontSize: '16px',
+            padding: '14px 20px',
+            border: '2px solid #e1e8ed',
+            borderRadius: '12px',
             boxSizing: 'border-box',
-            transition: 'border-color 0.3s ease',
+            fontFamily: 'Poppins, sans-serif',
+            fontSize: '1em',
+            fontWeight: '400',
+            backgroundColor: '#fff',
+            color: '#333',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         },
         inputFocus: {
             borderColor: '#FFA500',
             outline: 'none',
+            boxShadow: '0 0 0 4px rgba(255, 165, 0, 0.15), 0 4px 12px rgba(255, 165, 0, 0.1)',
+            transform: 'translateY(-2px)',
         },
         button: {
             width: '100%',
-            padding: '15px 30px',
+            padding: '18px 35px',
             border: 'none',
-            borderRadius: '10px',
-            background: 'linear-gradient(135deg, #FFA500 0%, #FF8C00 100%)',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #FFA500, #FF8C00)',
             color: 'white',
-            fontSize: '16px',
-            fontWeight: 'bold',
+            fontSize: '1.15em',
+            fontWeight: '600',
+            fontFamily: 'Poppins, sans-serif',
+            letterSpacing: '0.5px',
             cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            marginTop: '10px',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            marginTop: '20px',
+            boxShadow: '0 6px 20px rgba(255, 165, 0, 0.3)',
         },
         buttonDisabled: {
             background: '#ccc',
             cursor: 'not-allowed',
         },
         error: {
-            background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)',
-            color: 'white',
+            background: 'linear-gradient(135deg, #ffc0cb 0%, #ff69b4 100%)',
+            color: '#8B0000',
             padding: '15px',
             borderRadius: '10px',
             marginTop: '20px',
@@ -140,7 +155,8 @@ const AdminLogin = ({ onLoginSuccess }) => {
     return (
         <div style={styles.loginContainer}>
             <div style={styles.loginBox}>
-                <div style={styles.logo}>🏰 Raja Rani Admin</div>
+                <img src="/public/black_logo.jpeg" alt="Raja Rani Logo" style={{ width: '100px', marginBottom: '20px' }} />
+                <h1 style={styles.logo}>Admin Panel</h1>
                 <form onSubmit={handleSubmit}>
                     <div style={styles.inputGroup}>
                         <label style={styles.label}>Username</label>
@@ -156,6 +172,13 @@ const AdminLogin = ({ onLoginSuccess }) => {
                             disabled={isLoading}
                             required
                         />
+                        {/* Input focus glow effect */}
+                        <style jsx>{`
+                            .form-group.focused::before {
+                                opacity: 1;
+                            }
+                        `}</style>
+                        <div className="form-group-glow" style={{ opacity: focusedInput === 'username' ? 1 : 0 }}></div>
                     </div>
                     <div style={styles.inputGroup}>
                         <label style={styles.label}>Password</label>
@@ -171,6 +194,8 @@ const AdminLogin = ({ onLoginSuccess }) => {
                             disabled={isLoading}
                             required
                         />
+                        {/* Input focus glow effect */}
+                        <div className="form-group-glow" style={{ opacity: focusedInput === 'password' ? 1 : 0 }}></div>
                     </div>
                     <button 
                         type="submit"
@@ -181,14 +206,28 @@ const AdminLogin = ({ onLoginSuccess }) => {
                         disabled={isLoading}
                         onMouseEnter={(e) => {
                             if (!isLoading) {
-                                e.target.style.transform = 'translateY(-2px)';
-                                e.target.style.boxShadow = '0 10px 20px rgba(255, 165, 0, 0.3)';
+                                e.target.style.transform = 'translateY(-3px)';
+                                e.target.style.boxShadow = '0 12px 30px rgba(255, 165, 0, 0.4)';
+                                e.target.style.background = 'linear-gradient(135deg, #e69500, #cc7a00)';
                             }
                         }}
                         onMouseLeave={(e) => {
                             if (!isLoading) {
                                 e.target.style.transform = 'none';
-                                e.target.style.boxShadow = 'none';
+                                e.target.style.boxShadow = '0 6px 20px rgba(255, 165, 0, 0.3)';
+                                e.target.style.background = 'linear-gradient(135deg, #FFA500, #FF8C00)';
+                            }
+                        }}
+                        onMouseDown={(e) => {
+                            if (!isLoading) {
+                                e.target.style.transform = 'translateY(-1px)';
+                                e.target.style.boxShadow = '0 6px 20px rgba(255, 165, 0, 0.3)';
+                            }
+                        }}
+                        onMouseUp={(e) => {
+                            if (!isLoading) {
+                                e.target.style.transform = 'translateY(-3px)';
+                                e.target.style.boxShadow = '0 12px 30px rgba(255, 165, 0, 0.4)';
                             }
                         }}
                     >
@@ -204,12 +243,8 @@ const AdminLogin = ({ onLoginSuccess }) => {
                     <div style={styles.error}>{error}</div>
                 )}
                 
-                <div style={{ marginTop: '20px', fontSize: '12px', color: '#666' }}>
-                    Secure admin access for Raja Rani Restaurant
-                </div>
-                <div style={{ marginTop: '10px', fontSize: '11px', color: '#999' }}>
-                    Default credentials: admin / password123
-                </div>
+                
+                
             </div>
         </div>
     );

@@ -4,9 +4,9 @@ import { useSelector } from "react-redux";
 import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { clearCart } from "../cartSlice";
-import emailjs from "@emailjs/browser";
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
 import AnniversaryPopup from "./AnniversaryPopup";
+import emailjs from "@emailjs/browser";
 
 function Header() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -35,12 +35,19 @@ function Header() {
   const formatPhoneNumber = (value) => {
     const digits = value.replace(/^\+1/, "").replace(/\D/g, "");
     if (digits.length <= 3) return `+1 ${digits}`;
-    if (digits.length <= 6) return `+1 (${digits.slice(0, 3)}) ${digits.slice(3)}`;
-    return `+1 (${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+    if (digits.length <= 6)
+      return `+1 (${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    return `+1 (${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(
+      6,
+      10
+    )}`;
   };
 
   useEffect(() => {
-    const subTotal = Object.values(cartItems).reduce((sum, { quantity, price }) => sum + quantity * price, 0);
+    const subTotal = Object.values(cartItems).reduce(
+      (sum, { quantity, price }) => sum + quantity * price,
+      0
+    );
     setTotalAmount(subTotal);
   }, [cartItems]);
 
@@ -60,7 +67,9 @@ function Header() {
         async (pos) => {
           const { latitude, longitude } = pos.coords;
           try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`);
+            const res = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+            );
             const data = await res.json();
             setAddress(data.display_name);
           } catch (error) {
@@ -75,13 +84,19 @@ function Header() {
 
   const handleOrderNow = async (e) => {
     e.preventDefault();
+
+    // Validate mobile number for non-dine-in orders
     const mobileRegex = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}$/;
-    if (orderMode !== "dinein" && (!mobileNumber || !mobileRegex.test(mobileNumber.trim()))) {
+    if (
+      orderMode !== "dinein" &&
+      (!mobileNumber || !mobileRegex.test(mobileNumber.trim()))
+    ) {
       setMobileError("Please enter a valid mobile number.");
       return;
     }
     setMobileError("");
 
+    // Validate email (CRITICAL - this must happen first)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email.trim())) {
       setEmailError("Please enter a valid email address.");
@@ -89,6 +104,7 @@ function Header() {
     }
     setEmailError("");
 
+    // Validate address for delivery
     if (orderMode === "delivery" && !address) {
       setAddressError("Please enter a valid delivery address.");
       return;
@@ -99,7 +115,10 @@ function Header() {
     const orderId = `#ORD${timestamp.toString().slice(-4)}`;
 
     const orderDetailsHtml = Object.entries(cartItems)
-      .map(([name, { quantity, price }]) => `<div>${quantity} x ${name} - $${(quantity * price).toFixed(2)}</div>`)
+      .map(
+        ([name, { quantity, price }]) =>
+          `<div>${quantity} x ${name} - $${(quantity * price).toFixed(2)}</div>`
+      )
       .join("");
 
     const finalTotalAmount = totalAmount * 1.06;
@@ -112,7 +131,9 @@ function Header() {
     const venmoPaymentHtml = `
       <div style="margin: 20px 0; text-align: center; padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
         <h3 style="color: #333; margin-bottom: 15px;">Pay with Venmo</h3>
-        <a href="https://venmo.com/Rajarani1?txn=pay&amount=${finalTotalAmount.toFixed(2)}&note=${orderId}" 
+        <a href="https://venmo.com/Rajarani1?txn=pay&amount=${finalTotalAmount.toFixed(
+          2
+        )}&note=${orderId}" 
            target="_blank" 
            style="display: inline-block; text-decoration: none;">
           <img src="https://cdn.iconscout.com/icon/free/png-256/venmo-2-569346.png" 
@@ -125,18 +146,6 @@ function Header() {
       </div>
     `;
 
-    const templateParams = {
-      email: email.trim(),
-      order_mode: String(orderMode),
-      order_id: String(orderId),
-      mobile_number: String(mobileNumber),
-      sub_total: totalAmount.toFixed(2),
-      sales_tax: salesTaxAmount.toFixed(2),
-      total_amount: finalTotalAmount.toFixed(2),
-      address: address ? String(address) : `Table ${tableNumber}`,
-      order_details: orderDetailsHtml + venmoPaymentHtml,
-    };
-
     const orderData = {
       orderId: String(orderId),
       mobileNumber: String(mobileNumber),
@@ -144,46 +153,99 @@ function Header() {
       orderMode: String(orderMode),
       tableNumber: orderMode === "dinein" ? String(tableNumber) : undefined,
       address: orderMode === "delivery" ? String(address) : undefined,
-      items: Object.entries(cartItems).map(([name, { quantity, price }]) => ({ name, quantity, price })),
+      items: Object.entries(cartItems).map(([name, { quantity, price }]) => ({
+        name,
+        quantity,
+        price,
+      })),
       subTotal: parseFloat(totalAmount.toFixed(2)),
       salesTax: parseFloat(salesTaxAmount.toFixed(2)),
       totalAmount: parseFloat(finalTotalAmount.toFixed(2)),
     };
 
+    // FIXED: Updated template params to match your EmailJS template
+    const templateParams = {
+      email: email.trim(), // Changed from 'to_email' to 'email' to match your template
+      name: "Customer",
+      order_mode: String(orderMode),
+      order_id: String(orderId),
+      mobile_number: String(mobileNumber),
+      sub_total: totalAmount.toFixed(2),
+      sales_tax: salesTaxAmount.toFixed(2),
+      total_amount: finalTotalAmount.toFixed(2),
+      address: address ? String(address) : `Table ${tableNumber}`,
+      order_details: orderDetailsHtml,
+    };
+
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch('http://localhost:5000/api/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      // First, save order to database
+      const dbResponse = await fetch("http://localhost:5000/api/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),
       });
 
       const dbData = await dbResponse.json();
-      if (!dbResponse.ok) {
-        throw new Error(dbData.message || 'Failed to save order to database.');
-      }
-      console.log('Order saved to DB:', dbData);
 
-      await emailjs.send(
-        process.env.REACT_APP_EMAILJS_SERVICE_ID,
-        process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
-        templateParams,
-        process.env.REACT_APP_EMAILJS_PUBLIC_KEY 
+      if (!dbResponse.ok) {
+        throw new Error(dbData.message || "Failed to save order.");
+      }
+
+      console.log("Order saved to database:", dbData);
+
+      // Then send email from frontend using EmailJS
+      console.log(
+        "Sending order confirmation email with params:",
+        templateParams
       );
-      
+
+      const emailResponse = await emailjs.send(
+        process.env.REACT_APP_EMAILJS_SERVICE_ID || "service_otcs6w9",
+        process.env.REACT_APP_EMAILJS_TEMPLATE_ID || "template_55aywnl",
+        templateParams,
+        process.env.REACT_APP_EMAILJS_PUBLIC_KEY || "FxwSUoBkBRQjimBrz"
+      );
+
+      console.log("Order email sent successfully:", emailResponse);
+
       setSuccessOrderId(orderId);
       setIsSuccessPopupOpen(true);
       setIsPopupOpen(false);
       setMobileNumber("+1");
-      setTableNumber("");
+      setTableNumber("1");
       setEmail("");
+      setAddress("");
       dispatch(clearCart());
-
     } catch (err) {
-      const errorMessage = err.text || err.message || 'An unknown error occurred.';
-      alert(`We’re sorry, your order couldn’t be placed (Error: ${errorMessage}). Please call us directly.`);
-      console.error('Order process FAILED:', err);
+      console.error("Order process error:", err);
+
+      // If DB save succeeded but email failed, still show partial success
+      if (err.status === 422) {
+        alert(
+          `Email sending failed: Invalid template parameters. Please verify your email address.`
+        );
+      } else if (
+        err.name &&
+        (err.name.includes("EmailJS") || err.name.includes("email"))
+      ) {
+        alert(
+          `Order placed successfully (${orderId}) but confirmation email could not be sent. Please save your order ID for reference.`
+        );
+        setSuccessOrderId(orderId);
+        setIsSuccessPopupOpen(true);
+        setIsPopupOpen(false);
+        setMobileNumber("+1");
+        setTableNumber("1");
+        setEmail("");
+        setAddress("");
+        dispatch(clearCart());
+      } else {
+        alert(
+          `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`
+        );
+      }
     } finally {
       setIsLoading(false);
     }
@@ -246,19 +308,23 @@ function Header() {
             alt="Payment QR Code"
             style={{ width: "250px", height: "250px", margin: "10px 0" }}
           />
-          
+
           {/* Venmo Payment Button */}
           <div style={{ textAlign: "center", margin: "20px 0" }}>
-            <h4 style={{ marginBottom: "15px", color: "#333" }}>Pay with Venmo</h4>
-            <a 
-              href={`https://venmo.com/Rajarani1?txn=pay&amount=${finalOrderAmount.toFixed(2)}&note=${successOrderId}`}
-              target="_blank" 
+            <h4 style={{ marginBottom: "15px", color: "#333" }}>
+              Pay with Venmo
+            </h4>
+            <a
+              href={`https://venmo.com/Rajarani1?txn=pay&amount=${finalOrderAmount.toFixed(
+                2
+              )}&note=${successOrderId}`}
+              target="_blank"
               rel="noopener noreferrer"
               style={{ display: "inline-block" }}
             >
-              <img 
-                src="https://cdn.iconscout.com/icon/free/png-256/venmo-2-569346.png" 
-                alt="Pay with Venmo" 
+              <img
+                src="https://cdn.iconscout.com/icon/free/png-256/venmo-2-569346.png"
+                alt="Pay with Venmo"
                 style={{ width: "120px", height: "auto" }}
               />
             </a>
@@ -505,7 +571,8 @@ function Header() {
                 <div
                   style={{
                     maxHeight: "15rem",
-                    overflowY: Object.keys(cartItems).length > 5 ? "scroll" : "auto",
+                    overflowY:
+                      Object.keys(cartItems).length > 5 ? "scroll" : "auto",
                     marginTop: "15px",
                     borderTop: "1px solid #ccc",
                     paddingTop: "10px",
@@ -529,67 +596,265 @@ function Header() {
                           backgroundColor: "#f5f5f5",
                         }}
                       >
-                        <th style={{ width: "60%", wordWrap: "break-word", padding: "10px" }}>Name</th>
+                        <th
+                          style={{
+                            width: "60%",
+                            wordWrap: "break-word",
+                            padding: "10px",
+                          }}
+                        >
+                          Name
+                        </th>
                         <th style={{ width: "20%", padding: "10px" }}>Qty</th>
                         <th style={{ width: "20%", padding: "10px" }}>Price</th>
                       </tr>
                     </thead>
                     <tbody style={{ color: "black" }}>
-                      {Object.entries(cartItems).map(([name, { quantity, price }]) => (
-                        <tr key={name} style={{ borderBottom: "1px solid #eee", padding: "5px 0" }}>
-                          <td style={{ wordWrap: "break-word", whiteSpace: "normal", padding: "5px" }}>{name}</td>
-                          <td>{quantity}</td>
-                          <td>{(quantity * price).toFixed(2)}</td>
-                        </tr>
-                      ))}
+                      {Object.entries(cartItems).map(
+                        ([name, { quantity, price }]) => (
+                          <tr
+                            key={name}
+                            style={{
+                              borderBottom: "1px solid #eee",
+                              padding: "5px 0",
+                            }}
+                          >
+                            <td
+                              style={{
+                                wordWrap: "break-word",
+                                whiteSpace: "normal",
+                                padding: "5px",
+                              }}
+                            >
+                              {name}
+                            </td>
+                            <td>{quantity}</td>
+                            <td>{(quantity * price).toFixed(2)}</td>
+                          </tr>
+                        )
+                      )}
                     </tbody>
                   </table>
                 </div>
               )}
 
-              <input type="text" placeholder="Subtotal" disabled value={`Subtotal: $${totalAmount.toFixed(2)}`} style={{ width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", marginTop: "20px" }} />
-              <input type="text" placeholder="Sales Tax" disabled value={`Sales Tax (6%): $${(totalAmount * 0.06).toFixed(2)}`} style={{ width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", marginTop: "10px" }} />
-              <input type="text" placeholder="Total Amount" disabled value={`Total Amount: $${(totalAmount * 1.06).toFixed(2)}`} style={{ width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", marginTop: "10px" }} />
+              <input
+                type="text"
+                placeholder="Subtotal"
+                disabled
+                value={`Subtotal: $${totalAmount.toFixed(2)}`}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                  marginTop: "20px",
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Sales Tax"
+                disabled
+                value={`Sales Tax (6%): $${(totalAmount * 0.06).toFixed(2)}`}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                  marginTop: "10px",
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Total Amount"
+                disabled
+                value={`Total Amount: $${(totalAmount * 1.06).toFixed(2)}`}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                  marginTop: "10px",
+                }}
+              />
 
               {orderMode !== "dinein" && (
                 <>
-                  <input type="tel" placeholder="Mobile Number" value={mobileNumber} onChange={handleChange} style={{ width: "100%", padding: "8px", marginTop: "5px", marginBottom: "5px", border: "1px solid #ccc", borderRadius: "4px" }} />
-                  {mobileError && <div style={{ color: "red", marginBottom: "15px" }}>{mobileError}</div>}
+                  <input
+                    type="tel"
+                    placeholder="Mobile Number"
+                    value={mobileNumber}
+                    onChange={handleChange}
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      marginTop: "5px",
+                      marginBottom: "5px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                    }}
+                  />
+                  {mobileError && (
+                    <div style={{ color: "red", marginBottom: "15px" }}>
+                      {mobileError}
+                    </div>
+                  )}
                 </>
               )}
 
-              <input type="email" placeholder="Email (required)" value={email} onChange={(e) => { setEmail(e.target.value); setEmailError(""); }} required style={{ width: "100%", padding: "8px", marginTop: "5px", marginBottom: "5px", border: "1px solid #ccc", borderRadius: "4px" }} />
-              {emailError && <div style={{ color: "red", marginBottom: "15px" }}>{emailError}</div>}
-              
+              <input
+                type="email"
+                placeholder="Email (required)"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailError("");
+                }}
+                required
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  marginTop: "5px",
+                  marginBottom: "5px",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                }}
+              />
+              {emailError && (
+                <div style={{ color: "red", marginBottom: "15px" }}>
+                  {emailError}
+                </div>
+              )}
+
               {orderMode === "dinein" && (
-                <select value={tableNumber} onChange={(e) => setTableNumber(e.target.value)} required style={{ width: "100%", padding: "8px", marginBottom: "15px", border: "1px solid #ccc", borderRadius: "4px" }}>
-                  {[...Array(10)].map((_, i) => (<option key={i + 1} value={i + 1}>Table {i + 1}</option>))}
+                <select
+                  value={tableNumber}
+                  onChange={(e) => setTableNumber(e.target.value)}
+                  required
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    marginBottom: "15px",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                  }}
+                >
+                  {[...Array(10)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      Table {i + 1}
+                    </option>
+                  ))}
                 </select>
               )}
-              
-              <div className="option-group" style={{ marginTop: "10px", display: "flex", gap: "5rem", justifyContent: "space-evenly" }}>
+
+              <div
+                className="option-group"
+                style={{
+                  marginTop: "10px",
+                  display: "flex",
+                  gap: "5rem",
+                  justifyContent: "space-evenly",
+                }}
+              >
                 {["dinein", "pickup"].map((mode) => (
-                  <label key={mode} style={{ color: "black", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", fontSize: "14px" }}>
-                    <input type="radio" name="orderType" value={mode} checked={orderMode === mode} onChange={() => { setOrderMode(mode); if (mode === "pickup") { setAddress("Pickup"); } }} style={{ marginBottom: "3px" }} />
+                  <label
+                    key={mode}
+                    style={{
+                      color: "black",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      textAlign: "center",
+                      fontSize: "14px",
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="orderType"
+                      value={mode}
+                      checked={orderMode === mode}
+                      onChange={() => {
+                        setOrderMode(mode);
+                        if (mode === "pickup") {
+                          setAddress("Pickup");
+                        }
+                      }}
+                      style={{ marginBottom: "3px" }}
+                    />
                     {mode.charAt(0).toUpperCase() + mode.slice(1)}
                   </label>
                 ))}
               </div>
-              
+
               {orderMode === "delivery" && (
                 <>
                   <br />
-                  <button onClick={getLocation} style={{ width: "100%", padding: "8px", marginBottom: "15px", border: "1px solid #ccc", borderRadius: "4px" }}>Locate Me</button>
-                  <br /><br />
-                  <textarea id="address" name="address" rows="5" required value={address} onChange={(e) => setAddress(e.target.value)} style={{ width: "100%", padding: "8px", marginBottom: "15px", border: "1px solid #ccc", borderRadius: "4px" }}></textarea>
-                  {addressError && <div style={{ color: "red", marginBottom: "15px" }}>{addressError}</div>}
+                  <button
+                    onClick={getLocation}
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      marginBottom: "15px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    Locate Me
+                  </button>
+                  <br />
+                  <br />
+                  <textarea
+                    id="address"
+                    name="address"
+                    rows="5"
+                    required
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      marginBottom: "15px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                    }}
+                  ></textarea>
+                  {addressError && (
+                    <div style={{ color: "red", marginBottom: "15px" }}>
+                      {addressError}
+                    </div>
+                  )}
                 </>
               )}
 
-              <button onClick={handleOrderNow} disabled={isCartEmpty} style={{ backgroundColor: isCartEmpty ? "#aaa" : "black", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "4px", cursor: isCartEmpty ? "not-allowed" : "pointer", marginRight: "10px", marginTop: "10px" }}>
+              <button
+                onClick={handleOrderNow}
+                disabled={isCartEmpty}
+                style={{
+                  backgroundColor: isCartEmpty ? "#aaa" : "black",
+                  color: "#fff",
+                  border: "none",
+                  padding: "10px 20px",
+                  borderRadius: "4px",
+                  cursor: isCartEmpty ? "not-allowed" : "pointer",
+                  marginRight: "10px",
+                  marginTop: "10px",
+                }}
+              >
                 {isCartEmpty ? `Add items to cart` : `Order Now`}
               </button>
-              <button onClick={() => setIsPopupOpen(false)} style={{ position: "absolute", top: "10px", right: "10px", background: "none", border: "none", fontSize: "20px", cursor: "pointer", color: "black" }}>
+              <button
+                onClick={() => setIsPopupOpen(false)}
+                style={{
+                  position: "absolute",
+                  top: "10px",
+                  right: "10px",
+                  background: "none",
+                  border: "none",
+                  fontSize: "20px",
+                  cursor: "pointer",
+                  color: "black",
+                }}
+              >
                 ×
               </button>
             </div>

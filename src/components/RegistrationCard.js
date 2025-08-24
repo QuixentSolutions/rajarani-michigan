@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import emailjs from '@emailjs/browser';
 import './RegistrationCard.css';
-import emailjs from '@emailjs/browser'; // Use the modern emailjs package
 
 function RegistrationCard() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
   });
+  
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,52 +22,74 @@ function RegistrationCard() {
     e.preventDefault();
     console.log('Registration Data:', formData);
 
-    const templateParams = {
-      name: formData.name,
-      email: formData.email,
-      to_email: formData.email,
-      order_mode: "3rd Anniversary Registration",
-      sub_total: "0.00",
-      sales_tax: "0.00",
-      total_amount: "0.00",
-      address: "Online Registration for Anniversary Event"
-    };
+    // Validate required fields
+    if (!formData.name.trim() || !formData.email.trim()) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/register', {
+      // First, save to database (without email functionality)
+      const dbResponse = await fetch('http://localhost:5000/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+        }),
       });
 
-      const data = await response.json();
+      const dbData = await dbResponse.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to save registration to database.');
+      if (!dbResponse.ok) {
+        throw new Error(dbData.message || 'Failed to save registration to database.');
       }
 
-      console.log('Registration saved to DB:', data);
+      console.log('Registration saved to DB:', dbData);
 
-      // THIS IS THE FIX: Use the new anniversary template ID and modern syntax
-      await emailjs.send(
-        process.env.REACT_APP_EMAILJS_SERVICE_ID,
-        process.env.REACT_APP_EMAILJS_ANNIVERSARY_TEMPLATE_ID, // <-- THE FIX IS HERE
+      // Then send email from frontend using EmailJS
+      const templateParams = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+      };
+
+      console.log('Sending email with template params:', templateParams);
+
+      // Send email using EmailJS from frontend
+      const emailResponse = await emailjs.send(
+        process.env.REACT_APP_EMAILJS_SERVICE_ID || 'service_otcs6w9',
+        process.env.REACT_APP_EMAILJS_ANNIVERSARY_TEMPLATE_ID || 'template_l7xjm52',
         templateParams,
-        { publicKey: process.env.REACT_APP_EMAILJS_PUBLIC_KEY }
+        process.env.REACT_APP_EMAILJS_PUBLIC_KEY || 'FxwSUoBkBRQjimBrz'
       );
 
-      console.log('EmailJS SUCCESS!');
-      alert('Registration Successful! Check your email for confirmation.');
+      console.log('EmailJS SUCCESS:', emailResponse);
+      
+      alert('Registration Successful! Your details have been saved and confirmation email sent.');
+      
+      // Reset form
       setFormData({
         name: '',
         email: '',
       });
 
     } catch (err) {
-      console.error('Process FAILED:', err);
-      alert(`Registration Failed: ${err.message || 'An unknown error occurred.'} Please try again later.`);
+      console.error('Registration process error:', err);
+      
+      // If DB save succeeded but email failed, check error type
+      if (err.name && err.name.includes('EmailJS')) {
+        alert('Registration saved successfully, but confirmation email could not be sent. Please check your email address.');
+      } else if (err.message && err.message.includes('email')) {
+        alert('Registration saved successfully, but confirmation email could not be sent.');
+      } else {
+        alert(`Registration Failed: ${err.message || 'An unknown error occurred.'} Please try again later.`);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -82,6 +106,7 @@ function RegistrationCard() {
             value={formData.name}
             onChange={handleChange}
             required
+            disabled={isLoading}
           />
         </div>
         <div className="form-group">
@@ -93,9 +118,16 @@ function RegistrationCard() {
             value={formData.email}
             onChange={handleChange}
             required
+            disabled={isLoading}
           />
         </div>
-        <button type="submit" className="register-button">Register</button>
+        <button 
+          type="submit" 
+          className="register-button"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Registering...' : 'Register'}
+        </button>
       </form>
     </div>
   );

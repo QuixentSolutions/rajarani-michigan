@@ -248,13 +248,12 @@ function Header() {
           >
             ×
           </button>
-          <h2 style={{ margin: "1rem" }}>
-            Order Placed Successfully! - {successOrderId}
-          </h2>
-          {/* <p>
+          <h2 style={{ margin: "1rem" }}>Order Placed Successfully!</h2>
+          <p>
             Your order has been placed and a confirmation email has been sent
             with all the details. - <strong>{successOrderId}</strong>
           </p>
+          {/* 
           <p style={{ marginTop: "20px" }}>
             <strong>Payment Options</strong>
           </p>

@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
+const emailjs = require("@emailjs/nodejs");
+
 require("dotenv").config();
 
 const app = express();
@@ -131,39 +133,6 @@ const MenuSection = mongoose.model(
 );
 
 // ====== AUTH MIDDLEWARE ======
-const authenticateAdmin = async (req, res, next) => {
-  try {
-    const authHeader = req.headers["authorization"];
-    if (!authHeader) {
-      res.setHeader("WWW-Authenticate", 'Basic realm="Raja Rani Admin Area"');
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: Authorization header missing." });
-    }
-    const [type, credentials] = authHeader.split(" ");
-    if (type !== "Basic" || !credentials) {
-      res.setHeader("WWW-Authenticate", 'Basic realm="Raja Rani Admin Area"');
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: Invalid authorization type." });
-    }
-    const decoded = Buffer.from(credentials, "base64").toString("ascii");
-    const [username, password] = decoded.split(":");
-    const adminUsername = process.env.ADMIN_USERNAME || "admin";
-    const adminPassword = process.env.ADMIN_PASSWORD || "QuiX3nt!";
-    if (username === adminUsername && password === adminPassword) {
-      next();
-    } else {
-      res.setHeader("WWW-Authenticate", 'Basic realm="Raja Rani Admin Area"');
-      return res
-        .status(403)
-        .json({ message: "Forbidden: Invalid credentials." });
-    }
-  } catch (error) {
-    console.error("Authentication error:", error);
-    res.status(500).json({ message: "Authentication system error" });
-  }
-};
 
 // ====== PUBLIC ROUTES ======
 app.post("/api/register", async (req, res) => {
@@ -187,6 +156,53 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
+function buildEmailHTML(items) {
+  const rows = items
+    .map(({ name, quantity, price }) => {
+      const unitPrice = parseFloat(price);
+      const lineTotal = quantity * unitPrice;
+      return `
+          <tr>
+            <td style="padding:8px;border:1px solid #ccc;">${name}</td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:center;">${quantity}</td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:right;">$${unitPrice.toFixed(
+              2
+            )}</td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:right;">$${lineTotal.toFixed(
+              2
+            )}</td>
+          </tr>`;
+    })
+    .join("");
+
+  const grandTotal = items.reduce(
+    (sum, { quantity, price }) => sum + quantity * parseFloat(price),
+    0
+  );
+
+  return `
+        <table style="border-collapse:collapse;width:100%;font-family:Arial, sans-serif;">
+          <thead>
+            <tr>
+              <th style="padding:8px;border:1px solid #ccc;background:#f2f2f2;">Item</th>
+              <th style="padding:8px;border:1px solid #ccc;background:#f2f2f2;">Qty</th>
+              <th style="padding:8px;border:1px solid #ccc;background:#f2f2f2;">Unit Price</th>
+              <th style="padding:8px;border:1px solid #ccc;background:#f2f2f2;">Line Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+            <tr>
+              <td colspan="3" style="padding:8px;border:1px solid #ccc;text-align:right;font-weight:bold;">Grand Total</td>
+              <td style="padding:8px;border:1px solid #ccc;text-align:right;font-weight:bold;">$${grandTotal.toFixed(
+                2
+              )}</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+}
+
 app.post("/api/order", async (req, res) => {
   try {
     const orderData = req.body;
@@ -195,6 +211,30 @@ app.post("/api/order", async (req, res) => {
     }
     const newOrder = new Order(orderData);
     await newOrder.save();
+
+    const emailHTML = buildEmailHTML(orderData.items);
+    // console.log(emailHTML);
+
+    const templateParams = {
+      email: orderData.email.trim(), // Changed from 'to_email' to 'email' to match your template
+      name: "Customer",
+      order_mode: String(orderData.orderMode),
+      order_id: String(orderData.orderId),
+      mobile_number: String(orderData.mobileNumber),
+      sub_total: orderData.subTotal.toFixed(2),
+      sales_tax: orderData.salesTax.toFixed(2),
+      total_amount: orderData.totalAmount.toFixed(2),
+      address: orderData.address ? orderData.address : "N/A",
+      order_details: emailHTML,
+    };
+
+    await emailjs.send(
+      process.env.REACT_APP_EMAILJS_SERVICE_ID,
+      process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+      templateParams,
+      { publicKey: process.env.REACT_APP_EMAILJS_PUBLIC_KEY }
+    );
+
     res.status(201).json({
       message: "Order placed successfully!",
       data: newOrder,

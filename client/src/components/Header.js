@@ -181,7 +181,7 @@ function Header() {
 
     try {
       // First, save order to database
-      const dbResponse = await fetch("http://localhost:5000/api/order", {
+      const dbResponse = await fetch("http://localhost:5001/api/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),

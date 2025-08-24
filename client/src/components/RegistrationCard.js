@@ -1,30 +1,30 @@
-import React, { useState } from 'react';
-import emailjs from '@emailjs/browser';
-import './RegistrationCard.css';
+import React, { useState } from "react";
+import emailjs from "@emailjs/browser";
+import "./RegistrationCard.css";
 
 function RegistrationCard() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: "",
+    email: "",
   });
-  
+
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Registration Data:', formData);
+    console.log("Registration Data:", formData);
 
     // Validate required fields
     if (!formData.name.trim() || !formData.email.trim()) {
-      alert('Please fill in all required fields.');
+      alert("Please fill in all required fields.");
       return;
     }
 
@@ -32,10 +32,10 @@ function RegistrationCard() {
 
     try {
       // First, save to database (without email functionality)
-      const dbResponse = await fetch('http://localhost:5000/api/register', {
-        method: 'POST',
+      const dbResponse = await fetch("http://localhost:5001/api/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: formData.name.trim(),
@@ -46,10 +46,12 @@ function RegistrationCard() {
       const dbData = await dbResponse.json();
 
       if (!dbResponse.ok) {
-        throw new Error(dbData.message || 'Failed to save registration to database.');
+        throw new Error(
+          dbData.message || "Failed to save registration to database."
+        );
       }
 
-      console.log('Registration saved to DB:', dbData);
+      console.log("Registration saved to DB:", dbData);
 
       // Then send email from frontend using EmailJS
       const templateParams = {
@@ -57,36 +59,46 @@ function RegistrationCard() {
         email: formData.email.trim(),
       };
 
-      console.log('Sending email with template params:', templateParams);
+      console.log("Sending email with template params:", templateParams);
 
       // Send email using EmailJS from frontend
       const emailResponse = await emailjs.send(
-        process.env.REACT_APP_EMAILJS_SERVICE_ID || 'service_otcs6w9',
-        process.env.REACT_APP_EMAILJS_ANNIVERSARY_TEMPLATE_ID || 'template_l7xjm52',
+        process.env.REACT_APP_EMAILJS_SERVICE_ID || "service_otcs6w9",
+        process.env.REACT_APP_EMAILJS_ANNIVERSARY_TEMPLATE_ID ||
+          "template_l7xjm52",
         templateParams,
-        process.env.REACT_APP_EMAILJS_PUBLIC_KEY || 'FxwSUoBkBRQjimBrz'
+        process.env.REACT_APP_EMAILJS_PUBLIC_KEY || "FxwSUoBkBRQjimBrz"
       );
 
-      console.log('EmailJS SUCCESS:', emailResponse);
-      
-      alert('Registration Successful! Your details have been saved and confirmation email sent.');
-      
+      console.log("EmailJS SUCCESS:", emailResponse);
+
+      alert(
+        "Registration Successful! Your details have been saved and confirmation email sent."
+      );
+
       // Reset form
       setFormData({
-        name: '',
-        email: '',
+        name: "",
+        email: "",
       });
-
     } catch (err) {
-      console.error('Registration process error:', err);
-      
+      console.error("Registration process error:", err);
+
       // If DB save succeeded but email failed, check error type
-      if (err.name && err.name.includes('EmailJS')) {
-        alert('Registration saved successfully, but confirmation email could not be sent. Please check your email address.');
-      } else if (err.message && err.message.includes('email')) {
-        alert('Registration saved successfully, but confirmation email could not be sent.');
+      if (err.name && err.name.includes("EmailJS")) {
+        alert(
+          "Registration saved successfully, but confirmation email could not be sent. Please check your email address."
+        );
+      } else if (err.message && err.message.includes("email")) {
+        alert(
+          "Registration saved successfully, but confirmation email could not be sent."
+        );
       } else {
-        alert(`Registration Failed: ${err.message || 'An unknown error occurred.'} Please try again later.`);
+        alert(
+          `Registration Failed: ${
+            err.message || "An unknown error occurred."
+          } Please try again later.`
+        );
       }
     } finally {
       setIsLoading(false);
@@ -121,12 +133,8 @@ function RegistrationCard() {
             disabled={isLoading}
           />
         </div>
-        <button 
-          type="submit" 
-          className="register-button"
-          disabled={isLoading}
-        >
-          {isLoading ? 'Registering...' : 'Register'}
+        <button type="submit" className="register-button" disabled={isLoading}>
+          {isLoading ? "Registering..." : "Register"}
         </button>
       </form>
     </div>

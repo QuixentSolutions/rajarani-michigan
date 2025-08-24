@@ -5,7 +5,7 @@ const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 const adminRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -55,8 +55,10 @@ app.use(express.json({ limit: "10mb" }));
 
 // ====== ROOT HEALTH CHECK ======
 app.get("/", (req, res) => {
-  res.status(200).json({ message: "Raja Rani backend is running successfully" })
-})
+  res
+    .status(200)
+    .json({ message: "Raja Rani backend is running successfully" });
+});
 
 mongoose
   .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/rajarani")

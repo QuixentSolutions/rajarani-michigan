@@ -11,7 +11,8 @@ function Menu() {
   const [notification, setNotification] = useState(null);
   const [menuSections, setMenuSections] = useState([]);
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -40,16 +41,22 @@ function Menu() {
       // Calculate the new quantity based on the current cart state and the change
       const currentQty = cartItems[itemName]?.quantity || 0;
       const newQty = currentQty + change;
-      setNotification(<span>{itemName} ({newQty}) added!</span>);
+      setNotification(
+        <span>
+          {itemName} ({newQty}) added!
+        </span>
+      );
       setTimeout(() => {
         setNotification(null);
-      }, 1500); 
+      }, 1500);
     }
   };
 
   return (
     <div className="menu-container">
-      {notification && <div className="item-added-notification">{notification}</div>}
+      {notification && (
+        <div className="item-added-notification">{notification}</div>
+      )}
       <h1
         style={{
           textAlign: "center",
@@ -160,7 +167,6 @@ function Menu() {
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          
                         }}
                       >
                         <FaMinus
@@ -168,7 +174,6 @@ function Menu() {
                             cursor: "pointer",
                             fontSize: "16px",
                             marginRight: "5px",
-                            
                           }}
                           onClick={() =>
                             handleQuantityChange(item.name, -1, price)
@@ -179,7 +184,6 @@ function Menu() {
                             fontSize: "16px",
                             width: "20px",
                             textAlign: "center",
-                            
                           }}
                         >
                           {qty}
@@ -189,7 +193,6 @@ function Menu() {
                             cursor: "pointer",
                             fontSize: "16px",
                             marginLeft: "5px",
-                           
                           }}
                           onClick={(e) =>
                             handleQuantityChange(item.name, 1, price, e)

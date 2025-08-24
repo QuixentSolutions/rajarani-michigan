@@ -700,11 +700,11 @@ const AdminDashboard = ({ onLogout }) => {
                               <h5>{item.name}</h5>
                               <div className="price-info">
                                 <span className="new-price">
-                                  ₹{item.newPrice}
+                                  ${item.newPrice}
                                 </span>
                                 {item.oldPrice && (
                                   <span className="old-price">
-                                    ₹{item.oldPrice}
+                                    ${item.oldPrice}
                                   </span>
                                 )}
                               </div>
@@ -794,7 +794,7 @@ const AdminDashboard = ({ onLogout }) => {
                   <strong>Status:</strong> {selectedItem.status}
                 </p>
                 <p>
-                  <strong>Total:</strong> ₹{selectedItem.totalAmount}
+                  <strong>Total:</strong> ${selectedItem.totalAmount}
                 </p>
                 <p>
                   <strong>Order Date:</strong>{" "}
@@ -804,7 +804,7 @@ const AdminDashboard = ({ onLogout }) => {
                   <h5>Items:</h5>
                   {selectedItem.items?.map((item, index) => (
                     <div key={index} className="order-item">
-                      {item.name} - Qty: {item.quantity} - ₹{item.price}
+                      {item.name} - Qty: {item.quantity} - ${item.price}
                     </div>
                   ))}
                 </div>
@@ -831,8 +831,8 @@ const AdminDashboard = ({ onLogout }) => {
                   <h5>Items:</h5>
                   {selectedItem.items?.map((item, index) => (
                     <div key={index} className="menu-item">
-                      {item.name} - ₹{item.newPrice}
-                      {item.oldPrice && ` (was ₹${item.oldPrice})`}
+                      {item.name} - ${item.newPrice}
+                      {item.oldPrice && ` (was $${item.oldPrice})`}
                     </div>
                   ))}
                 </div>
@@ -1057,7 +1057,7 @@ const AdminDashboard = ({ onLogout }) => {
                         <strong>{order.email || "N/A"}</strong>
                       </td>
                       <td>
-                        <strong>₹{(order.totalAmount || 0).toFixed(2)}</strong>
+                        <strong>${(order.totalAmount || 0).toFixed(2)}</strong>
                       </td>
                       <td>
                         <span

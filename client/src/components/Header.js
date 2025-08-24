@@ -6,7 +6,6 @@ import { useDispatch } from "react-redux";
 import { clearCart } from "../cartSlice";
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
 import AnniversaryPopup from "./AnniversaryPopup";
-import emailjs from "@emailjs/browser";
 
 function Header() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -97,10 +96,13 @@ function Header() {
     setMobileError("");
 
     // Validate email (CRITICAL - this must happen first)
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email.trim())) {
-      setEmailError("Please enter a valid email address.");
-      return;
+
+    if (orderMode !== "dinein") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email.trim())) {
+        setEmailError("Please enter a valid email address.");
+        return;
+      }
     }
     setEmailError("");
 
@@ -112,39 +114,13 @@ function Header() {
     setAddressError("");
 
     const timestamp = Date.now();
-    const orderId = `#ORD${timestamp.toString().slice(-4)}`;
-
-    const orderDetailsHtml = Object.entries(cartItems)
-      .map(
-        ([name, { quantity, price }]) =>
-          `<div>${quantity} x ${name} - $${(quantity * price).toFixed(2)}</div>`
-      )
-      .join("");
+    const orderId = `ORD${timestamp.toString().slice(-4)}`;
 
     const finalTotalAmount = totalAmount * 1.06;
     const salesTaxAmount = totalAmount * 0.06;
 
     // Store final amount for success popup
     setFinalOrderAmount(finalTotalAmount);
-
-    // Add Venmo payment section to email
-    const venmoPaymentHtml = `
-      <div style="margin: 20px 0; text-align: center; padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
-        <h3 style="color: #333; margin-bottom: 15px;">Pay with Venmo</h3>
-        <a href="https://venmo.com/Rajarani1?txn=pay&amount=${finalTotalAmount.toFixed(
-          2
-        )}&note=${orderId}" 
-           target="_blank" 
-           style="display: inline-block; text-decoration: none;">
-          <img src="https://cdn.iconscout.com/icon/free/png-256/venmo-2-569346.png" 
-               alt="Pay with Venmo" 
-               style="width: 120px; height: auto; border-radius: 8px;">
-        </a>
-        <p style="margin-top: 10px; color: #666; font-size: 14px;">
-          Click the Venmo logo above to pay securely
-        </p>
-      </div>
-    `;
 
     const orderData = {
       orderId: String(orderId),
@@ -161,20 +137,6 @@ function Header() {
       subTotal: parseFloat(totalAmount.toFixed(2)),
       salesTax: parseFloat(salesTaxAmount.toFixed(2)),
       totalAmount: parseFloat(finalTotalAmount.toFixed(2)),
-    };
-
-    // FIXED: Updated template params to match your EmailJS template
-    const templateParams = {
-      email: email.trim(), // Changed from 'to_email' to 'email' to match your template
-      name: "Customer",
-      order_mode: String(orderMode),
-      order_id: String(orderId),
-      mobile_number: String(mobileNumber),
-      sub_total: totalAmount.toFixed(2),
-      sales_tax: salesTaxAmount.toFixed(2),
-      total_amount: finalTotalAmount.toFixed(2),
-      address: address ? String(address) : `Table ${tableNumber}`,
-      order_details: orderDetailsHtml,
     };
 
     setIsLoading(true);
@@ -194,21 +156,6 @@ function Header() {
       }
 
       console.log("Order saved to database:", dbData);
-
-      // Then send email from frontend using EmailJS
-      console.log(
-        "Sending order confirmation email with params:",
-        templateParams
-      );
-
-      const emailResponse = await emailjs.send(
-        process.env.REACT_APP_EMAILJS_SERVICE_ID || "service_otcs6w9",
-        process.env.REACT_APP_EMAILJS_TEMPLATE_ID || "template_55aywnl",
-        templateParams,
-        process.env.REACT_APP_EMAILJS_PUBLIC_KEY || "FxwSUoBkBRQjimBrz"
-      );
-
-      console.log("Order email sent successfully:", emailResponse);
 
       setSuccessOrderId(orderId);
       setIsSuccessPopupOpen(true);
@@ -295,22 +242,26 @@ function Header() {
           >
             ×
           </button>
-          <h2 style={{ margin: "1rem" }}>Order Placed Successfully!</h2>
-          <p>
+          <h2 style={{ margin: "1rem" }}>
+            Order Placed Successfully! - {successOrderId}
+          </h2>
+          {/* <p>
             Your order has been placed and a confirmation email has been sent
             with all the details. - <strong>{successOrderId}</strong>
           </p>
           <p style={{ marginTop: "20px" }}>
-            <strong>You can scan to pay or pay at the counter</strong>
+            <strong>Payment Options</strong>
           </p>
-          <img
+          <br />
+          <hr /> */}
+          {/* <img
             src="https://rajarani-michigan.s3.us-east-2.amazonaws.com/general/qr.png"
             alt="Payment QR Code"
             style={{ width: "250px", height: "250px", margin: "10px 0" }}
           />
-
+          <hr /> */}
           {/* Venmo Payment Button */}
-          <div style={{ textAlign: "center", margin: "20px 0" }}>
+          {/* <div style={{ textAlign: "center", margin: "20px 0" }}>
             <h4 style={{ marginBottom: "15px", color: "#333" }}>
               Pay with Venmo
             </h4>
@@ -331,7 +282,7 @@ function Header() {
             <p style={{ marginTop: "10px", color: "#666", fontSize: "14px" }}>
               Total Amount: ${finalOrderAmount.toFixed(2)}
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
     );
@@ -699,32 +650,34 @@ function Header() {
                       {mobileError}
                     </div>
                   )}
+                  <input
+                    type="email"
+                    placeholder="Email (Required for order confirmation)"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setEmailError("");
+                    }}
+                    required
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      marginTop: "5px",
+                      marginBottom: "5px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                    }}
+                  />
+                  {emailError && (
+                    <div style={{ color: "red", marginBottom: "15px" }}>
+                      {emailError}
+                    </div>
+                  )}
                 </>
               )}
 
-              <input
-                type="email"
-                placeholder="Email (required)"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setEmailError("");
-                }}
-                required
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  marginTop: "5px",
-                  marginBottom: "5px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                }}
-              />
-              {emailError && (
-                <div style={{ color: "red", marginBottom: "15px" }}>
-                  {emailError}
-                </div>
-              )}
+              <br />
+              <br />
 
               {orderMode === "dinein" && (
                 <select
@@ -756,7 +709,7 @@ function Header() {
                   justifyContent: "space-evenly",
                 }}
               >
-                {["dinein", "pickup"].map((mode) => (
+                {["dinein", "pickup", "delivery"].map((mode) => (
                   <label
                     key={mode}
                     style={{

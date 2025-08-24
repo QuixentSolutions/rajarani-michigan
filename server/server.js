@@ -20,6 +20,11 @@ const adminRateLimit = rateLimit({
 app.use(cors())
 app.use(express.json({ limit: "10mb" }))
 
+// ====== ROOT HEALTH CHECK ======
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "Raja Rani backend is running successfully" })
+})
+
 mongoose
   .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/rajarani")
   .then(() => console.log("MongoDB connected successfully."))

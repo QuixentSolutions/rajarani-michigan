@@ -7,7 +7,7 @@ const orderItemSchema = new mongoose.Schema({
 });
 
 const orderSchema = new mongoose.Schema({
-  orderId: { 
+  orderId: {
     type: String,
     required: true,
     unique: true,
@@ -28,19 +28,19 @@ const orderSchema = new mongoose.Schema({
   orderMode: {
     type: String,
     required: true,
-    enum: ['dinein', 'pickup', 'delivery'], 
+    enum: ['dinein', 'pickup', 'delivery'],
   },
   tableNumber: {
     type: String,
-    trim: true, 
+    trim: true,
   },
   address: {
     type: String,
-    trim: true, 
+    trim: true,
   },
   items: [
     orderItemSchema
-  ], 
+  ],
   subTotal: {
     type: Number,
     required: true,

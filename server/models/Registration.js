@@ -9,15 +9,15 @@ const registrationSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true, 
+    unique: true,
     trim: true,
     lowercase: true,
     match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address.']
   },
-  
+
   registrationDate: {
     type: Date,
-    default: Date.now 
+    default: Date.now
   },
   anniversaryDate: {
     type: String

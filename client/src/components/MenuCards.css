@@ -3,13 +3,13 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: #FFA500; 
-  color: black; 
+  background-color: #FFA500;
+  color: black;
   padding: 20px 30px; /* Increased padding for larger size */
   border-radius: 8px; /* Slightly more rounded */
-  z-index: 2000; 
+  z-index: 2000;
   font-size: 1.3em; /* Slightly larger font size */
-  animation: slide-in-fade-out 1.5s ease-out forwards; 
+  animation: slide-in-fade-out 1.5s ease-out forwards;
   text-align: center; /* Ensure text is centered */
   min-width: 250px; /* Ensure a minimum width */
   box-sizing: border-box; /* Include padding in width/height calculation */

@@ -35,7 +35,7 @@
   width: 160px;
   position: relative;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     0 8px 32px rgba(255, 165, 0, 0.4),
     0 0 0 1px rgba(255, 255, 255, 0.2) inset;
   cursor: pointer;
@@ -44,7 +44,7 @@
 
 .celebration-card:hover {
   transform: translateY(-4px) scale(1.03) rotate(1deg);
-  box-shadow: 
+  box-shadow:
     0 12px 40px rgba(255, 165, 0, 0.6),
     0 0 20px rgba(255, 215, 0, 0.8),
     0 0 0 2px rgba(255, 255, 255, 0.3) inset;
@@ -52,13 +52,13 @@
 }
 
 @keyframes celebration-glow {
-  0%, 100% { 
-    box-shadow: 
+  0%, 100% {
+    box-shadow:
       0 20px 40px rgba(255, 165, 0, 0.6),
       0 0 30px rgba(255, 215, 0, 0.8);
   }
-  50% { 
-    box-shadow: 
+  50% {
+    box-shadow:
       0 20px 50px rgba(255, 165, 0, 0.8),
       0 0 40px rgba(255, 215, 0, 1);
   }
@@ -239,20 +239,20 @@
     top: 100px; /* Adjusted for larger screens */
     right: 30px;
   }
-  
+
   .celebration-card {
     width: 180px;
     padding: 20px;
   }
-  
+
   .title {
     font-size: 16px;
   }
-  
+
   .subtitle {
     font-size: 13px;
   }
-  
+
   .register-btn {
     font-size: 13px;
     padding: 10px 16px;
@@ -265,7 +265,7 @@
     top: 90px; /* Adjusted to avoid icons */
     right: 25px;
   }
-  
+
   .celebration-card {
     width: 170px;
     padding: 18px;
@@ -278,7 +278,7 @@
     top: 80px; /* Adjusted to avoid icons */
     right: 20px;
   }
-  
+
   .celebration-card {
     width: 160px;
     padding: 16px;
@@ -291,20 +291,20 @@
     top: 75px; /* Adjusted to avoid icons */
     right: 15px;
   }
-  
+
   .celebration-card {
     width: 150px;
     padding: 14px;
   }
-  
+
   .title {
     font-size: 13px;
   }
-  
+
   .subtitle {
     font-size: 10px;
   }
-  
+
   .register-btn {
     font-size: 11px;
     padding: 7px 12px;
@@ -317,25 +317,25 @@
     top: 70px; /* Adjusted to avoid icons */
     right: 15px;
   }
-  
+
   .celebration-card {
     width: 140px;
     padding: 12px;
   }
-  
+
   .title {
     font-size: 12px;
   }
-  
+
   .subtitle {
     font-size: 10px;
   }
-  
+
   .register-btn {
     font-size: 10px;
     padding: 6px 10px;
   }
-  
+
   .sparkle {
     font-size: 12px;
   }
@@ -497,20 +497,20 @@
     top: 50px; /* Adjusted for landscape mode */
     right: 10px;
   }
-  
+
   .celebration-card {
     width: 110px;
     padding: 8px;
   }
-  
+
   .title {
     font-size: 10px;
   }
-  
+
   .subtitle {
     font-size: 8px;
   }
-  
+
   .register-btn {
     font-size: 9px;
     padding: 4px 8px;
@@ -522,7 +522,7 @@
   .celebration-card {
     border: 0.5px solid rgba(255, 255, 255, 0.1);
   }
-  
+
   .title, .subtitle {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -534,20 +534,20 @@
   .anniversary-popup.is-visible {
     animation: celebration-entrance-reduced 0.5s ease-out forwards;
   }
-  
+
   .celebration-card:hover {
     transform: translateY(-2px);
     animation: none;
   }
-  
+
   .sparkle {
     animation: none;
   }
-  
+
   .celebration-rays {
     animation: none;
   }
-  
+
   .btn-glow {
     transition: none;
   }

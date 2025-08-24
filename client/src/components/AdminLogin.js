@@ -128,7 +128,7 @@ const AdminLogin = ({ onLoginSuccess }) => {
         // Simulate loading for better UX
         setTimeout(() => {
             const result = validateCredentials(username, password);
-            
+
             if (result.success) {
                 // Store token in sessionStorage for session persistence
                 sessionStorage.setItem('adminToken', result.token);
@@ -197,7 +197,7 @@ const AdminLogin = ({ onLoginSuccess }) => {
                         {/* Input focus glow effect */}
                         <div className="form-group-glow" style={{ opacity: focusedInput === 'password' ? 1 : 0 }}></div>
                     </div>
-                    <button 
+                    <button
                         type="submit"
                         style={{
                             ...styles.button,
@@ -234,17 +234,17 @@ const AdminLogin = ({ onLoginSuccess }) => {
                         {isLoading ? 'Logging in...' : 'Login to Admin Panel'}
                     </button>
                 </form>
-                
+
                 {isLoading && (
                     <div style={styles.loading}>Validating credentials...</div>
                 )}
-                
+
                 {error && (
                     <div style={styles.error}>{error}</div>
                 )}
-                
-                
-                
+
+
+
             </div>
         </div>
     );

@@ -48,7 +48,7 @@ function AnniversaryPopup() {
         <div className="sparkle sparkle-4">
           ✨
         </div>
-        
+
         {/* Main content */}
         <div className="card-header">
           <div className="trophy-icon">
@@ -56,17 +56,17 @@ function AnniversaryPopup() {
           </div>
           <div className="anniversary-badge">3rd</div>
         </div>
-        
+
         <div className="card-content">
           <h3 className="title">Anniversary!</h3>
         </div>
-        
+
         <button onClick={scrollToRegistration} className="register-btn">
           🍽️
           <span>Register Now</span>
           <div className="btn-glow"></div>
         </button>
-        
+
         {/* Decorative elements */}
         <div className="celebration-rays"></div>
       </div>

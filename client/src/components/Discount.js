@@ -114,7 +114,7 @@ function Discount() {
     //   </div>
     // </div>
      <section className="hero">
-          
+
           <div className="container">
              <h2
         style={{

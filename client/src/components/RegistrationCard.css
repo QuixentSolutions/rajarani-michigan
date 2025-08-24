@@ -4,7 +4,7 @@
     background-color: #fff;
     border-radius: 15px;
     padding: 25px 35px;
-    box-shadow: 
+    box-shadow:
         0 12px 28px rgba(0, 0, 0, 0.15),
         0 2px 8px rgba(0, 0, 0, 0.08);
     max-width: 480px;
@@ -32,7 +32,7 @@
 
 .registration-card-container:hover {
     transform: translateY(-10px) scale(1.03);
-    box-shadow: 
+    box-shadow:
         0 20px 40px rgba(255, 165, 0, 0.25),
         0 8px 25px rgba(0, 0, 0, 0.12);
     border-color: #FFA500;
@@ -112,7 +112,7 @@
 .registration-form input[type="tel"]:focus {
     outline: none;
     border-color: #FFA500;
-    box-shadow: 
+    box-shadow:
         0 0 0 4px rgba(255, 165, 0, 0.15),
         0 4px 12px rgba(255, 165, 0, 0.1);
     transform: translateY(-2px);
@@ -197,11 +197,11 @@
         padding: 25px;
         margin: 30px auto;
     }
-    
+
     .registration-card-container h2 {
         font-size: 2em;
     }
-    
+
     .registration-form input[type="text"],
     .registration-form input[type="email"],
     .registration-form input[type="tel"] {

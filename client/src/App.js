@@ -11,7 +11,7 @@ import RegistrationCard from "./components/RegistrationCard";
 import Footer from "./components/Footer";
 import WhatsAppFloatingButton from "./components/WhatsAppFloatingButton";
 import ReviewBanner from "./components/ReviewBanner";
-import AdminApp from "./components/AdminApp"; 
+import AdminApp from "./components/AdminApp";
 
 import "./App.css";
 
@@ -39,7 +39,7 @@ function App() {
           <Routes>
             {/* Route for your main homepage */}
             <Route path="/" element={<HomePage />} />
-            
+
             {/* Route for the admin with authentication */}
             <Route path="/admin" element={<AdminApp />} />
           </Routes>

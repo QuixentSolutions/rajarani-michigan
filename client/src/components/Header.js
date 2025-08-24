@@ -82,6 +82,12 @@ function Header() {
   };
 
   const handleOrderNow = async (e) => {
+    let userConfirmed = window.confirm("Shall we finalize your order ?");
+
+    if (!userConfirmed) {
+      // User clicked "OK", proceed with deletion
+      return;
+    }
     e.preventDefault();
 
     // Validate mobile number for non-dine-in orders

@@ -58,47 +58,6 @@ const AdminDashboard = ({ onLogout }) => {
     }
   };
 
-  const fixExistingItems = async () => {
-    if (
-      !window.confirm(
-        "This will fix all existing menu items to work with CRUD operations. Continue?"
-      )
-    ) {
-      return;
-    }
-    try {
-      setError("");
-      setSuccess("Fixing existing items...");
-      const response = await fetch(
-        `${API_BASE_URL}/api/admin/fix-existing-items`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: authToken,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error(`Server responded with ${response.status}`);
-      }
-      const result = await response.json();
-      setSuccess(
-        `Successfully fixed ${result.totalItemsFixed} items in ${result.sectionsProcessed} sections`
-      );
-
-      await fetchMenuData();
-
-      if (selectedSection) {
-        await refreshSelectedSectionItems(selectedSection);
-      }
-
-      setTimeout(() => setSuccess(""), 5000);
-    } catch (err) {
-      setError(`Failed to fix items: ${err.message}`);
-    }
-  };
-
   const fetchData = useCallback(
     async (url, token, retryCount = 0) => {
       try {
@@ -511,6 +470,7 @@ const AdminDashboard = ({ onLogout }) => {
     if (!showModal) return null;
 
     const type = modalType?.replace("view-", "");
+
     let modalTitle;
 
     if (modalType === "manage-items") {
@@ -518,7 +478,7 @@ const AdminDashboard = ({ onLogout }) => {
         selectedSection?.title || selectedSection?.name || "Unknown Section"
       }`;
     } else {
-      modalTitle = `View ${type?.charAt(0).toUpperCase() + type?.slice(0, -1)}`;
+      modalTitle = `View ${type}`;
     }
 
     return (
@@ -1150,21 +1110,6 @@ const AdminDashboard = ({ onLogout }) => {
             }}
           >
             <h2 className="section-title">Menu Management</h2>
-            <button
-              onClick={fixExistingItems}
-              className="btn-primary"
-              style={{
-                backgroundColor: "#28a745",
-                color: "white",
-                border: "none",
-                padding: "10px 20px",
-                borderRadius: "5px",
-                cursor: "pointer",
-                fontWeight: "bold",
-              }}
-            >
-              🔧 Fix Existing Items
-            </button>
           </div>
           <div className="search-bar">
             <input

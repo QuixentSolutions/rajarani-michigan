@@ -1,14 +1,36 @@
 import { useDispatch, useSelector } from "react-redux";
 import { FaPlus, FaMinus } from "react-icons/fa";
-import menuData from "./menuData.json";
+
 import { updateQuantity } from "../cartSlice";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./MenuCards.css";
 
 function Menu() {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
   const [notification, setNotification] = useState(null);
+  const [menuSections, setMenuSections] = useState([]);
+
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+  useEffect(() => {
+    const fetchMenu = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/menu`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        // Correctly extract the 'sections' array from the API response
+        setMenuSections(data.sections || []);
+      } catch (error) {
+        console.error("Failed to fetch menu data:", error);
+        setMenuSections([]); // Set to empty array on error
+      }
+    };
+
+    fetchMenu();
+  }, [API_BASE_URL]);
 
   const handleQuantityChange = (itemName, change, price, event) => {
     // Dispatch the action first
@@ -48,7 +70,7 @@ function Menu() {
           marginBottom: "20px",
         }}
       >
-        {menuData.menuSections.map((section, index) => {
+        {menuSections.map((section, index) => {
           // eslint-disable-next-line
           const sectionId = section.title.replace(/[\/\s]+/g, "-"); // Replace / and spaces with -
           console.log(sectionId);
@@ -80,7 +102,7 @@ function Menu() {
         })}
       </div>
       <div className="menu-sections">
-        {menuData.menuSections.map((section, index) => {
+        {menuSections.map((section, index) => {
           // eslint-disable-next-line
           const sectionId = section.title.replace(/[\/\s]+/g, "-"); // Replace / and spaces with -
           return (

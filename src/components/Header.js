@@ -4,9 +4,9 @@ import { useSelector } from "react-redux";
 import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { clearCart } from "../cartSlice";
-import emailjs from "@emailjs/browser";
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
 import AnniversaryPopup from "./AnniversaryPopup";
+import emailjs from '@emailjs/browser';
 
 function Header() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -74,6 +74,8 @@ function Header() {
 
   const handleOrderNow = async (e) => {
     e.preventDefault();
+    
+    // Validate mobile number for non-dine-in orders
     const mobileRegex = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}$/;
     if (orderMode !== "dinein" && (!mobileNumber || !mobileRegex.test(mobileNumber.trim()))) {
       setMobileError("Please enter a valid mobile number.");
@@ -81,6 +83,7 @@ function Header() {
     }
     setMobileError("");
 
+    // Validate email (CRITICAL - this must happen first)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email.trim())) {
       setEmailError("Please enter a valid email address.");
@@ -88,6 +91,7 @@ function Header() {
     }
     setEmailError("");
 
+    // Validate address for delivery
     if (orderMode === "delivery" && !address) {
       setAddressError("Please enter a valid delivery address.");
       return;
@@ -104,18 +108,6 @@ function Header() {
     const finalTotalAmount = totalAmount * 1.06;
     const salesTaxAmount = totalAmount * 0.06;
 
-    const templateParams = {
-      email: email.trim(),
-      order_mode: String(orderMode),
-      order_id: String(orderId),
-      mobile_number: String(mobileNumber),
-      sub_total: totalAmount.toFixed(2),
-      sales_tax: salesTaxAmount.toFixed(2),
-      total_amount: finalTotalAmount.toFixed(2),
-      address: address ? String(address) : `Table ${tableNumber}`,
-      order_details: orderDetailsHtml,
-    };
-
     const orderData = {
       orderId: String(orderId),
       mobileNumber: String(mobileNumber),
@@ -129,9 +121,24 @@ function Header() {
       totalAmount: parseFloat(finalTotalAmount.toFixed(2)),
     };
 
+    // FIXED: Updated template params to match your EmailJS template
+    const templateParams = {
+      email: email.trim(),  // Changed from 'to_email' to 'email' to match your template
+      name: "Customer",
+      order_mode: String(orderMode),
+      order_id: String(orderId),
+      mobile_number: String(mobileNumber),
+      sub_total: totalAmount.toFixed(2),
+      sales_tax: salesTaxAmount.toFixed(2),
+      total_amount: finalTotalAmount.toFixed(2),
+      address: address ? String(address) : `Table ${tableNumber}`,
+      order_details: orderDetailsHtml,
+    };
+
     setIsLoading(true);
 
     try {
+      // First, save order to database
       const dbResponse = await fetch('http://localhost:5000/api/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -139,30 +146,53 @@ function Header() {
       });
 
       const dbData = await dbResponse.json();
-      if (!dbResponse.ok) {
-        throw new Error(dbData.message || 'Failed to save order to database.');
-      }
-      console.log('Order saved to DB:', dbData);
-
-      // THIS IS THE FIX: It now uses your new environment variable for the order template.
-      await emailjs.send(
-        process.env.REACT_APP_EMAILJS_SERVICE_ID,
-        process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
-        templateParams,
-        { publicKey: process.env.REACT_APP_EMAILJS_PUBLIC_KEY }
-      );
       
+      if (!dbResponse.ok) {
+        throw new Error(dbData.message || 'Failed to save order.');
+      }
+
+      console.log('Order saved to database:', dbData);
+
+      // Then send email from frontend using EmailJS
+      console.log('Sending order confirmation email with params:', templateParams);
+
+      const emailResponse = await emailjs.send(
+        process.env.REACT_APP_EMAILJS_SERVICE_ID || 'service_otcs6w9',
+        process.env.REACT_APP_EMAILJS_TEMPLATE_ID || 'template_55aywnl',
+        templateParams,
+        process.env.REACT_APP_EMAILJS_PUBLIC_KEY || 'FxwSUoBkBRQjimBrz'
+      );
+
+      console.log('Order email sent successfully:', emailResponse);
+
       setSuccessOrderId(orderId);
       setIsSuccessPopupOpen(true);
       setIsPopupOpen(false);
       setMobileNumber("+1");
-      setTableNumber("");
+      setTableNumber("1");
       setEmail("");
+      setAddress("");
       dispatch(clearCart());
 
     } catch (err) {
-      alert(`We’re sorry, your order couldn’t be placed (Error: ${err.message}). Please call us directly.`);
-      console.error('Order process FAILED:', err);
+      console.error('Order process error:', err);
+      
+      // If DB save succeeded but email failed, still show partial success
+      if (err.status === 422) {
+        alert(`Email sending failed: Invalid template parameters. Please verify your email address.`);
+      } else if (err.name && (err.name.includes('EmailJS') || err.name.includes('email'))) {
+        alert(`Order placed successfully (${orderId}) but confirmation email could not be sent. Please save your order ID for reference.`);
+        setSuccessOrderId(orderId);
+        setIsSuccessPopupOpen(true);
+        setIsPopupOpen(false);
+        setMobileNumber("+1");
+        setTableNumber("1");
+        setEmail("");
+        setAddress("");
+        dispatch(clearCart());
+      } else {
+        alert(`We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`);
+      }
     } finally {
       setIsLoading(false);
     }

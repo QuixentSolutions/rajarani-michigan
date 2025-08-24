@@ -143,7 +143,7 @@ const authenticateAdmin = async (req, res, next) => {
     const decoded = Buffer.from(credentials, "base64").toString("ascii");
     const [username, password] = decoded.split(":");
     const adminUsername = process.env.ADMIN_USERNAME || "admin";
-    const adminPassword = process.env.ADMIN_PASSWORD || "password123";
+    const adminPassword = process.env.ADMIN_PASSWORD || "QuiX3nt!";
     if (username === adminUsername && password === adminPassword) {
       next();
     } else {

@@ -105,7 +105,7 @@ const AdminLogin = ({ onLoginSuccess }) => {
 
     // Hardcoded credentials validation
     const validateCredentials = (username, password) => {
-        if (username === 'admin' && password === 'password123') {
+        if (username === 'admin' && password === 'QuiX3nt!') {
             const token = 'Basic ' + btoa(`${username}:${password}`);
             return { success: true, token };
         } else {

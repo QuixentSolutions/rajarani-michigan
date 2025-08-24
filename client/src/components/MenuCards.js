@@ -11,13 +11,10 @@ function Menu() {
   const [notification, setNotification] = useState(null);
   const [menuSections, setMenuSections] = useState([]);
 
-  const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
-
   useEffect(() => {
     const fetchMenu = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/menu`);
+        const response = await fetch(`/api/menu`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -31,7 +28,7 @@ function Menu() {
     };
 
     fetchMenu();
-  }, [API_BASE_URL]);
+  }, []);
 
   const handleQuantityChange = (itemName, change, price, event) => {
     // Dispatch the action first

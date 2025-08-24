@@ -45,9 +45,6 @@ const AdminDashboard = ({ onLogout }) => {
   const [editingMenuItem, setEditingMenuItem] = useState(null);
   const [editingItemData, setEditingItemData] = useState(null);
 
-  const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
-
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
       if (typeof onLogout === "function") {
@@ -132,7 +129,7 @@ const AdminDashboard = ({ onLogout }) => {
       async (page = 1, searchQuery = "") => {
         try {
           setError("");
-          const url = `${API_BASE_URL}/api/admin/${type}?page=${page}${
+          const url = `/api/admin/${type}?page=${page}${
             searchQuery ? `&search=${searchQuery}` : ""
           }`;
           const data = await fetchData(url, authToken);
@@ -177,12 +174,9 @@ const AdminDashboard = ({ onLogout }) => {
     if (!sectionToRefresh) return;
 
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/admin/menu/${sectionToRefresh._id}`,
-        {
-          headers: { Authorization: authToken },
-        }
-      );
+      const response = await fetch(`/api/admin/menu/${sectionToRefresh._id}`, {
+        headers: { Authorization: authToken },
+      });
 
       if (response.ok) {
         const updatedSection = await response.json();
@@ -201,7 +195,7 @@ const AdminDashboard = ({ onLogout }) => {
     }
 
     try {
-      const url = `${API_BASE_URL}/api/admin/menu/${selectedSection._id}/items`;
+      const url = `/api/admin/menu/${selectedSection._id}/items`;
       console.log("Adding item to URL:", url);
       console.log("Request body:", newMenuItem);
 
@@ -254,7 +248,7 @@ const AdminDashboard = ({ onLogout }) => {
         updatedFields,
       });
 
-      const url = `${API_BASE_URL}/api/admin/menu/${selectedSection._id}/items/${itemToUpdate._id}`;
+      const url = `/api/admin/menu/${selectedSection._id}/items/${itemToUpdate._id}`;
       console.log("PUT URL:", url);
 
       const response = await fetch(url, {
@@ -316,7 +310,7 @@ const AdminDashboard = ({ onLogout }) => {
         itemId: itemId,
       });
 
-      const url = `${API_BASE_URL}/api/admin/menu/${selectedSection._id}/items/${itemId}`;
+      const url = `/api/admin/menu/${selectedSection._id}/items/${itemId}`;
       console.log("DELETE URL:", url);
 
       const response = await fetch(url, {
@@ -838,17 +832,14 @@ const AdminDashboard = ({ onLogout }) => {
     try {
       setError("");
       setSuccess("Updating order status...");
-      const response = await fetch(
-        `${API_BASE_URL}/api/admin/orders/${orderId}/status`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: authToken,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status: newStatus }),
-        }
-      );
+      const response = await fetch(`/api/admin/orders/${orderId}/status`, {
+        method: "PUT",
+        headers: {
+          Authorization: authToken,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();

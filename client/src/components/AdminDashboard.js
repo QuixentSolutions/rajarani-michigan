@@ -26,6 +26,12 @@ const AdminDashboard = ({ onLogout }) => {
     currentPage: 1,
   });
 
+  // ========== NEW STATE FOR TABLE STATUSES (ADDED) ==========
+  const [tableStatuses, setTableStatuses] = useState([]);
+  // ========== NEW STATE FOR PICKUP/DELIVERY (ADDED) ==========
+  const [pickupOrders, setPickupOrders] = useState([]);
+  const [deliveryOrders, setDeliveryOrders] = useState([]);
+
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
@@ -196,9 +202,6 @@ const AdminDashboard = ({ onLogout }) => {
 
     try {
       const url = `/api/admin/menu/${selectedSection._id}/items`;
-      console.log("Adding item to URL:", url);
-      console.log("Request body:", newMenuItem);
-
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -241,16 +244,8 @@ const AdminDashboard = ({ onLogout }) => {
       if (!selectedSection || !selectedSection._id) {
         throw new Error("No section selected");
       }
-
-      console.log("Updating item:", {
-        sectionId: selectedSection._id,
-        itemId: itemToUpdate._id,
-        updatedFields,
-      });
-
+      
       const url = `/api/admin/menu/${selectedSection._id}/items/${itemToUpdate._id}`;
-      console.log("PUT URL:", url);
-
       const response = await fetch(url, {
         method: "PUT",
         headers: {
@@ -260,12 +255,8 @@ const AdminDashboard = ({ onLogout }) => {
         body: JSON.stringify(updatedFields),
       });
 
-      console.log("Response status:", response.status);
-
       if (!response.ok) {
         const responseText = await response.text();
-        console.log("Error response:", responseText);
-
         let errorMessage = `Server responded with ${response.status}`;
         try {
           const errorData = JSON.parse(responseText);
@@ -277,8 +268,6 @@ const AdminDashboard = ({ onLogout }) => {
       }
 
       const result = await response.json();
-      console.log("Update result:", result);
-
       setSuccess("Menu item updated successfully!");
       setEditingMenuItem(null);
       setEditingItemData(null);
@@ -290,7 +279,6 @@ const AdminDashboard = ({ onLogout }) => {
       await fetchMenuData();
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      console.error("Update error:", err);
       setError(`Failed to update menu item: ${err.message}`);
     }
   };
@@ -305,14 +293,7 @@ const AdminDashboard = ({ onLogout }) => {
         throw new Error("No section selected");
       }
 
-      console.log("Deleting item:", {
-        sectionId: selectedSection._id,
-        itemId: itemId,
-      });
-
       const url = `/api/admin/menu/${selectedSection._id}/items/${itemId}`;
-      console.log("DELETE URL:", url);
-
       const response = await fetch(url, {
         method: "DELETE",
         headers: {
@@ -321,12 +302,8 @@ const AdminDashboard = ({ onLogout }) => {
         },
       });
 
-      console.log("Delete response status:", response.status);
-
       if (!response.ok) {
         const responseText = await response.text();
-        console.log("Delete error response:", responseText);
-
         let errorMessage = `Server responded with ${response.status}`;
         try {
           const errorData = JSON.parse(responseText);
@@ -338,8 +315,6 @@ const AdminDashboard = ({ onLogout }) => {
       }
 
       const result = await response.json();
-      console.log("Delete result:", result);
-
       setSuccess("Menu item deleted successfully!");
 
       if (result.section) {
@@ -349,7 +324,6 @@ const AdminDashboard = ({ onLogout }) => {
       await fetchMenuData();
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      console.error("Delete error:", err);
       setError(`Failed to delete menu item: ${err.message}`);
     }
   };
@@ -358,6 +332,36 @@ const AdminDashboard = ({ onLogout }) => {
     const loadData = async () => {
       setIsLoading(true);
       setError("");
+
+      // ========== FAKE TABLE DATA FOR UI DEVELOPMENT (ADDED) ==========
+      const fakeTableData = [
+        { tableNumber: 1, status: "Occupied" },
+        { tableNumber: 2, status: "Available" },
+        { tableNumber: 3, status: "Available" },
+        { tableNumber: 4, status: "Reserved" },
+        { tableNumber: 5, status: "Available" },
+        { tableNumber: 6, status: "Occupied" },
+        { tableNumber: 7, status: "Available" },
+        { tableNumber: 8, status: "Available" },
+        { tableNumber: 9, status: "Occupied" },
+        { tableNumber: 10, status: "Reserved" },
+      ];
+      setTableStatuses(fakeTableData);
+            // ========== FAKE PICKUP/DELIVERY DATA (ADDED) ==========
+      const fakePickupData = [
+        { orderId: "#P001", customerName: "John D.", status: "Ready" },
+        { orderId: "#P002", customerName: "Jane S.", status: "Preparing" },
+        { orderId: "#P003", customerName: "Mike R.", status: "Ready" },
+      ];
+      setPickupOrders(fakePickupData);
+
+      const fakeDeliveryData = [
+        { orderId: "#D15A", customerName: "Sara K.", status: "Preparing" },
+        { orderId: "#D15B", customerName: "Tom B.", status: "Preparing" },
+      ];
+      setDeliveryOrders(fakeDeliveryData);
+      // =======================================================
+      // ===============================================================
 
       try {
         await fetchRegistrations();
@@ -392,7 +396,6 @@ const AdminDashboard = ({ onLogout }) => {
   };
 
   const handleManageItems = (section) => {
-    console.log("Managing items for section:", section);
     setSelectedSection(section);
     refreshSelectedSectionItems(section);
     setModalType("manage-items");
@@ -551,30 +554,6 @@ const AdminDashboard = ({ onLogout }) => {
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    margin: "10px 0",
-                    padding: "10px",
-                    background: "#f8f9fa",
-                    borderRadius: "5px",
-                    fontSize: "12px",
-                  }}
-                >
-                  <strong>Debug Info:</strong>
-                  <div>Section ID: {selectedSection._id}</div>
-                  <div>
-                    Section has {selectedSection.items?.length || 0} items
-                  </div>
-                  {selectedSection.items?.length > 0 && (
-                    <div>
-                      Item IDs:{" "}
-                      {selectedSection.items
-                        .map((item) => `${item.name}: ${item._id || "NO_ID"}`)
-                        .join(", ")}
-                    </div>
-                  )}
-                </div>
-
                 <div className="existing-items-section">
                   <h4>Existing Items ({selectedSection.items?.length || 0})</h4>
                   <div className="items-grid">
@@ -662,16 +641,6 @@ const AdminDashboard = ({ onLogout }) => {
                                   </span>
                                 )}
                               </div>
-                              <div
-                                className="item-id-debug"
-                                style={{
-                                  fontSize: "10px",
-                                  color: hasValidId ? "#28a745" : "#dc3545",
-                                }}
-                              >
-                                ID: {item._id || "NO_ID"}{" "}
-                                {!hasValidId && "⚠️ Invalid ID"}
-                              </div>
                               <div className="item-actions">
                                 <button
                                   onClick={() => {
@@ -680,11 +649,6 @@ const AdminDashboard = ({ onLogout }) => {
                                   }}
                                   className="btn-edit"
                                   disabled={!hasValidId}
-                                  title={
-                                    !hasValidId
-                                      ? "Item has no valid ID - use Fix Existing Items button"
-                                      : "Edit item"
-                                  }
                                 >
                                   Edit
                                 </button>
@@ -694,11 +658,6 @@ const AdminDashboard = ({ onLogout }) => {
                                   }}
                                   className="btn-delete"
                                   disabled={!hasValidId}
-                                  title={
-                                    !hasValidId
-                                      ? "Item has no valid ID - use Fix Existing Items button"
-                                      : "Delete item"
-                                  }
                                 >
                                   Delete
                                 </button>
@@ -856,7 +815,7 @@ const AdminDashboard = ({ onLogout }) => {
       );
       fetchOrders(orders.currentPage);
       setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
+    } catch (err)      {
       setError(`Failed to update order status: ${err.message}`);
     } finally {
       setEditingOrderId(null);
@@ -974,15 +933,45 @@ const AdminDashboard = ({ onLogout }) => {
           <div className="section-header">
             <h2 className="section-title">Order Management</h2>
           </div>
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search orders..."
-              value={searchOrderQuery}
-              onChange={(e) => setSearchOrderQuery(e.target.value)}
-              className="form-input search-input"
-            />
+
+          {/* ========== DATA-DRIVEN TABLE DISPLAY (MODIFIED) ========== */}
+          <div className="subsection-header"><h3>Dine-In</h3></div>
+          <div className="table-status-container">
+            {tableStatuses.map((table) => (
+              <div
+                key={table.tableNumber}
+                className={`table-status-box status-${table.status.toLowerCase()}`}
+              >
+                Table {table.tableNumber}
+              </div>
+            ))}
           </div>
+                    {/* ========== PICKUP/DELIVERY GRIDS (ADDED) ========== */}
+          <div className="subsection-header"><h3>Pickup Orders</h3></div>
+          <div className="order-grid-container">
+            {pickupOrders.map((order) => (
+              <div 
+                key={order.orderId} 
+                className={`order-box status-${order.status.toLowerCase()}`}
+              >
+                <div className="order-box-id">{order.orderId}</div>
+                <div className="order-box-name">{order.customerName}</div>
+              </div>
+            ))}
+          </div>
+          <div className="subsection-header"><h3>Delivery Orders</h3></div>
+          <div className="order-grid-container">
+            {deliveryOrders.map((order) => (
+              <div 
+                key={order.orderId} 
+                className={`order-box status-${order.status.toLowerCase()}`}
+              >
+                <div className="order-box-id">{order.orderId}</div>
+                <div className="order-box-name">{order.customerName}</div>
+              </div>
+            ))}
+          </div>
+          {/* ======================================================== */}
 
           <div className="table-container">
             <table className="data-table">

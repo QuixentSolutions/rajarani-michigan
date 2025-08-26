@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const registrationSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   email: {
     type: String,
@@ -12,18 +12,19 @@ const registrationSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     lowercase: true,
-    match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address.']
+    match: [/^\S+@\S+\.\S+$/, "Please use a valid email address."],
   },
-
-  registrationDate: {
+  eventDate: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
-  anniversaryDate: {
-    type: String
-  }
+  eventName: {
+    type: String,
+  },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
-const Registration = mongoose.model('Registration', registrationSchema);
+const Registration = mongoose.model("registration", registrationSchema);
 
 module.exports = Registration;

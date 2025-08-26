@@ -1,64 +1,55 @@
-const mongoose = require('mongoose');
-
-const orderItemSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  quantity: { type: Number, required: true },
-  price: { type: Number, required: true },
-});
+const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
-  orderId: {
+  orderNumber: { type: String, required: true, unique: true },
+  customer: {
+    name: String,
+    phone: String,
+    email: String,
+  },
+  orderType: {
     type: String,
+    enum: ["dine-in", "pickup", "delivery"],
     required: true,
-    unique: true,
-    trim: true,
   },
-  mobileNumber: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    trim: true,
-    lowercase: true,
-    match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address.']
-  },
-  orderMode: {
-    type: String,
-    required: true,
-    enum: ['dinein', 'pickup', 'delivery'],
-  },
-  tableNumber: {
-    type: String,
-    trim: true,
-  },
-  address: {
-    type: String,
-    trim: true,
-  },
+  tableNumber: { type: String },
+  deliveryAddress: { type: String, required: false },
+  deliveryInstructions: String,
   items: [
-    orderItemSchema
+    {
+      itemId: mongoose.Schema.Types.ObjectId,
+      name: String,
+      quantity: Number,
+      price: Number,
+      notes: String,
+    },
   ],
-  subTotal: {
-    type: Number,
-    required: true,
+  subTotal: Number,
+  salesTax: Number,
+  totalAmount: Number,
+  payment: {
+    method: { type: String, enum: ["cash", "card", "upi"] },
+    status: {
+      type: String,
+      enum: ["pending", "paid", "failed"],
+      default: "pending",
+    },
+    transactionId: String,
   },
-  salesTax: {
-    type: Number,
-    required: true,
+  status: {
+    type: String,
+    enum: [
+      "pending",
+      "preparing",
+      "ready",
+      "completed",
+      "delivered",
+      "cancelled",
+    ],
+    default: "pending",
   },
-  totalAmount: {
-    type: Number,
-    required: true,
-  },
-  orderDate: {
-    type: Date,
-    default: Date.now,
-  },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
-const Order = mongoose.model('Order', orderSchema);
-
-module.exports = Order;
+module.exports = mongoose.model("Order", orderSchema);

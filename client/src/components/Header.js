@@ -129,12 +129,17 @@ function Header() {
     setFinalOrderAmount(finalTotalAmount);
 
     const orderData = {
-      orderId: String(orderId),
-      mobileNumber: String(mobileNumber),
-      email: email.trim(),
-      orderMode: String(orderMode),
-      tableNumber: orderMode === "dinein" ? String(tableNumber) : undefined,
-      address: orderMode === "delivery" ? String(address) : undefined,
+      orderNumber: String(orderId),
+      customer: {
+        name: "",
+        phone: String(mobileNumber),
+        email: email.trim(),
+      },
+      orderType: String(orderMode),
+      tableNumber: orderMode === "dinein" ? String(`T${tableNumber}`) : "0",
+      // address: orderMode === "delivery" ? String(address) : undefined,
+      deliveryAddress: "NA",
+      deliveryInstructions: "NA",
       items: Object.entries(cartItems).map(([name, { quantity, price }]) => ({
         name,
         quantity,
@@ -143,13 +148,14 @@ function Header() {
       subTotal: parseFloat(totalAmount.toFixed(2)),
       salesTax: parseFloat(salesTaxAmount.toFixed(2)),
       totalAmount: parseFloat(finalTotalAmount.toFixed(2)),
+      status: "pending",
     };
 
     setIsLoading(true);
 
     try {
       // First, save order to database
-      const dbResponse = await fetch("/api/order", {
+      const dbResponse = await fetch("/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),
@@ -162,7 +168,6 @@ function Header() {
       }
 
       console.log("Order saved to database:", dbData);
-
       setSuccessOrderId(orderId);
       setIsSuccessPopupOpen(true);
       setIsPopupOpen(false);
@@ -173,32 +178,9 @@ function Header() {
       dispatch(clearCart());
     } catch (err) {
       console.error("Order process error:", err);
-
-      // If DB save succeeded but email failed, still show partial success
-      if (err.status === 422) {
-        alert(
-          `Email sending failed: Invalid template parameters. Please verify your email address.`
-        );
-      } else if (
-        err.name &&
-        (err.name.includes("EmailJS") || err.name.includes("email"))
-      ) {
-        alert(
-          `Order placed successfully (${orderId}) but confirmation email could not be sent. Please save your order ID for reference.`
-        );
-        setSuccessOrderId(orderId);
-        setIsSuccessPopupOpen(true);
-        setIsPopupOpen(false);
-        setMobileNumber("+1");
-        setTableNumber("1");
-        setEmail("");
-        setAddress("");
-        dispatch(clearCart());
-      } else {
-        alert(
-          `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`
-        );
-      }
+      alert(
+        `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -714,7 +696,8 @@ function Header() {
                   justifyContent: "space-evenly",
                 }}
               >
-                {["dinein", "pickup", "delivery"].map((mode) => (
+                {/* {["dinein", "pickup", "delivery"].map((mode) => ( */}
+                {["dinein", "pickup"].map((mode) => (
                   <label
                     key={mode}
                     style={{

@@ -9,7 +9,7 @@ const registrationSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
+    // unique: true,
     trim: true,
     lowercase: true,
     match: [/^\S+@\S+\.\S+$/, "Please use a valid email address."],
@@ -21,6 +21,7 @@ const registrationSchema = new mongoose.Schema({
   eventName: {
     type: String,
   },
+  mobile: String,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

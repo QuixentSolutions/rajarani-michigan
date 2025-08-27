@@ -9,7 +9,7 @@ const orderSchema = new mongoose.Schema({
   },
   orderType: {
     type: String,
-    enum: ["dine-in", "pickup", "delivery"],
+    enum: ["dinein", "pickup", "delivery"],
     required: true,
   },
   tableNumber: { type: String },

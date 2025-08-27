@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import emailjs from "@emailjs/browser";
 import "./RegistrationCard.css";
 
 function RegistrationCard() {
@@ -53,25 +52,6 @@ function RegistrationCard() {
 
       console.log("Registration saved to DB:", dbData);
 
-      // Then send email from frontend using EmailJS
-      const templateParams = {
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-      };
-
-      console.log("Sending email with template params:", templateParams);
-
-      // Send email using EmailJS from frontend
-      const emailResponse = await emailjs.send(
-        process.env.REACT_APP_EMAILJS_SERVICE_ID || "service_otcs6w9",
-        process.env.REACT_APP_EMAILJS_ANNIVERSARY_TEMPLATE_ID ||
-          "template_l7xjm52",
-        templateParams,
-        process.env.REACT_APP_EMAILJS_PUBLIC_KEY || "FxwSUoBkBRQjimBrz"
-      );
-
-      console.log("EmailJS SUCCESS:", emailResponse);
-
       alert(
         "Registration Successful! Your details have been saved and confirmation email sent."
       );
@@ -83,23 +63,7 @@ function RegistrationCard() {
       });
     } catch (err) {
       console.error("Registration process error:", err);
-
-      // If DB save succeeded but email failed, check error type
-      if (err.name && err.name.includes("EmailJS")) {
-        alert(
-          "Registration saved successfully, but confirmation email could not be sent. Please check your email address."
-        );
-      } else if (err.message && err.message.includes("email")) {
-        alert(
-          "Registration saved successfully, but confirmation email could not be sent."
-        );
-      } else {
-        alert(
-          `Registration Failed: ${
-            err.message || "An unknown error occurred."
-          } Please try again later.`
-        );
-      }
+      alert(`Registration Failed, Please try again later.`);
     } finally {
       setIsLoading(false);
     }

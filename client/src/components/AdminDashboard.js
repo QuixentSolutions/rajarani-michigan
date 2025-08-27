@@ -135,7 +135,7 @@ const AdminDashboard = ({ onLogout }) => {
       async (page = 1, searchQuery = "") => {
         try {
           setError("");
-          const url = `/api/admin/${type}?page=${page}${
+          const url = `/${type}?page=${page}${
             searchQuery ? `&search=${searchQuery}` : ""
           }`;
           const data = await fetchData(url, authToken);
@@ -169,11 +169,8 @@ const AdminDashboard = ({ onLogout }) => {
     [authToken, fetchData]
   );
 
-  const fetchRegistrations = createFetchFunction(
-    setRegistrations,
-    "registrations"
-  );
-  const fetchOrders = createFetchFunction(setOrders, "orders");
+  const fetchRegistrations = createFetchFunction(setRegistrations, "register");
+  const fetchOrders = createFetchFunction(setOrders, "order");
   const fetchMenuData = createFetchFunction(setMenuData, "menu");
 
   const refreshSelectedSectionItems = async (sectionToRefresh) => {
@@ -244,7 +241,7 @@ const AdminDashboard = ({ onLogout }) => {
       if (!selectedSection || !selectedSection._id) {
         throw new Error("No section selected");
       }
-      
+
       const url = `/api/admin/menu/${selectedSection._id}/items/${itemToUpdate._id}`;
       const response = await fetch(url, {
         method: "PUT",
@@ -335,33 +332,18 @@ const AdminDashboard = ({ onLogout }) => {
 
       // ========== FAKE TABLE DATA FOR UI DEVELOPMENT (ADDED) ==========
       const fakeTableData = [
-        { tableNumber: 1, status: "Occupied" },
-        { tableNumber: 2, status: "Available" },
-        { tableNumber: 3, status: "Available" },
-        { tableNumber: 4, status: "Reserved" },
-        { tableNumber: 5, status: "Available" },
-        { tableNumber: 6, status: "Occupied" },
-        { tableNumber: 7, status: "Available" },
-        { tableNumber: 8, status: "Available" },
-        { tableNumber: 9, status: "Occupied" },
-        { tableNumber: 10, status: "Reserved" },
+        { tableNumber: "T1", status: "Available" },
+        { tableNumber: "T2", status: "Available" },
+        { tableNumber: "T3", status: "Available" },
+        { tableNumber: "T4", status: "Available" },
+        { tableNumber: "T5", status: "Available" },
+        { tableNumber: "T6", status: "Available" },
+        { tableNumber: "T7", status: "Available" },
+        { tableNumber: "T8", status: "Available" },
+        { tableNumber: "T9", status: "Available" },
+        { tableNumber: "T10", status: "Available" },
       ];
       setTableStatuses(fakeTableData);
-            // ========== FAKE PICKUP/DELIVERY DATA (ADDED) ==========
-      const fakePickupData = [
-        { orderId: "#P001", customerName: "John D.", status: "Ready" },
-        { orderId: "#P002", customerName: "Jane S.", status: "Preparing" },
-        { orderId: "#P003", customerName: "Mike R.", status: "Ready" },
-      ];
-      setPickupOrders(fakePickupData);
-
-      const fakeDeliveryData = [
-        { orderId: "#D15A", customerName: "Sara K.", status: "Preparing" },
-        { orderId: "#D15B", customerName: "Tom B.", status: "Preparing" },
-      ];
-      setDeliveryOrders(fakeDeliveryData);
-      // =======================================================
-      // ===============================================================
 
       try {
         await fetchRegistrations();
@@ -682,8 +664,10 @@ const AdminDashboard = ({ onLogout }) => {
                   <strong>Email:</strong> {selectedItem.email}
                 </p>
                 <p>
-                  <strong>Registration Date:</strong>{" "}
-                  {new Date(selectedItem.registrationDate).toLocaleString()}
+                  <strong>Event Date:</strong> {selectedItem.eventDate}
+                </p>
+                <p>
+                  <strong>Event Name:</strong> {selectedItem.eventName}
                 </p>
               </div>
             )}
@@ -733,19 +717,16 @@ const AdminDashboard = ({ onLogout }) => {
                 <p>
                   <strong>Color:</strong> {selectedItem.color}
                 </p>
-                <p>
-                  <strong>Item Count:</strong> {selectedItem.itemCount}
-                </p>
+
                 <p>
                   <strong>Created:</strong>{" "}
-                  {new Date(selectedItem.createdDate).toLocaleString()}
+                  {new Date(selectedItem.createdAt).toLocaleString()}
                 </p>
                 <div className="menu-items">
                   <h5>Items:</h5>
                   {selectedItem.items?.map((item, index) => (
                     <div key={index} className="menu-item">
-                      {item.name} - ${item.newPrice}
-                      {item.oldPrice && ` (was $${item.oldPrice})`}
+                      {item.name} - ${item.price}
                     </div>
                   ))}
                 </div>
@@ -815,7 +796,7 @@ const AdminDashboard = ({ onLogout }) => {
       );
       fetchOrders(orders.currentPage);
       setTimeout(() => setSuccess(""), 3000);
-    } catch (err)      {
+    } catch (err) {
       setError(`Failed to update order status: ${err.message}`);
     } finally {
       setEditingOrderId(null);
@@ -845,35 +826,26 @@ const AdminDashboard = ({ onLogout }) => {
           className={`tab-btn ${activeTab === "registrations" ? "active" : ""}`}
           onClick={() => setActiveTab("registrations")}
         >
-          User Registrations ({registrations.items.length})
+          Event Registrations
         </button>
         <button
           className={`tab-btn ${activeTab === "orders" ? "active" : ""}`}
           onClick={() => setActiveTab("orders")}
         >
-          Orders ({orders.items.length})
+          Orders
         </button>
         <button
           className={`tab-btn ${activeTab === "menu" ? "active" : ""}`}
           onClick={() => setActiveTab("menu")}
         >
-          Menu Management ({menuData.items.length})
+          Menu Management
         </button>
       </div>
 
       {activeTab === "registrations" && (
         <div className="section-card">
           <div className="section-header">
-            <h2 className="section-title">User Registrations</h2>
-          </div>
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search registrations..."
-              value={searchRegistrationQuery}
-              onChange={(e) => setSearchRegistrationQuery(e.target.value)}
-              className="form-input search-input"
-            />
+            <h2 className="section-title">Event Registrations</h2>
           </div>
 
           <div className="table-container">
@@ -883,8 +855,8 @@ const AdminDashboard = ({ onLogout }) => {
                   <th>Name</th>
                   <th>Email</th>
                   <th>Mobile Number</th>
-                  <th>Registration Date</th>
-                  <th>Actions</th>
+                  <th>Event Date</th>
+                  <th>Event Name</th>
                 </tr>
               </thead>
               <tbody>
@@ -895,20 +867,13 @@ const AdminDashboard = ({ onLogout }) => {
                         <strong>{reg.name || "N/A"}</strong>
                       </td>
                       <td>{reg.email || "N/A"}</td>
-                      <td>{reg.mobileNumber || "N/A"}</td>
+                      <td>{reg.mobile || "N/A"}</td>
                       <td>
-                        {reg.registrationDate
-                          ? new Date(reg.registrationDate).toLocaleDateString()
+                        {reg.eventDate
+                          ? new Date(reg.eventDate).toLocaleDateString()
                           : "N/A"}
                       </td>
-                      <td>
-                        <button
-                          className="view-btn"
-                          onClick={() => handleView(reg, "registrations")}
-                        >
-                          View
-                        </button>
-                      </td>
+                      <td>{reg.eventName}</td>
                     </tr>
                   ))
                 ) : (
@@ -935,7 +900,9 @@ const AdminDashboard = ({ onLogout }) => {
           </div>
 
           {/* ========== DATA-DRIVEN TABLE DISPLAY (MODIFIED) ========== */}
-          <div className="subsection-header"><h3>Dine-In</h3></div>
+          <div className="subsection-header">
+            <h3>Dine-In</h3>
+          </div>
           <div className="table-status-container">
             {tableStatuses.map((table) => (
               <div
@@ -946,33 +913,11 @@ const AdminDashboard = ({ onLogout }) => {
               </div>
             ))}
           </div>
-                    {/* ========== PICKUP/DELIVERY GRIDS (ADDED) ========== */}
-          <div className="subsection-header"><h3>Pickup Orders</h3></div>
-          <div className="order-grid-container">
-            {pickupOrders.map((order) => (
-              <div 
-                key={order.orderId} 
-                className={`order-box status-${order.status.toLowerCase()}`}
-              >
-                <div className="order-box-id">{order.orderId}</div>
-                <div className="order-box-name">{order.customerName}</div>
-              </div>
-            ))}
-          </div>
-          <div className="subsection-header"><h3>Delivery Orders</h3></div>
-          <div className="order-grid-container">
-            {deliveryOrders.map((order) => (
-              <div 
-                key={order.orderId} 
-                className={`order-box status-${order.status.toLowerCase()}`}
-              >
-                <div className="order-box-id">{order.orderId}</div>
-                <div className="order-box-name">{order.customerName}</div>
-              </div>
-            ))}
+          <div className="order-grid-container"></div>
+          <div className="subsection-header">
+            <h3>Orders (Pickup or Delivery)</h3>
           </div>
           {/* ======================================================== */}
-
           <div className="table-container">
             <table className="data-table">
               <thead>
@@ -989,78 +934,84 @@ const AdminDashboard = ({ onLogout }) => {
               <tbody>
                 {orders.items.length > 0 ? (
                   orders.items.map((order) => (
-                    <tr key={order._id}>
-                      <td>
-                        <code>{order.orderId || "N/A"}</code>
-                      </td>
-                      <td>
-                        <strong>{order.email || "N/A"}</strong>
-                      </td>
-                      <td>
-                        <strong>${(order.totalAmount || 0).toFixed(2)}</strong>
-                      </td>
-                      <td>
-                        <span
-                          className={getStatusBadgeClass(
-                            order.orderMode,
-                            "mode"
-                          )}
-                        >
-                          {(order.orderMode || "dinein").toUpperCase()}
-                        </span>
-                      </td>
-                      <td>
-                        {editingOrderId === order._id ? (
-                          <select
-                            value={order.status || "pending"}
-                            onChange={(e) => {
-                              const newStatus = e.target.value;
-                              if (
-                                window.confirm(
-                                  `Are you sure you want to mark this order as ${newStatus}?`
-                                )
-                              ) {
-                                updateOrderStatus(order._id, newStatus);
-                              } else {
-                                setEditingOrderId(null);
-                              }
-                            }}
-                            onBlur={() => setEditingOrderId(null)}
-                            className="status-dropdown"
-                            autoFocus
-                          >
-                            <option value="pending">Pending</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Rejected</option>
-                          </select>
-                        ) : (
-                          <span
-                            className={getStatusBadgeClass(
-                              order.status,
-                              "order"
+                    <>
+                      {order.orderType !== "dinein" && (
+                        <tr key={order._id}>
+                          <td>
+                            <code>{order.orderId || "N/A"}</code>
+                          </td>
+                          <td>
+                            <strong>{order.email || "N/A"}</strong>
+                          </td>
+                          <td>
+                            <strong>
+                              ${(order.totalAmount || 0).toFixed(2)}
+                            </strong>
+                          </td>
+                          <td>
+                            <span
+                              className={getStatusBadgeClass(
+                                order.orderMode,
+                                "mode"
+                              )}
+                            >
+                              {(order.orderMode || "dinein").toUpperCase()}
+                            </span>
+                          </td>
+                          <td>
+                            {editingOrderId === order._id ? (
+                              <select
+                                value={order.status || "pending"}
+                                onChange={(e) => {
+                                  const newStatus = e.target.value;
+                                  if (
+                                    window.confirm(
+                                      `Are you sure you want to mark this order as ${newStatus}?`
+                                    )
+                                  ) {
+                                    updateOrderStatus(order._id, newStatus);
+                                  } else {
+                                    setEditingOrderId(null);
+                                  }
+                                }}
+                                onBlur={() => setEditingOrderId(null)}
+                                className="status-dropdown"
+                                autoFocus
+                              >
+                                <option value="pending">Pending</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Rejected</option>
+                              </select>
+                            ) : (
+                              <span
+                                className={getStatusBadgeClass(
+                                  order.status,
+                                  "order"
+                                )}
+                                onClick={() => setEditingOrderId(order._id)}
+                                style={{ cursor: "pointer" }}
+                                title="Click to change status"
+                              >
+                                {(order.status || "pending").toUpperCase()}
+                              </span>
                             )}
-                            onClick={() => setEditingOrderId(order._id)}
-                            style={{ cursor: "pointer" }}
-                            title="Click to change status"
-                          >
-                            {(order.status || "pending").toUpperCase()}
-                          </span>
-                        )}
-                      </td>
-                      <td>
-                        {order.orderDate
-                          ? new Date(order.orderDate).toLocaleDateString()
-                          : "N/A"}
-                      </td>
-                      <td>
-                        <button
-                          className="view-btn"
-                          onClick={() => handleView(order, "orders")}
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
+                          </td>
+                          <td>
+                            {order.orderDate
+                              ? new Date(order.orderDate).toLocaleDateString()
+                              : "N/A"}
+                          </td>
+                          <td>
+                            <button
+                              className="view-btn"
+                              onClick={() => handleView(order, "orders")}
+                            >
+                              View
+                            </button>
+                          </td>
+                        </tr>
+                      )}
+                    </>
                   ))
                 ) : (
                   <tr>
@@ -1090,15 +1041,6 @@ const AdminDashboard = ({ onLogout }) => {
             }}
           >
             <h2 className="section-title">Menu Management</h2>
-          </div>
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search menu items..."
-              value={searchMenuQuery}
-              onChange={(e) => setSearchMenuQuery(e.target.value)}
-              className="form-input search-input"
-            />
           </div>
 
           <div className="table-container">
@@ -1146,12 +1088,12 @@ const AdminDashboard = ({ onLogout }) => {
                           >
                             View
                           </button>
-                          <button
+                          {/* <button
                             className="manage-btn"
                             onClick={() => handleManageItems(section)}
                           >
                             Manage Items
-                          </button>
+                          </button> */}
                         </div>
                       </td>
                     </tr>

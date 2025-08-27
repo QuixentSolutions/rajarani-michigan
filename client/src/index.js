@@ -3,10 +3,6 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import emailjs from 'emailjs-com';
-
-
-emailjs.init(process.env.REACT_APP_EMAILJS_PUBLIC_KEY);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -14,6 +10,5 @@ root.render(
     <App />
   </React.StrictMode>
 );
-
 
 reportWebVitals();

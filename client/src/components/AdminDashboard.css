@@ -395,6 +395,7 @@ body {
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
   width: 100%;
+  margin-top: 20px;
 }
 
 .table-responsive {
@@ -601,7 +602,6 @@ body {
 /* Status Dropdown Styling */
 .status-dropdown {
   width: 100%;
-  /* height: 100%; This can cause issues with padding/alignment, better to adjust line-height/padding */
   padding: clamp(4px, 1vw, 6px) clamp(8px, 1.5vw, 12px);
   border-radius: 20px;
   border: 1px solid #ccc;
@@ -611,14 +611,14 @@ body {
   color: #333;
   text-transform: uppercase;
   cursor: pointer;
-  -webkit-appearance: none; /* Remove default browser dropdown arrow */
+  -webkit-appearance: none; 
   -moz-appearance: none;
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2C197.973L159.027%2C68.92c-3.693-3.693-9.66-3.693-13.353%2C0L5.353%2C197.973c-3.693%2C3.693-3.693%2C9.66%2C0%2C13.353l8.66%2C8.66c3.693%2C3.693%2C9.66%2C3.693%2C13.353%2C0L144%2C116.63L265.027%2C220c3.693%2C3.693%2C9.66%2C3.693%2C13.353%2C0l8.66-8.66C290.693%2C207.633%2C290.693%2C201.667%2C287%2C197.973z%22%2F%3E%3C%2Fsvg%3E"); /* Custom arrow */
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2C197.973L159.027%2C68.92c-3.693-3.693-9.66-3.693-13.353%2C0L5.353%2C197.973c-3.693%2C3.693-3.693%2C9.66%2C0%2C13.353l8.66%2C8.66c3.693%2C3.693%2C9.66%2C3.693%2C13.353%2C0L144%2C116.63L265.027%2C220c3.693%2C3.693%2C9.66%2C3.693%2C13.353%2C0l8.66-8.66C290.693%2C207.633%2C290.693%2C201.667%2C287%2C197.973z%22%2F%3E%3C%2Fsvg%3E"); 
   background-repeat: no-repeat;
   background-position: right 8px center;
-  background-size: 8px 8px; /* Size of the arrow */
-  padding-right: 25px; /* Make space for the arrow */
+  background-size: 8px 8px;
+  padding-right: 25px; 
 }
 
 .status-dropdown:focus {
@@ -626,6 +626,52 @@ body {
   border-color: #FFA500;
   box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.2);
 }
+
+/* ========== STYLES FOR RESTAURANT TABLES (MODIFIED FOR GRID) ========== */
+.table-status-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px; 
+  padding: 20px 0; 
+  border-bottom: 2px solid #f0f0f0; 
+  margin-bottom: 20px; 
+}
+
+.table-status-box {
+  border-radius: 8px;
+  padding: 15px 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.table-status-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  animation: blinkRed 1s infinite;
+}
+
+/* ========== NEW STYLES FOR TABLE STATUS COLORS (ADDED) ========== */
+.table-status-box.status-available {
+  background-color: #d4edda;
+  border: 1px solid #28a745;
+  color: #155724;
+}
+
+.table-status-box.status-occupied {
+  background-color: #f8d7da;
+  border: 1px solid #dc3545;
+  color: #721c24;
+}
+
+.table-status-box.status-reserved {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+}
+
 
 /* Enhanced modal styles */
 .modal-overlay {
@@ -1182,6 +1228,10 @@ body {
   .dashboard-header h1 {
     font-size: 1.6rem;
   }
+  
+  .table-status-container {
+    grid-template-columns: repeat(3, 1fr); /* Adjust to 3 columns on smaller screens */
+  }
 
   .section-title {
     font-size: 1.2rem;
@@ -1261,6 +1311,10 @@ body {
 @media (max-width: 480px) {
   .dashboard-header h1 {
     font-size: 1.4rem;
+  }
+  
+  .table-status-container {
+    grid-template-columns: repeat(2, 1fr); /* Adjust to 2 columns on very small screens */
   }
 
   .section-title {
@@ -1486,6 +1540,22 @@ button:focus-visible,
   }
 }
 
+/* ========== BLINKING ANIMATION FOR TABLES (ADDED) ========== */
+@keyframes blinkRed {
+  0% {
+    background-color: #f8f9fa; 
+    border-color: #FFA500;   
+  }
+  50% {
+    background-color: #ffdddd; 
+    border-color: #ff4757;   
+  }
+  100% {
+    background-color: #f8f9fa; 
+    border-color: #FFA500;   
+  }
+}
+
 /* Utility classes for responsive behavior */
 .hide-mobile {
   display: block;
@@ -1538,4 +1608,76 @@ button:focus-visible,
 * {
   scrollbar-width: thin;
   scrollbar-color: #FFA500 #f1f1f1;
+}
+/* ========== STYLES FOR NEW PICKUP/DELIVERY GRIDS (ADDED) ========== */
+
+.subsection-header {
+  margin-top: 30px;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.subsection-header h3 {
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.order-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Responsive columns */
+  gap: 15px;
+  margin-bottom: 20px;
+  padding-top: 15px;
+}
+
+.order-box {
+  border-radius: 8px;
+  padding: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  min-height: 80px;
+}
+
+.order-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.order-box-id {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.order-box-name {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* New Status Colors for Pickup/Delivery */
+.order-box.status-preparing {
+  background-color: #cce5ff; /* Light blue */
+  border: 1px solid #007bff;
+  color: #004085;
+}
+
+.order-box.status-ready {
+  background-color: #d4edda; /* Light green */
+  border: 1px solid #28a745;
+  color: #155724;
+}
+
+/* Responsive adjustments for new grids */
+@media (max-width: 768px) {
+  .order-grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
 }

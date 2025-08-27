@@ -5,7 +5,7 @@ const cors = require("cors");
 const healthRoutes = require("./routes/health");
 const orderRoutes = require("./routes/orders");
 const menuRoutes = require("./routes/menu");
-const registerRoutes = require("./routes/registration");
+const registerRoutes = require("./routes/register");
 require("dotenv").config();
 
 const app = express();

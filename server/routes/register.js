@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const emailjs = require("@emailjs/nodejs");
-const Registration = require("../models/registration");
+const Registration = require("../models/register");
 
 router.post("/", async (req, res) => {
   try {

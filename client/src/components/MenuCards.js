@@ -39,9 +39,15 @@ function Menu() {
       const currentQty = cartItems[itemName]?.quantity || 0;
       const newQty = currentQty + change;
       setNotification(
-        <span>
-          {itemName} ({newQty}) added!
-        </span>
+        <>
+          <span>
+            {itemName} ({newQty}) added!
+          </span>
+          <br />
+          <span style={{ fontSize: "0.8em", color: "#555" }}>
+            Finalize cart, then place order at cart icon on top
+          </span>
+        </>
       );
       setTimeout(() => {
         setNotification(null);

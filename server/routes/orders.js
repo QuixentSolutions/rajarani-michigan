@@ -111,27 +111,53 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:tableno", async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
+    const order = await Order.find({
+      tableNumber: req.params.tableno,
+      status: "pending",
+    });
     if (!order) return res.status(404).json({ error: "Order not found" });
-    res.json(order);
+
+    const combined = order.reduce(
+      (acc, order) => {
+        acc.items.push(...order.items);
+        acc.orderNumbers.push(order.orderNumber);
+        acc.subTotal += order.subTotal;
+        acc.salesTax += order.salesTax;
+        acc.totalAmount += order.totalAmount;
+        return acc;
+      },
+      { items: [], orderNumbers: [], subTotal: 0, salesTax: 0, totalAmount: 0 }
+    );
+
+    res.json(combined);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/settle", async (req, res) => {
   try {
     req.body.updatedAt = new Date();
-    const updatedOrder = await Order.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    if (!updatedOrder)
-      return res.status(404).json({ error: "Order not found" });
-    res.json(updatedOrder);
+    const filter = {
+      orderNumber: { $in: req.body.orderNumbers.split(",") },
+      tableNumber: req.body.tableNumber,
+    };
+    const update = {
+      $set: {
+        status: "completed",
+        payment: {
+          method: req.body.paymentMethod,
+          status: "paid",
+          transactionId: "",
+        },
+      },
+    };
+
+    const result = await Order.updateMany(filter, update);
+    if (!result) return res.status(404).json({ error: "Order not found" });
+    res.json(result);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

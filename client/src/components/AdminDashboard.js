@@ -9,6 +9,7 @@ const AdminDashboard = ({ onLogout }) => {
   const [success, setSuccess] = useState("");
   const [activeTab, setActiveTab] = useState("registrations");
   const [isLoading, setIsLoading] = useState(true);
+  const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
 
   const [registrations, setRegistrations] = useState({
     items: [],
@@ -41,6 +42,10 @@ const AdminDashboard = ({ onLogout }) => {
   const [searchRegistrationQuery, setSearchRegistrationQuery] = useState("");
   const [searchOrderQuery, setSearchOrderQuery] = useState("");
   const [searchMenuQuery, setSearchMenuQuery] = useState("");
+
+  const [tableNo, setTableNo] = useState("");
+
+  const [billDetails, setBillDetails] = useState(null);
 
   const [newMenuItem, setNewMenuItem] = useState({
     name: "",
@@ -364,6 +369,38 @@ const AdminDashboard = ({ onLogout }) => {
     loadData();
   }, []);
 
+  const showBill = async (tableNo) => {
+    try {
+      setTableNo(tableNo);
+      const response = await fetch(`/order/${tableNo}`, {
+        method: "GET",
+        headers: {
+          Authorization: authToken,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          `Server responded with ${response.status}: ${
+            errorData.message || "Failed to update status"
+          }`
+        );
+      }
+
+      const result = await response.json();
+
+      if (result.items.length === 0) {
+        alert("No pending orders for this table");
+        return;
+      }
+      setBillDetails(result);
+      setIsSuccessPopupOpen(true);
+    } catch (err) {
+      console.error("Error loading order:", err);
+    }
+  };
   const LoadingSpinner = () => (
     <div className="loading-container">
       <div className="spinner"></div>
@@ -807,316 +844,522 @@ const AdminDashboard = ({ onLogout }) => {
     return <LoadingSpinner />;
   }
 
-  return (
-    <div className="admin-dashboard">
-      <div className="dashboard-header">
-        <h1>Raja Rani Admin Dashboard</h1>
-        <div className="header-actions">
-          <button onClick={handleLogout} className="logout-btn">
-            Logout
+  const handleSettle = async (e) => {
+    let userConfirmed = window.confirm("Sure to settle ?");
+
+    if (!userConfirmed) {
+      // User clicked "OK", proceed with deletion
+      return;
+    }
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      // First, save order to database
+      const dbResponse = await fetch("/order/settle", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderNumbers: billDetails.orderNumbers.join(","),
+          tableNumber: tableNo,
+          paymentMethod: "cash",
+        }),
+      });
+
+      const dbData = await dbResponse.json();
+
+      if (!dbResponse.ok) {
+        throw new Error(dbData.message || "Failed to save order.");
+      }
+
+      setIsLoading(false);
+      setIsSuccessPopupOpen(false);
+      setTableNo("");
+      setBillDetails(null);
+      alert("Order settled successfully!");
+    } catch (err) {
+      console.error("Order process error:", err);
+      alert(
+        `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const SuccessPopup = () => {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1000,
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: "#fff",
+            padding: "20px",
+            borderRadius: "8px",
+            maxWidth: "500px",
+            textAlign: "center",
+            color: "black",
+            position: "relative",
+          }}
+        >
+          <button
+            onClick={() => setIsSuccessPopupOpen(false)}
+            style={{
+              position: "absolute",
+              top: "10px",
+              right: "10px",
+              backgroundColor: "transparent",
+              border: "none",
+              fontSize: "20px",
+              cursor: "pointer",
+              color: "#333",
+            }}
+          >
+            ×
+          </button>
+          <h2 style={{ margin: "1rem" }}>Order Details for {tableNo}</h2>
+
+          <img
+            src="https://rajarani-michigan.s3.us-east-2.amazonaws.com/general/qr.png"
+            alt="Payment QR Code"
+            style={{ width: "250px", height: "250px", margin: "10px 0" }}
+          />
+          <div>
+            <table style={{ borderCollapse: "collapse", width: "100%" }}>
+              <thead>
+                <tr>
+                  <th style={{ border: "1px solid black", padding: "8px" }}>
+                    Name
+                  </th>
+                  <th style={{ border: "1px solid black", padding: "8px" }}>
+                    Quantity
+                  </th>
+                  <th style={{ border: "1px solid black", padding: "8px" }}>
+                    Price
+                  </th>
+                  <th style={{ border: "1px solid black", padding: "8px" }}>
+                    Total
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {billDetails.items.map((item) => (
+                  <tr key={item._id}>
+                    <td style={{ border: "1px solid black", padding: "8px" }}>
+                      {item.name}
+                    </td>
+                    <td style={{ border: "1px solid black", padding: "8px" }}>
+                      {item.quantity}
+                    </td>
+                    <td style={{ border: "1px solid black", padding: "8px" }}>
+                      ${item.price}
+                    </td>
+                    <td style={{ border: "1px solid black", padding: "8px" }}>
+                      ${item.quantity * item.price}
+                    </td>
+                  </tr>
+                ))}
+
+                <tr>
+                  <td
+                    style={{ border: "1px solid black", padding: "8px" }}
+                  ></td>
+                  <td
+                    style={{ border: "1px solid black", padding: "8px" }}
+                  ></td>
+                  <td style={{ border: "1px solid black", padding: "8px" }}>
+                    Sub Total
+                  </td>
+                  <td style={{ border: "1px solid black", padding: "8px" }}>
+                    <strong> ${billDetails.subTotal}</strong>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style={{ border: "1px solid black", padding: "8px" }}
+                  ></td>
+                  <td
+                    style={{ border: "1px solid black", padding: "8px" }}
+                  ></td>
+                  <td style={{ border: "1px solid black", padding: "8px" }}>
+                    Sales Tax
+                  </td>
+                  <td style={{ border: "1px solid black", padding: "8px" }}>
+                    <strong> ${billDetails.salesTax}</strong>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style={{ border: "1px solid black", padding: "8px" }}
+                  ></td>
+                  <td
+                    style={{ border: "1px solid black", padding: "8px" }}
+                  ></td>
+                  <td style={{ border: "1px solid black", padding: "8px" }}>
+                    Total Amount
+                  </td>
+                  <td style={{ border: "1px solid black", padding: "8px" }}>
+                    <strong> ${billDetails.totalAmount}</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <br />
+          <hr />
+          <button
+            onClick={handleSettle}
+            // disabled={isCartEmpty}
+            style={{
+              backgroundColor: "black",
+              color: "#fff",
+              border: "none",
+              padding: "10px 20px",
+              borderRadius: "4px",
+              cursor: "pointer",
+              marginRight: "10px",
+              marginTop: "10px",
+            }}
+          >
+            Settle
           </button>
         </div>
       </div>
-
-      {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
-
-      <div className="tabs-container">
-        <button
-          className={`tab-btn ${activeTab === "registrations" ? "active" : ""}`}
-          onClick={() => setActiveTab("registrations")}
-        >
-          Event Registrations
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "orders" ? "active" : ""}`}
-          onClick={() => setActiveTab("orders")}
-        >
-          Orders
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "menu" ? "active" : ""}`}
-          onClick={() => setActiveTab("menu")}
-        >
-          Menu Management
-        </button>
-      </div>
-
-      {activeTab === "registrations" && (
-        <div className="section-card">
-          <div className="section-header">
-            <h2 className="section-title">Event Registrations</h2>
+    );
+  };
+  return (
+    <>
+      {isSuccessPopupOpen && <SuccessPopup />}
+      <div className="admin-dashboard">
+        <div className="dashboard-header">
+          <h1>Raja Rani Admin Dashboard</h1>
+          <div className="header-actions">
+            <button onClick={handleLogout} className="logout-btn">
+              Logout
+            </button>
           </div>
-
-          <div className="table-container">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Mobile Number</th>
-                  <th>Event Date</th>
-                  <th>Event Name</th>
-                </tr>
-              </thead>
-              <tbody>
-                {registrations.items.length > 0 ? (
-                  registrations.items.map((reg) => (
-                    <tr key={reg._id}>
-                      <td>
-                        <strong>{reg.name || "N/A"}</strong>
-                      </td>
-                      <td>{reg.email || "N/A"}</td>
-                      <td>{reg.mobile || "N/A"}</td>
-                      <td>
-                        {reg.eventDate
-                          ? new Date(reg.eventDate).toLocaleDateString()
-                          : "N/A"}
-                      </td>
-                      <td>{reg.eventName}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" className="empty-state">
-                      No registrations found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {renderPagination(registrations, (page) =>
-            fetchRegistrations(page, searchRegistrationQuery)
-          )}
         </div>
-      )}
 
-      {activeTab === "orders" && (
-        <div className="section-card">
-          <div className="section-header">
-            <h2 className="section-title">Order Management</h2>
-          </div>
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
 
-          {/* ========== DATA-DRIVEN TABLE DISPLAY (MODIFIED) ========== */}
-          <div className="subsection-header">
-            <h3>Dine-In</h3>
+        <div className="tabs-container">
+          <button
+            className={`tab-btn ${
+              activeTab === "registrations" ? "active" : ""
+            }`}
+            onClick={() => setActiveTab("registrations")}
+          >
+            Event Registrations
+          </button>
+          <button
+            className={`tab-btn ${activeTab === "orders" ? "active" : ""}`}
+            onClick={() => setActiveTab("orders")}
+          >
+            Orders
+          </button>
+          <button
+            className={`tab-btn ${activeTab === "menu" ? "active" : ""}`}
+            onClick={() => setActiveTab("menu")}
+          >
+            Menu Management
+          </button>
+        </div>
+
+        {activeTab === "registrations" && (
+          <div className="section-card">
+            <div className="section-header">
+              <h2 className="section-title">Event Registrations</h2>
+            </div>
+
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Mobile Number</th>
+                    <th>Event Date</th>
+                    <th>Event Name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {registrations.items.length > 0 ? (
+                    registrations.items.map((reg) => (
+                      <tr key={reg._id}>
+                        <td>
+                          <strong>{reg.name || "N/A"}</strong>
+                        </td>
+                        <td>{reg.email || "N/A"}</td>
+                        <td>{reg.mobile || "N/A"}</td>
+                        <td>
+                          {reg.eventDate
+                            ? new Date(reg.eventDate).toLocaleDateString()
+                            : "N/A"}
+                        </td>
+                        <td>{reg.eventName}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="empty-state">
+                        No registrations found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {renderPagination(registrations, (page) =>
+              fetchRegistrations(page, searchRegistrationQuery)
+            )}
           </div>
-          <div className="table-status-container">
-            {tableStatuses.map((table) => (
-              <div
-                key={table.tableNumber}
-                className={`table-status-box status-${table.status.toLowerCase()}`}
-              >
-                Table {table.tableNumber}
-              </div>
-            ))}
-          </div>
-          <div className="order-grid-container"></div>
-          <div className="subsection-header">
-            <h3>Orders (Pickup or Delivery)</h3>
-          </div>
-          {/* ======================================================== */}
-          <div className="table-container">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Email</th>
-                  <th>Total Amount</th>
-                  <th>Mode</th>
-                  <th>Status</th>
-                  <th>Order Date</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.items.length > 0 ? (
-                  orders.items.map((order) => (
-                    <>
-                      {order.orderType !== "dinein" && (
-                        <tr key={order._id}>
-                          <td>
-                            <code>{order.orderId || "N/A"}</code>
-                          </td>
-                          <td>
-                            <strong>{order.email || "N/A"}</strong>
-                          </td>
-                          <td>
-                            <strong>
-                              ${(order.totalAmount || 0).toFixed(2)}
-                            </strong>
-                          </td>
-                          <td>
-                            <span
-                              className={getStatusBadgeClass(
-                                order.orderMode,
-                                "mode"
-                              )}
-                            >
-                              {(order.orderMode || "dinein").toUpperCase()}
-                            </span>
-                          </td>
-                          <td>
-                            {editingOrderId === order._id ? (
-                              <select
-                                value={order.status || "pending"}
-                                onChange={(e) => {
-                                  const newStatus = e.target.value;
-                                  if (
-                                    window.confirm(
-                                      `Are you sure you want to mark this order as ${newStatus}?`
-                                    )
-                                  ) {
-                                    updateOrderStatus(order._id, newStatus);
-                                  } else {
-                                    setEditingOrderId(null);
-                                  }
-                                }}
-                                onBlur={() => setEditingOrderId(null)}
-                                className="status-dropdown"
-                                autoFocus
-                              >
-                                <option value="pending">Pending</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Rejected</option>
-                              </select>
-                            ) : (
+        )}
+
+        {activeTab === "orders" && (
+          <div className="section-card">
+            <div className="section-header">
+              <h2 className="section-title">Order Management</h2>
+            </div>
+
+            {/* ========== DATA-DRIVEN TABLE DISPLAY (MODIFIED) ========== */}
+            <div className="subsection-header">
+              <h3>Dine-In</h3>
+            </div>
+            <div className="table-status-container">
+              {tableStatuses.map((table) => (
+                <div
+                  key={table.tableNumber}
+                  className={`table-status-box status-${table.status.toLowerCase()}`}
+                  onClick={() => {
+                    showBill(table.tableNumber);
+                  }}
+                >
+                  Table {table.tableNumber}
+                </div>
+              ))}
+            </div>
+            <div className="order-grid-container"></div>
+            <div className="subsection-header">
+              <h3>Orders (Pickup or Delivery)</h3>
+            </div>
+            {/* ======================================================== */}
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Email</th>
+                    <th>Total Amount</th>
+                    <th>Mode</th>
+                    <th>Status</th>
+                    <th>Order Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.items.length > 0 ? (
+                    orders.items.map((order) => (
+                      <>
+                        {order.orderType !== "dinein" && (
+                          <tr key={order._id}>
+                            <td>
+                              <code>{order.orderId || "N/A"}</code>
+                            </td>
+                            <td>
+                              <strong>{order.email || "N/A"}</strong>
+                            </td>
+                            <td>
+                              <strong>
+                                ${(order.totalAmount || 0).toFixed(2)}
+                              </strong>
+                            </td>
+                            <td>
                               <span
                                 className={getStatusBadgeClass(
-                                  order.status,
-                                  "order"
+                                  order.orderMode,
+                                  "mode"
                                 )}
-                                onClick={() => setEditingOrderId(order._id)}
-                                style={{ cursor: "pointer" }}
-                                title="Click to change status"
                               >
-                                {(order.status || "pending").toUpperCase()}
+                                {(order.orderMode || "dinein").toUpperCase()}
                               </span>
-                            )}
-                          </td>
-                          <td>
-                            {order.orderDate
-                              ? new Date(order.orderDate).toLocaleDateString()
-                              : "N/A"}
-                          </td>
-                          <td>
+                            </td>
+                            <td>
+                              {editingOrderId === order._id ? (
+                                <select
+                                  value={order.status || "pending"}
+                                  onChange={(e) => {
+                                    const newStatus = e.target.value;
+                                    if (
+                                      window.confirm(
+                                        `Are you sure you want to mark this order as ${newStatus}?`
+                                      )
+                                    ) {
+                                      updateOrderStatus(order._id, newStatus);
+                                    } else {
+                                      setEditingOrderId(null);
+                                    }
+                                  }}
+                                  onBlur={() => setEditingOrderId(null)}
+                                  className="status-dropdown"
+                                  autoFocus
+                                >
+                                  <option value="pending">Pending</option>
+                                  <option value="completed">Completed</option>
+                                  <option value="cancelled">Rejected</option>
+                                </select>
+                              ) : (
+                                <span
+                                  className={getStatusBadgeClass(
+                                    order.status,
+                                    "order"
+                                  )}
+                                  onClick={() => setEditingOrderId(order._id)}
+                                  style={{ cursor: "pointer" }}
+                                  title="Click to change status"
+                                >
+                                  {(order.status || "pending").toUpperCase()}
+                                </span>
+                              )}
+                            </td>
+                            <td>
+                              {order.orderDate
+                                ? new Date(order.orderDate).toLocaleDateString()
+                                : "N/A"}
+                            </td>
+                            <td>
+                              <button
+                                className="view-btn"
+                                onClick={() => handleView(order, "orders")}
+                              >
+                                View
+                              </button>
+                            </td>
+                          </tr>
+                        )}
+                      </>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" className="empty-state">
+                        No orders found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {renderPagination(orders, (page) =>
+              fetchOrders(page, searchOrderQuery)
+            )}
+          </div>
+        )}
+
+        {activeTab === "menu" && (
+          <div className="section-card">
+            <div
+              className="section-header"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <h2 className="section-title">Menu Management</h2>
+            </div>
+
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Section Title</th>
+                    <th>Color</th>
+                    <th>Number of Items</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {menuData.items.length > 0 ? (
+                    menuData.items.map((section, index) => (
+                      <tr key={section._id || section.id || index}>
+                        <td>
+                          <strong>
+                            {section.title ||
+                              section.name ||
+                              `Section ${index + 1}`}
+                          </strong>
+                        </td>
+                        <td>
+                          <div className="color-display">
+                            <div
+                              className="color-circle"
+                              style={{
+                                backgroundColor: section.color || "#FFA500",
+                              }}
+                            ></div>
+                            <span>{section.color || "#FFA500"}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <strong>
+                            {section.itemCount || section.items?.length || 0}
+                          </strong>
+                        </td>
+                        <td>
+                          <div style={{ display: "flex", gap: "10px" }}>
                             <button
                               className="view-btn"
-                              onClick={() => handleView(order, "orders")}
+                              onClick={() => handleView(section, "menu")}
                             >
                               View
                             </button>
-                          </td>
-                        </tr>
-                      )}
-                    </>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="empty-state">
-                      No orders found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {renderPagination(orders, (page) =>
-            fetchOrders(page, searchOrderQuery)
-          )}
-        </div>
-      )}
-
-      {activeTab === "menu" && (
-        <div className="section-card">
-          <div
-            className="section-header"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <h2 className="section-title">Menu Management</h2>
-          </div>
-
-          <div className="table-container">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Section Title</th>
-                  <th>Color</th>
-                  <th>Number of Items</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {menuData.items.length > 0 ? (
-                  menuData.items.map((section, index) => (
-                    <tr key={section._id || section.id || index}>
-                      <td>
-                        <strong>
-                          {section.title ||
-                            section.name ||
-                            `Section ${index + 1}`}
-                        </strong>
-                      </td>
-                      <td>
-                        <div className="color-display">
-                          <div
-                            className="color-circle"
-                            style={{
-                              backgroundColor: section.color || "#FFA500",
-                            }}
-                          ></div>
-                          <span>{section.color || "#FFA500"}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <strong>
-                          {section.itemCount || section.items?.length || 0}
-                        </strong>
-                      </td>
-                      <td>
-                        <div style={{ display: "flex", gap: "10px" }}>
-                          <button
-                            className="view-btn"
-                            onClick={() => handleView(section, "menu")}
-                          >
-                            View
-                          </button>
-                          {/* <button
+                            {/* <button
                             className="manage-btn"
                             onClick={() => handleManageItems(section)}
                           >
                             Manage Items
                           </button> */}
-                        </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="empty-state">
+                        No menu sections found
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="4" className="empty-state">
-                      No menu sections found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {renderPagination(menuData, (page) =>
+              fetchMenuData(page, searchMenuQuery)
+            )}
           </div>
+        )}
 
-          {renderPagination(menuData, (page) =>
-            fetchMenuData(page, searchMenuQuery)
-          )}
-        </div>
-      )}
-
-      {renderModal()}
-    </div>
+        {renderModal()}
+      </div>
+    </>
   );
 };
 

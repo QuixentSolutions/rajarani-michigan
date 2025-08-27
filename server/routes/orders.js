@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Order = require("../models/order");
+const Order = require("../models/orders");
 const emailjs = require("@emailjs/nodejs");
 const { ThermalPrinter, PrinterTypes } = require("node-thermal-printer");
 function buildEmailHTML(items) {

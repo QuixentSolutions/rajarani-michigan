@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Order = require("../models/order");
 const emailjs = require("@emailjs/nodejs");
-
+const { ThermalPrinter, PrinterTypes } = require("node-thermal-printer");
 function buildEmailHTML(items) {
   const rows = items
     .map(({ name, quantity, price }) => {
@@ -54,6 +54,39 @@ router.post("/", async (req, res) => {
   try {
     const order = new Order(req.body);
     const savedOrder = await order.save();
+
+    let printer = new ThermalPrinter({
+      type: PrinterTypes.EPSON,
+      interface: "tcp://96.85.105.126:9100", // Replace with your printer's real IP + port
+    });
+
+    try {
+      printer.alignCenter();
+      printer.bold(true);
+      printer.println(
+        `Order Items from ${
+          req.body.tableNumber
+        } at ${new Date().toLocaleString()}`
+      );
+      printer.bold(false);
+      printer.drawLine();
+
+      // Loop and print each item
+      req.body.items.forEach((item) => {
+        printer.alignLeft();
+        printer.println(`Name: ${item.name}`);
+        printer.println(`Qty: ${item.quantity}`);
+        printer.drawLine();
+      });
+
+      // Cut paper
+      printer.cut();
+
+      const success = await printer.execute(); // Await execution
+      console.log("Print done!", success);
+    } catch (error) {
+      console.error("Print failed:", error);
+    }
 
     const emailHTML = buildEmailHTML(req.body.items);
     // console.log(emailHTML);

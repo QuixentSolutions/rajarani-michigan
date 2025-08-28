@@ -73,7 +73,6 @@ router.post("/", async (req, res) => {
         printer.println(`Name         :  ${req.body.customer.name}`);
         printer.println(`Phone        :  ${req.body.customer.Phone}`);
       }
-      printer.println(`Order Type   :  ${req.body.orderType}`);
 
       printer.drawLine();
       printer.bold(false);

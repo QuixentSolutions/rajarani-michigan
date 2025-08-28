@@ -63,13 +63,20 @@ router.post("/", async (req, res) => {
     try {
       printer.alignCenter();
       printer.bold(true);
-      printer.println(
-        `Order Items from ${
-          req.body.tableNumber
-        } at ${new Date().toLocaleString()}`
-      );
-      printer.bold(false);
       printer.drawLine();
+      printer.println(`Order Number :  ${req.body.orderNumber}`);
+      printer.println(`Date         :  ${new Date().toLocaleString()}`);
+      printer.println(`Order Type   :  ${req.body.orderType}`);
+      if (req.body.orderType === "dinein") {
+        printer.println(`Table No     :  ${req.body.tableNumber}`);
+      } else {
+        printer.println(`Name         :  ${req.body.customer.name}`);
+        printer.println(`Phone        :  ${req.body.customer.Phone}`);
+      }
+      printer.println(`Order Type   :  ${req.body.orderType}`);
+
+      printer.drawLine();
+      printer.bold(false);
 
       // Loop and print each item
       req.body.items.forEach((item) => {
@@ -81,7 +88,6 @@ router.post("/", async (req, res) => {
 
       // Cut paper
       printer.cut();
-
       const success = await printer.execute(); // Await execution
       console.log("Print done!", success);
     } catch (error) {
@@ -144,7 +150,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:tableno", async (req, res) => {
+router.get("/table/:tableno", async (req, res) => {
   try {
     const order = await Order.find({
       tableNumber: req.params.tableno,
@@ -193,6 +199,20 @@ router.put("/settle", async (req, res) => {
     res.json(result);
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+});
+
+router.get("/all", async (req, res) => {
+  try {
+    const totalCount = await Order.countDocuments();
+    const skip = (req.query.page - 1) * req.query.limit;
+    const orders = await Order.find({})
+      .skip(skip)
+      .limit(req.query.limit)
+      .sort({ createdAt: -1 });
+    res.json({ results: orders, totalPages: totalCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

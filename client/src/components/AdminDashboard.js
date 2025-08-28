@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect, useCallback } from "react";
 import "./AdminDashboard.css";
 
@@ -25,6 +24,14 @@ const AdminDashboard = ({ onLogout }) => {
     items: [],
     totalPages: 1,
     currentPage: 1,
+  });
+
+  const options = ["dinein", "pickup", "delivery"];
+
+  const [selected, setSelected] = useState({
+    dinein: null,
+    pickup: null,
+    delivery: null,
   });
 
   // ========== NEW STATE FOR TABLE STATUSES (ADDED) ==========
@@ -372,7 +379,7 @@ const AdminDashboard = ({ onLogout }) => {
   const showBill = async (tableNo) => {
     try {
       setTableNo(tableNo);
-      const response = await fetch(`/order/${tableNo}`, {
+      const response = await fetch(`/order/table/${tableNo}`, {
         method: "GET",
         headers: {
           Authorization: authToken,
@@ -713,16 +720,16 @@ const AdminDashboard = ({ onLogout }) => {
               <div className="view-details">
                 <h4>Order Details</h4>
                 <p>
-                  <strong>Order ID:</strong> {selectedItem.orderId}
+                  <strong>Order ID:</strong> {selectedItem.orderNumber}
                 </p>
                 <p>
-                  <strong>Mobile:</strong> {selectedItem.mobileNumber}
+                  <strong>Mobile:</strong> {selectedItem.customer.phone}
                 </p>
                 <p>
-                  <strong>Email:</strong> {selectedItem.email}
+                  <strong>Email:</strong> {selectedItem.customer.email}
                 </p>
                 <p>
-                  <strong>Mode:</strong> {selectedItem.orderMode}
+                  <strong>Mode:</strong> {selectedItem.orderType}
                 </p>
                 <p>
                   <strong>Status:</strong> {selectedItem.status}
@@ -732,7 +739,7 @@ const AdminDashboard = ({ onLogout }) => {
                 </p>
                 <p>
                   <strong>Order Date:</strong>{" "}
-                  {new Date(selectedItem.orderDate).toLocaleString()}
+                  {new Date(selectedItem.createdAt).toLocaleString()}
                 </p>
                 <div className="order-items">
                   <h5>Items:</h5>
@@ -742,6 +749,25 @@ const AdminDashboard = ({ onLogout }) => {
                     </div>
                   ))}
                 </div>
+
+                <button
+                  onClick={() =>
+                    handleSettleOnlineorders(selectedItem.orderNumber)
+                  }
+                  // disabled={isCartEmpty}
+                  style={{
+                    backgroundColor: "black",
+                    color: "#fff",
+                    border: "none",
+                    padding: "10px 20px",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    marginRight: "10px",
+                    marginTop: "10px",
+                  }}
+                >
+                  Settle
+                </button>
               </div>
             )}
 
@@ -769,47 +795,32 @@ const AdminDashboard = ({ onLogout }) => {
                 </div>
               </div>
             )}
+
+            {modalType === "view-order-report-details" && selectedItem && (
+              <div className="view-details">
+                <h4>Order Details</h4>
+
+                <div className="order-items">
+                  <h5>Items:</h5>
+                  {selectedItem?.map((item, index) => (
+                    <div key={index} className="order-item">
+                      {item.name} - Qty: {item.quantity} - ${item.price}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
     );
   };
 
-  const getStatusBadgeClass = (status, type) => {
-    const baseClass = "status-badge";
-
-    if (type === "order") {
-      switch (status?.toLowerCase()) {
-        case "pending":
-          return `${baseClass} status-pending`;
-        case "completed":
-          return `${baseClass} status-completed`;
-        case "cancelled":
-          return `${baseClass} status-cancelled`;
-        default:
-          return `${baseClass} status-pending`;
-      }
-    }
-    if (type === "mode") {
-      switch (status?.toLowerCase()) {
-        case "dinein":
-          return `${baseClass} mode-dinein`;
-        case "pickup":
-          return `${baseClass} mode-pickup`;
-        case "delivery":
-          return `${baseClass} mode-delivery`;
-        default:
-          return `${baseClass} mode-dinein`;
-      }
-    }
-    return baseClass;
-  };
-
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       setError("");
       setSuccess("Updating order status...");
-      const response = await fetch(`/api/admin/orders/${orderId}/status`, {
+      const response = await fetch(`/orders/${orderId}/status`, {
         method: "PUT",
         headers: {
           Authorization: authToken,
@@ -862,7 +873,7 @@ const AdminDashboard = ({ onLogout }) => {
         body: JSON.stringify({
           orderNumbers: billDetails.orderNumbers.join(","),
           tableNumber: tableNo,
-          paymentMethod: "cash",
+          paymentMethod: "offline",
         }),
       });
 
@@ -876,6 +887,47 @@ const AdminDashboard = ({ onLogout }) => {
       setIsSuccessPopupOpen(false);
       setTableNo("");
       setBillDetails(null);
+      alert("Order settled successfully!");
+    } catch (err) {
+      console.error("Order process error:", err);
+      alert(
+        `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSettleOnlineorders = async (orderNumber) => {
+    let userConfirmed = window.confirm("Sure to settle ?");
+
+    if (!userConfirmed) {
+      // User clicked "OK", proceed with deletion
+      return;
+    }
+    setIsLoading(true);
+
+    try {
+      // First, save order to database
+      const dbResponse = await fetch("/order/settle", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderNumbers: orderNumber,
+          tableNumber: "0",
+          paymentMethod: "offline",
+        }),
+      });
+
+      const dbData = await dbResponse.json();
+
+      if (!dbResponse.ok) {
+        throw new Error(dbData.message || "Failed to save order.");
+      }
+
+      setIsLoading(false);
+      setShowModal(false);
+      await fetchOrders();
       alert("Order settled successfully!");
     } catch (err) {
       console.error("Order process error:", err);
@@ -1042,6 +1094,198 @@ const AdminDashboard = ({ onLogout }) => {
       </div>
     );
   };
+  const handleChange = (type, value) => {
+    setSelected((prev) => ({
+      ...prev,
+      [type]: value === "true",
+    }));
+  };
+
+  const labelStyle = {
+    color: "black",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    textAlign: "center",
+    fontSize: "14px",
+  };
+
+  const inputStyle = { marginBottom: "3px" };
+
+  const OrderTypeRadios = () => {
+    return (
+      <div>
+        {options.map((type) => {
+          const key = type.toLowerCase().replace("-", "");
+          return (
+            <div key={type} style={{ marginBottom: "10px" }}>
+              <div>Allow {type}</div>
+              <div style={{ display: "flex", gap: "20px", marginTop: "5px" }}>
+                {[
+                  { label: "YES", value: true },
+                  { label: "NO", value: false },
+                ].map((opt) => (
+                  <label key={opt.label} style={labelStyle}>
+                    <input
+                      type="radio"
+                      name={key}
+                      value={opt.value}
+                      checked={selected[key] === opt.value}
+                      onChange={(e) => handleChange(key, e.target.value)}
+                      style={inputStyle}
+                    />
+                    {opt.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const saveSettings = async () => {
+    let userConfirmed = window.confirm("Are you sure to make changes ?");
+
+    if (!userConfirmed) {
+      // User clicked "OK", proceed with deletion
+      return;
+    }
+
+    try {
+      const dbResponse = await fetch("/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "order_settings",
+          settings: selected,
+        }),
+      });
+
+      const dbData = await dbResponse.json();
+
+      if (!dbResponse.ok) {
+        throw new Error(dbData.message || "Failed to save.");
+      }
+      alert("Settings saved successfully!");
+    } catch (err) {
+      alert(
+        `We're sorry, your settings couldn't be saved (Error: ${err.message}). Please try again.`
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const OrdersTable = () => {
+    const [orderReports, setOrderReports] = useState([]);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const limit = 10; // items per page
+
+    const tableHeaderStyle = {
+      border: "1px solid #000",
+      padding: "8px",
+      backgroundColor: "#f0f0f0",
+    };
+
+    const tableCellStyle = {
+      border: "1px solid #000",
+      padding: "8px",
+      textAlign: "center",
+    };
+
+    const buttonStyle = {
+      padding: "5px 10px",
+      margin: "0 5px",
+      border: "1px solid #000",
+      cursor: "pointer",
+    };
+
+    useEffect(() => {
+      fetch(`/order/all?page=${page}&limit=${limit}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setOrderReports(data.results);
+          setTotalPages(data.totalPages);
+        });
+    }, [page]);
+
+    return (
+      <div style={{ padding: "20px" }}>
+        <h2 style={{ marginBottom: "10px" }}>Orders</h2>
+
+        <table style={{ borderCollapse: "collapse", width: "100%" }}>
+          <thead>
+            <tr>
+              <th style={tableHeaderStyle}>Order Number</th>
+              <th style={tableHeaderStyle}>Total Amount</th>
+              <th style={tableHeaderStyle}>Order Type</th>
+              <th style={tableHeaderStyle}>Name</th>
+              <th style={tableHeaderStyle}>Email</th>
+              <th style={tableHeaderStyle}>Phone</th>
+              <th style={tableHeaderStyle}>items</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orderReports.length > 0 ? (
+              orderReports.map((order) => (
+                <tr key={order._id}>
+                  <td style={tableCellStyle}>{order.orderNumber}</td>
+                  <td style={tableCellStyle}>${order.totalAmount}</td>
+                  <td style={tableCellStyle}>{order.orderType}</td>
+                  <td style={tableCellStyle}>{order.customer.name}</td>
+                  <td style={tableCellStyle}>{order.customer.email}</td>
+                  <td style={tableCellStyle}>{order.customer.phone}</td>
+                  <td
+                    style={tableCellStyle}
+                    onClick={() => viewOrderDetils(order.items)}
+                  >
+                    <span style={buttonStyle}>View</span>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="2" style={tableCellStyle}>
+                  No orders found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+
+        {/* Pagination */}
+        <div style={{ marginTop: "10px", textAlign: "center" }}>
+          <button
+            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            disabled={page === 1}
+            style={buttonStyle}
+          >
+            Prev
+          </button>
+          <span style={{ margin: "0 10px" }}>
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+            disabled={page === totalPages}
+            style={buttonStyle}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const viewOrderDetils = async (items) => {
+    setSelectedItem(items);
+    setModalType(`view-order-report-details`);
+    setShowModal(true);
+  };
+
   return (
     <>
       {isSuccessPopupOpen && <SuccessPopup />}
@@ -1078,6 +1322,18 @@ const AdminDashboard = ({ onLogout }) => {
             onClick={() => setActiveTab("menu")}
           >
             Menu Management
+          </button>
+          <button
+            className={`tab-btn ${activeTab === "settings" ? "active" : ""}`}
+            onClick={() => setActiveTab("settings")}
+          >
+            Settings
+          </button>
+          <button
+            className={`tab-btn ${activeTab === "reports" ? "active" : ""}`}
+            onClick={() => setActiveTab("reports")}
+          >
+            Reports
           </button>
         </div>
 
@@ -1157,7 +1413,7 @@ const AdminDashboard = ({ onLogout }) => {
             </div>
             <div className="order-grid-container"></div>
             <div className="subsection-header">
-              <h3>Orders (Pickup or Delivery)</h3>
+              <h3>Pending Orders (Pickup or Delivery)</h3>
             </div>
             {/* ======================================================== */}
             <div className="table-container">
@@ -1165,10 +1421,11 @@ const AdminDashboard = ({ onLogout }) => {
                 <thead>
                   <tr>
                     <th>Order ID</th>
+                    <th>Name</th>
                     <th>Email</th>
                     <th>Total Amount</th>
                     <th>Mode</th>
-                    <th>Status</th>
+
                     <th>Order Date</th>
                     <th>Actions</th>
                   </tr>
@@ -1177,82 +1434,38 @@ const AdminDashboard = ({ onLogout }) => {
                   {orders.items.length > 0 ? (
                     orders.items.map((order) => (
                       <>
-                        {order.orderType !== "dinein" && (
-                          <tr key={order._id}>
-                            <td>
-                              <code>{order.orderId || "N/A"}</code>
-                            </td>
-                            <td>
-                              <strong>{order.email || "N/A"}</strong>
-                            </td>
-                            <td>
-                              <strong>
-                                ${(order.totalAmount || 0).toFixed(2)}
-                              </strong>
-                            </td>
-                            <td>
-                              <span
-                                className={getStatusBadgeClass(
-                                  order.orderMode,
-                                  "mode"
-                                )}
-                              >
-                                {(order.orderMode || "dinein").toUpperCase()}
-                              </span>
-                            </td>
-                            <td>
-                              {editingOrderId === order._id ? (
-                                <select
-                                  value={order.status || "pending"}
-                                  onChange={(e) => {
-                                    const newStatus = e.target.value;
-                                    if (
-                                      window.confirm(
-                                        `Are you sure you want to mark this order as ${newStatus}?`
-                                      )
-                                    ) {
-                                      updateOrderStatus(order._id, newStatus);
-                                    } else {
-                                      setEditingOrderId(null);
-                                    }
-                                  }}
-                                  onBlur={() => setEditingOrderId(null)}
-                                  className="status-dropdown"
-                                  autoFocus
+                        {order.orderType !== "dinein" &&
+                          order.status === "pending" && (
+                            <tr key={order._id}>
+                              <td>
+                                <code>{order.orderNumber || "N/A"}</code>
+                              </td>
+                              <td>
+                                <strong>{order.customer.name || "N/A"}</strong>
+                              </td>
+                              <td>
+                                <strong>{order.customer.email || "N/A"}</strong>
+                              </td>
+                              <td>
+                                <strong>
+                                  ${(order.totalAmount || 0).toFixed(2)}
+                                </strong>
+                              </td>
+                              <td>{order.orderType.toUpperCase()}</td>
+
+                              <td>
+                                {new Date(order.createdAt).toLocaleString()}
+                              </td>
+                              <td>
+                                <button
+                                  className="view-btn"
+                                  onClick={() => handleView(order, "orders")}
                                 >
-                                  <option value="pending">Pending</option>
-                                  <option value="completed">Completed</option>
-                                  <option value="cancelled">Rejected</option>
-                                </select>
-                              ) : (
-                                <span
-                                  className={getStatusBadgeClass(
-                                    order.status,
-                                    "order"
-                                  )}
-                                  onClick={() => setEditingOrderId(order._id)}
-                                  style={{ cursor: "pointer" }}
-                                  title="Click to change status"
-                                >
-                                  {(order.status || "pending").toUpperCase()}
-                                </span>
-                              )}
-                            </td>
-                            <td>
-                              {order.orderDate
-                                ? new Date(order.orderDate).toLocaleDateString()
-                                : "N/A"}
-                            </td>
-                            <td>
-                              <button
-                                className="view-btn"
-                                onClick={() => handleView(order, "orders")}
-                              >
-                                View
-                              </button>
-                            </td>
-                          </tr>
-                        )}
+                                  Settle
+                                </button>
+                              </td>
+                            </tr>
+                          )}
                       </>
                     ))
                   ) : (
@@ -1349,6 +1562,56 @@ const AdminDashboard = ({ onLogout }) => {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {renderPagination(menuData, (page) =>
+              fetchMenuData(page, searchMenuQuery)
+            )}
+          </div>
+        )}
+
+        {activeTab === "settings" && (
+          <div className="section-card">
+            <div
+              className="section-header"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <h2 className="section-title">Settings</h2>
+
+              <div className="table-container" style={{ padding: "2rem" }}>
+                <OrderTypeRadios />
+              </div>
+
+              <button
+                key="prev"
+                onClick={() => saveSettings()}
+                className="pagination-btn"
+              >
+                Save Settings
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "reports" && (
+          <div className="section-card">
+            <div
+              className="section-header"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <h2 className="section-title">Reports</h2>
+            </div>
+
+            <div className="table-container">
+              <OrdersTable />
             </div>
 
             {renderPagination(menuData, (page) =>

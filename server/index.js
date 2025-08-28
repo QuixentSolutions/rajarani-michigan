@@ -6,6 +6,7 @@ const healthRoutes = require("./routes/health");
 const orderRoutes = require("./routes/orders");
 const menuRoutes = require("./routes/menu");
 const registerRoutes = require("./routes/register");
+const settingsRoutes = require("./routes/settings");
 require("dotenv").config();
 
 const app = express();
@@ -22,6 +23,7 @@ app.use("/health", healthRoutes);
 app.use("/menu", menuRoutes);
 app.use("/order", orderRoutes);
 app.use("/register", registerRoutes);
+app.use("/settings", settingsRoutes);
 
 const PORT = 5001;
 app.listen(PORT, () =>

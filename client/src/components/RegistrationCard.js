@@ -5,6 +5,7 @@ function RegistrationCard() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    mobile: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -19,7 +20,6 @@ function RegistrationCard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Registration Data:", formData);
 
     // Validate required fields
     if (!formData.name.trim() || !formData.email.trim()) {
@@ -31,7 +31,7 @@ function RegistrationCard() {
 
     try {
       // First, save to database (without email functionality)
-      const dbResponse = await fetch("/api/register", {
+      const dbResponse = await fetch("/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -39,6 +39,9 @@ function RegistrationCard() {
         body: JSON.stringify({
           name: formData.name.trim(),
           email: formData.email.trim(),
+          mobile: formData.mobile.trim(),
+          eventDate: "03-Sep-2025",
+          eventName: "3rd Anniversary Celebration",
         }),
       });
 
@@ -52,14 +55,13 @@ function RegistrationCard() {
 
       console.log("Registration saved to DB:", dbData);
 
-      alert(
-        "Registration Successful! Your details have been saved and confirmation email sent."
-      );
+      alert("Registration successful! Confirmation email sent.");
 
       // Reset form
       setFormData({
         name: "",
         email: "",
+        mobile: "",
       });
     } catch (err) {
       console.error("Registration process error:", err);
@@ -92,6 +94,18 @@ function RegistrationCard() {
             id="email"
             name="email"
             value={formData.email}
+            onChange={handleChange}
+            required
+            disabled={isLoading}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="email">Mobile:</label>
+          <input
+            type="text"
+            id="mobile"
+            name="mobile"
+            value={formData.mobile}
             onChange={handleChange}
             required
             disabled={isLoading}

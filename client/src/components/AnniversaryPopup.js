@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import './AnniversaryPopup.css';
+import React, { useEffect, useState } from "react";
+import "./AnniversaryPopup.css";
 
 function AnniversaryPopup() {
   const [isVisible, setIsVisible] = useState(false);
@@ -18,11 +18,13 @@ function AnniversaryPopup() {
     setIsVisible(false);
     setHasBeenClicked(true);
 
-    const registrationCard = document.getElementById('anniversary-registration');
+    const registrationCard = document.getElementById(
+      "anniversary-registration"
+    );
     if (registrationCard) {
       registrationCard.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
+        behavior: "smooth",
+        block: "start",
       });
     }
   };
@@ -33,32 +35,22 @@ function AnniversaryPopup() {
   }
 
   return (
-    <div className={`anniversary-popup ${isVisible ? 'is-visible' : ''}`}>
+    <div className={`anniversary-popup ${isVisible ? "is-visible" : ""}`}>
       <div className="celebration-card">
         {/* Floating sparkles */}
-        <div className="sparkle sparkle-1">
-          ✨
-        </div>
-        <div className="sparkle sparkle-2">
-          ✨
-        </div>
-        <div className="sparkle sparkle-3">
-          ✨
-        </div>
-        <div className="sparkle sparkle-4">
-          ✨
-        </div>
+        <div className="sparkle sparkle-1">✨</div>
+        <div className="sparkle sparkle-2">✨</div>
+        <div className="sparkle sparkle-3">✨</div>
+        <div className="sparkle sparkle-4">✨</div>
 
         {/* Main content */}
         <div className="card-header">
-          <div className="trophy-icon">
-            🍃
-          </div>
+          <div className="trophy-icon">🍃</div>
           <div className="anniversary-badge">3rd</div>
         </div>
 
         <div className="card-content">
-          <h3 className="title">Anniversary!</h3>
+          <h3 className="title">3rd Anniversary Celebration!</h3>
         </div>
 
         <button onClick={scrollToRegistration} className="register-btn">

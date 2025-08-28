@@ -11,7 +11,7 @@ const cartSlice = createSlice({
   initialState: savedCart,
   reducers: {
     updateQuantity: (state, action) => {
-      const { itemName, change, price } = action.payload;
+      const { itemName, change, price, spiceLevel } = action.payload;
       const currentQty = state.items[itemName]?.quantity || 0;
       const newQty = Math.max(0, currentQty + change);
 
@@ -24,7 +24,7 @@ const cartSlice = createSlice({
       if (newQty === 0) {
         delete state.items[itemName];
       } else {
-        state.items[itemName] = { quantity: newQty, price };
+        state.items[itemName] = { quantity: newQty, price, spiceLevel };
       }
 
       localStorage.setItem("cart", JSON.stringify(state));

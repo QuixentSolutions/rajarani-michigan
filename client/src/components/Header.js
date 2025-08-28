@@ -12,6 +12,8 @@ function Header() {
   const [mobileNumber, setMobileNumber] = useState("+1");
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [name, setName] = useState("");
+  const [nameError, setNameError] = useState("");
   const [addressError, setAddressError] = useState("");
   const [mobileError, setMobileError] = useState("");
   const [tableNumber, setTableNumber] = useState("1");
@@ -22,6 +24,8 @@ function Header() {
   const [isLoading, setIsLoading] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0);
   const [finalOrderAmount, setFinalOrderAmount] = useState(0);
+
+  const [deliveryModes, setDeliveryModes] = useState();
 
   const totalItems = useSelector((state) => state.cart.totalItems);
   const cartItems = useSelector((state) => state.cart.items);
@@ -50,6 +54,26 @@ function Header() {
     setTotalAmount(subTotal);
   }, [cartItems]);
 
+  useEffect(() => {
+    const loadData = async () => {
+      const dbResponse = await fetch("/settings/latest", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      const dbData = await dbResponse.json();
+      if (!dbResponse.ok) {
+        throw new Error(dbData.message || "Failed to save order.");
+      }
+
+      const obj = dbData[0]?.settings || {};
+      // Get only keys where value is true
+      const result = Object.keys(obj).filter((key) => obj[key]);
+      setDeliveryModes(result || []);
+    };
+
+    loadData();
+  }, [isPopupOpen]);
+
   const handleChange = (e) => {
     const input = e.target.value;
     if (!input.startsWith("+1")) {
@@ -58,6 +82,11 @@ function Header() {
     }
     const formatted = formatPhoneNumber(input);
     setMobileNumber(formatted);
+  };
+
+  const handleNameChange = (e) => {
+    const input = e.target.value;
+    setName(input);
   };
 
   const getLocation = () => {
@@ -109,6 +138,11 @@ function Header() {
         setEmailError("Please enter a valid email address.");
         return;
       }
+
+      if (!name || name.trim().length < 2) {
+        setNameError("Name cannot be empty");
+        return;
+      }
     }
     setEmailError("");
 
@@ -131,7 +165,7 @@ function Header() {
     const orderData = {
       orderNumber: String(orderId),
       customer: {
-        name: "",
+        name: name.trim() || "Guest",
         phone: String(mobileNumber),
         email: email.trim(),
       },
@@ -174,6 +208,7 @@ function Header() {
       setMobileNumber("+1");
       setTableNumber("1");
       setEmail("");
+      setName("");
       setAddress("");
       dispatch(clearCart());
     } catch (err) {
@@ -364,7 +399,7 @@ function Header() {
         <div className="header-container">
           <div className="nav">
             <div className="logo">
-              <img className="header-logo" src="../logo-1.png" alt="logo" />
+              <img className="header-logo" src="../logo.png" alt="logo" />
             </div>
             <AnniversaryPopup />
             <div className="social-icons">
@@ -660,6 +695,25 @@ function Header() {
                       {emailError}
                     </div>
                   )}
+                  <input
+                    type="tel"
+                    placeholder="Name"
+                    value={name}
+                    onChange={handleNameChange}
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      marginTop: "5px",
+                      marginBottom: "5px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                    }}
+                  />
+                  {nameError && (
+                    <div style={{ color: "red", marginBottom: "15px" }}>
+                      {nameError}
+                    </div>
+                  )}
                 </>
               )}
 
@@ -697,7 +751,7 @@ function Header() {
                 }}
               >
                 {/* {["dinein", "pickup", "delivery"].map((mode) => ( */}
-                {["dinein", "pickup"].map((mode) => (
+                {deliveryModes.map((mode) => (
                   <label
                     key={mode}
                     style={{

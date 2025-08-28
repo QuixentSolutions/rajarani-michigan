@@ -83,7 +83,6 @@ router.post("/", async (req, res) => {
         printer.alignLeft();
         printer.println(`Name: ${item.name}`);
         printer.println(`Qty: ${item.quantity}`);
-        printer.drawLine();
       });
 
       // Cut paper

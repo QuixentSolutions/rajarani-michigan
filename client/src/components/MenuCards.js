@@ -55,8 +55,10 @@ function Menu() {
   ) => {
     // Dispatch the action first
 
+    //TODO - Ask confiration for spice level if item has spice level
     console.log("spicelevel", spicelevel);
     console.log("addons", addons);
+
     dispatch(updateQuantity({ itemName, change, price }));
 
     if (change === 1) {

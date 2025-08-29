@@ -40,7 +40,7 @@ function RegistrationCard() {
           name: formData.name.trim(),
           email: formData.email.trim(),
           mobile: formData.mobile.trim(),
-          eventDate: "03-Sep-2025",
+          eventDate: "07-Sep-2025",
           eventName: "3rd Anniversary Celebration",
         }),
       });

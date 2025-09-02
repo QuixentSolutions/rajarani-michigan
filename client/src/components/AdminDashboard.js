@@ -10,6 +10,8 @@ const AdminDashboard = ({ onLogout }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
 
+  const [options, setOptions] = useState();
+
   const [registrations, setRegistrations] = useState({
     items: [],
     totalPages: 1,
@@ -25,8 +27,6 @@ const AdminDashboard = ({ onLogout }) => {
     totalPages: 1,
     currentPage: 1,
   });
-
-  const options = ["dinein", "pickup", "delivery"];
 
   const [selected, setSelected] = useState({
     dinein: null,
@@ -371,6 +371,24 @@ const AdminDashboard = ({ onLogout }) => {
       } finally {
         setIsLoading(false);
       }
+    };
+
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const dbResponse = await fetch("/settings/latest", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      const dbData = await dbResponse.json();
+      if (!dbResponse.ok) {
+        throw new Error(dbData.message || "Failed to save order.");
+      }
+
+      const obj = dbData[0]?.settings || {};
+      setSelected(obj);
     };
 
     loadData();
@@ -964,6 +982,8 @@ const AdminDashboard = ({ onLogout }) => {
             textAlign: "center",
             color: "black",
             position: "relative",
+            maxHeight: "50rem",
+            overflow: "scroll",
           }}
         >
           <button
@@ -989,7 +1009,73 @@ const AdminDashboard = ({ onLogout }) => {
             style={{ width: "250px", height: "250px", margin: "10px 0" }}
           />
           <div>
-            <table style={{ borderCollapse: "collapse", width: "100%" }}>
+            <button
+              onClick={handleSettle}
+              // disabled={isCartEmpty}
+              style={{
+                backgroundColor: "black",
+                color: "#fff",
+                border: "none",
+                padding: "10px 20px",
+                borderRadius: "4px",
+                cursor: "pointer",
+                marginRight: "10px",
+                marginTop: "10px",
+              }}
+            >
+              Settle
+            </button>
+            <br />
+            <br />
+            <div
+              style={{
+                marginTop: "16px",
+                padding: "12px 16px",
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                maxWidth: "300px",
+                backgroundColor: "#fafafa",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: "6px",
+                }}
+              >
+                <span>Sub Total</span>
+                <span>{billDetails.subTotal.toFixed(2)}</span>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: "6px",
+                }}
+              >
+                <span>Sales Tax</span>
+                <span>{billDetails.salesTax.toFixed(2)}</span>
+              </div>
+              <hr style={{ margin: "8px 0" }} />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontWeight: "bold",
+                }}
+              >
+                <span>Total Amount</span>
+                <span>{billDetails.totalAmount.toFixed(2)}</span>
+              </div>
+            </div>
+            <br />
+            <table
+              style={{
+                borderCollapse: "collapse",
+                width: "100%",
+              }}
+            >
               <thead>
                 <tr>
                   <th style={{ border: "1px solid black", padding: "8px" }}>
@@ -1023,120 +1109,55 @@ const AdminDashboard = ({ onLogout }) => {
                     </td>
                   </tr>
                 ))}
-
-                <tr>
-                  <td
-                    style={{ border: "1px solid black", padding: "8px" }}
-                  ></td>
-                  <td
-                    style={{ border: "1px solid black", padding: "8px" }}
-                  ></td>
-                  <td style={{ border: "1px solid black", padding: "8px" }}>
-                    Sub Total
-                  </td>
-                  <td style={{ border: "1px solid black", padding: "8px" }}>
-                    <strong> ${billDetails.subTotal}</strong>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td
-                    style={{ border: "1px solid black", padding: "8px" }}
-                  ></td>
-                  <td
-                    style={{ border: "1px solid black", padding: "8px" }}
-                  ></td>
-                  <td style={{ border: "1px solid black", padding: "8px" }}>
-                    Sales Tax
-                  </td>
-                  <td style={{ border: "1px solid black", padding: "8px" }}>
-                    <strong> ${billDetails.salesTax}</strong>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td
-                    style={{ border: "1px solid black", padding: "8px" }}
-                  ></td>
-                  <td
-                    style={{ border: "1px solid black", padding: "8px" }}
-                  ></td>
-                  <td style={{ border: "1px solid black", padding: "8px" }}>
-                    Total Amount
-                  </td>
-                  <td style={{ border: "1px solid black", padding: "8px" }}>
-                    <strong> ${billDetails.totalAmount}</strong>
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>
-
-          <br />
-          <hr />
-          <button
-            onClick={handleSettle}
-            // disabled={isCartEmpty}
-            style={{
-              backgroundColor: "black",
-              color: "#fff",
-              border: "none",
-              padding: "10px 20px",
-              borderRadius: "4px",
-              cursor: "pointer",
-              marginRight: "10px",
-              marginTop: "10px",
-            }}
-          >
-            Settle
-          </button>
         </div>
       </div>
     );
   };
-  const handleChange = (type, value) => {
-    setSelected((prev) => ({
-      ...prev,
-      [type]: value === "true",
-    }));
-  };
 
-  const labelStyle = {
-    color: "black",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    textAlign: "center",
-    fontSize: "14px",
+  const handleChange = (key, value) => {
+    setSelected((prev) => ({ ...prev, [key]: value }));
   };
-
-  const inputStyle = { marginBottom: "3px" };
 
   const OrderTypeRadios = () => {
     return (
       <div>
-        {options.map((type) => {
-          const key = type.toLowerCase().replace("-", "");
+        {Object.keys(selected).map((key) => {
+          const value = selected[key];
           return (
-            <div key={type} style={{ marginBottom: "10px" }}>
-              <div>Allow {type}</div>
+            <div key={key} style={{ marginBottom: "10px" }}>
+              <div>Allow {key}</div>
               <div style={{ display: "flex", gap: "20px", marginTop: "5px" }}>
                 {[
                   { label: "YES", value: true },
                   { label: "NO", value: false },
-                ].map((opt) => (
-                  <label key={opt.label} style={labelStyle}>
-                    <input
-                      type="radio"
-                      name={key}
-                      value={opt.value}
-                      checked={selected[key] === opt.value}
-                      onChange={(e) => handleChange(key, e.target.value)}
-                      style={inputStyle}
-                    />
-                    {opt.label}
-                  </label>
-                ))}
+                ].map((opt) => {
+                  const isActive = value === opt.value;
+                  return (
+                    <div
+                      key={opt.label}
+                      onClick={() => handleChange(key, opt.value)}
+                      style={{
+                        cursor: "pointer",
+                        padding: "10px 20px",
+                        borderRadius: "8px",
+                        border: isActive
+                          ? "2px solid #2563eb"
+                          : "2px solid #ccc",
+                        background: isActive ? "#2563eb" : "#f9f9f9",
+                        color: isActive ? "#fff" : "#333",
+                        fontWeight: isActive ? "600" : "400",
+                        boxShadow: isActive
+                          ? "0 2px 6px rgba(0,0,0,0.2)"
+                          : "none",
+                      }}
+                    >
+                      {opt.label}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );

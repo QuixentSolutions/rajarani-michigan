@@ -117,6 +117,9 @@ function Header() {
       // User clicked "OK", proceed with deletion
       return;
     }
+
+    setIsLoading(true);
+    setIsPopupOpen(false);
     e.preventDefault();
 
     // Validate mobile number for non-dine-in orders
@@ -126,6 +129,8 @@ function Header() {
       (!mobileNumber || !mobileRegex.test(mobileNumber.trim()))
     ) {
       setMobileError("Please enter a valid mobile number.");
+      setIsLoading(false);
+      setIsPopupOpen(true);
       return;
     }
     setMobileError("");
@@ -136,11 +141,15 @@ function Header() {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!email || !emailRegex.test(email.trim())) {
         setEmailError("Please enter a valid email address.");
+        setIsLoading(false);
+        setIsPopupOpen(true);
         return;
       }
 
       if (!name || name.trim().length < 2) {
         setNameError("Name cannot be empty");
+        setIsLoading(false);
+        setIsPopupOpen(true);
         return;
       }
     }
@@ -149,6 +158,8 @@ function Header() {
     // Validate address for delivery
     if (orderMode === "delivery" && !address) {
       setAddressError("Please enter a valid delivery address.");
+      setIsLoading(false);
+      setIsPopupOpen(true);
       return;
     }
     setAddressError("");
@@ -185,8 +196,6 @@ function Header() {
       status: "pending",
     };
 
-    setIsLoading(true);
-
     try {
       // First, save order to database
       const dbResponse = await fetch("/order", {
@@ -211,6 +220,7 @@ function Header() {
       setName("");
       setAddress("");
       dispatch(clearCart());
+      setIsLoading(false);
     } catch (err) {
       console.error("Order process error:", err);
       alert(
@@ -453,7 +463,7 @@ function Header() {
                   style={{ color: "#28A745" }}
                 />
               </a>
-              <div
+              {/* <div
                 style={{
                   position: "relative",
                   display: "inline-block",
@@ -497,7 +507,7 @@ function Header() {
                     {totalItems}
                   </span>
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -820,23 +830,26 @@ function Header() {
                   )}
                 </>
               )}
-
-              <button
-                onClick={handleOrderNow}
-                disabled={isCartEmpty}
-                style={{
-                  backgroundColor: isCartEmpty ? "#aaa" : "black",
-                  color: "#fff",
-                  border: "none",
-                  padding: "10px 20px",
-                  borderRadius: "4px",
-                  cursor: isCartEmpty ? "not-allowed" : "pointer",
-                  marginRight: "10px",
-                  marginTop: "10px",
-                }}
-              >
-                {isCartEmpty ? `Add items to cart` : `Order Now`}
-              </button>
+              {(deliveryModes.includes("dinein") ||
+                deliveryModes.includes("pickup") ||
+                deliveryModes.includes("delivery")) && (
+                <button
+                  onClick={handleOrderNow}
+                  disabled={isCartEmpty}
+                  style={{
+                    backgroundColor: isCartEmpty ? "#aaa" : "black",
+                    color: "#fff",
+                    border: "none",
+                    padding: "10px 20px",
+                    borderRadius: "4px",
+                    cursor: isCartEmpty ? "not-allowed" : "pointer",
+                    marginRight: "10px",
+                    marginTop: "10px",
+                  }}
+                >
+                  {isCartEmpty ? `Add items to cart` : `Order Now`}
+                </button>
+              )}
               <button
                 onClick={() => setIsPopupOpen(false)}
                 style={{
@@ -855,6 +868,55 @@ function Header() {
             </div>
           </div>
         )}
+
+        <div
+          style={{
+            position: "fixed", // make it float
+            bottom: "20px", // distance from bottom
+            right: "20px", // distance from right
+            display: "inline-block",
+            zIndex: 1000, // keeps it on top of other elements
+          }}
+        >
+          <button
+            aria-label="Cart"
+            style={{
+              border: "none",
+              background: "transparent",
+              color: "white",
+              cursor: "pointer",
+              fontSize: "24px",
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              handleCartClick();
+            }}
+          >
+            <FaShoppingCart size={38} />
+          </button>
+
+          {totalItems > 0 && (
+            <span
+              style={{
+                position: "absolute",
+                top: "-8px",
+                right: "-8px",
+                backgroundColor: "white",
+                color: "black",
+                borderRadius: "50%",
+                width: "18px",
+                height: "18px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "12px",
+                fontWeight: "bold",
+              }}
+            >
+              {totalItems}
+            </span>
+          )}
+        </div>
       </header>
     </>
   );

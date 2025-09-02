@@ -168,6 +168,10 @@ router.get("/table/:tableno", async (req, res) => {
       { items: [], orderNumbers: [], subTotal: 0, salesTax: 0, totalAmount: 0 }
     );
 
+    combined.subTotal = Math.round(combined.subTotal * 100) / 100;
+    combined.salesTax = Math.round(combined.salesTax * 100) / 100;
+    combined.totalAmount = Math.round(combined.totalAmount * 100) / 100;
+
     res.json(combined);
   } catch (err) {
     res.status(500).json({ error: err.message });

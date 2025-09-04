@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { FaPlus, FaMinus, FaCheck, FaCheckCircle } from "react-icons/fa";
-import { updateQuantity } from "../cartSlice";
+import { updateQuantity, rehydrateCart } from "../cartSlice";
 import { useState, useEffect } from "react";
 import "./MenuCards.css";
 
@@ -69,6 +69,8 @@ function Menu() {
     spiceLevel,
     addons,
   }) => {
+    dispatch(rehydrateCart());
+
     dispatch(
       updateQuantity({
         itemName,
@@ -264,28 +266,28 @@ function Menu() {
                             {qty}
                           </span> */}
 
-                          {qty === 0 && (
-                            <FaCheck
-                              style={{
-                                cursor: "pointer",
-                                fontSize: "16px",
-                                marginLeft: "5px",
-                              }}
-                              onClick={(e) =>
-                                handleQuantityChange(
-                                  item.name,
-                                  1,
-                                  price,
-                                  basePrice,
-                                  item.spicelevel,
-                                  item.addons,
-                                  e
-                                )
-                              }
-                            />
-                          )}
+                          {/* {qty === 0 && ( */}
+                          <FaCheck
+                            style={{
+                              cursor: "pointer",
+                              fontSize: "16px",
+                              marginLeft: "5px",
+                            }}
+                            onClick={(e) =>
+                              handleQuantityChange(
+                                item.name,
+                                1,
+                                price,
+                                basePrice,
+                                item.spicelevel,
+                                item.addons,
+                                e
+                              )
+                            }
+                          />
+                          {/* )} */}
 
-                          {qty > 0 && (
+                          {/* {qty > 0 && (
                             <FaCheckCircle
                               style={{
                                 cursor: "pointer",
@@ -293,7 +295,7 @@ function Menu() {
                                 marginLeft: "5px",
                               }}
                             />
-                          )}
+                          )} */}
                         </div>
                       </li>
                     );

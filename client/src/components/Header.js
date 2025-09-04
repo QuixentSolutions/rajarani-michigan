@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch } from "react-redux";
-import { clearCart } from "../cartSlice";
+import { clearCart, rehydrateCart } from "../cartSlice";
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
 import AnniversaryPopup from "./AnniversaryPopup";
 import { FaPlus, FaMinus } from "react-icons/fa";
@@ -359,8 +359,9 @@ function Header() {
         setCartItems(cart);
         localStorage.setItem(
           "cart",
-          JSON.stringify({ items: cart, totalItems: cart.length })
+          JSON.stringify({ items: cart, totalItems: Object.keys(cart).length })
         );
+        dispatch(rehydrateCart());
       } catch (err) {
         console.error("Error updating cart:", err);
       }
@@ -698,7 +699,7 @@ function Header() {
                                 padding: "5px",
                               }}
                             >
-                              {name}
+                              {name.split("_")[0]}
                               {spiceLevel ? (
                                 <span style={{ color: "red" }}>
                                   {" "}

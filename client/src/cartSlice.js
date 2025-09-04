@@ -66,8 +66,16 @@ const cartSlice = createSlice({
       state.totalItems = 0;
       localStorage.removeItem("cart");
     },
+    rehydrateCart: (state, action) => {
+      const saved = JSON.parse(localStorage.getItem("cart")) || {
+        items: {},
+        totalItems: 0,
+      };
+      state.items = saved.items;
+      state.totalItems = Object.keys(saved.items).length;
+    },
   },
 });
 
-export const { updateQuantity, clearCart } = cartSlice.actions;
+export const { updateQuantity, rehydrateCart, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

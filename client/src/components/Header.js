@@ -227,7 +227,6 @@ function Header() {
         throw new Error(dbData.message || "Failed to save order.");
       }
 
-      console.log("Order saved to database:", dbData);
       setSuccessOrderId(orderId);
       setIsSuccessPopupOpen(true);
       setIsPopupOpen(false);

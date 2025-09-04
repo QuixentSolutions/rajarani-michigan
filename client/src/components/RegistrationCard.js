@@ -53,8 +53,6 @@ function RegistrationCard() {
         );
       }
 
-      console.log("Registration saved to DB:", dbData);
-
       alert("Registration successful! Confirmation email sent.");
 
       // Reset form

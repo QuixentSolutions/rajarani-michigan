@@ -36,7 +36,6 @@ router.post("/", async (req, res) => {
 
     res.status(201).json(savedRegistration);
   } catch (err) {
-    console.log(err);
     res.status(400).json({ error: err.message });
   }
 });

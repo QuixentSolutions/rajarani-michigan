@@ -65,7 +65,6 @@ router.post("/", async (req, res) => {
     const savedOrder = await order.save();
 
     const emailHTML = buildEmailHTML(req.body.items);
-    // console.log(emailHTML);
 
     if (!req.body.customer.email) {
       console.log("No customer email provided, skipping email send.");
@@ -102,7 +101,6 @@ router.post("/", async (req, res) => {
 
     res.status(201).json(savedOrder);
   } catch (err) {
-    console.log(err);
     res.status(400).json({ error: err.message });
   }
 });
@@ -143,7 +141,6 @@ router.get("/table/:tableno", async (req, res) => {
     combined.subTotal = Math.round(combined.subTotal * 100) / 100;
     combined.salesTax = Math.round(combined.salesTax * 100) / 100;
     combined.totalAmount = Math.round(combined.totalAmount * 100) / 100;
-    console.log(combined);
     res.json(combined);
   } catch (err) {
     res.status(500).json({ error: err.message });

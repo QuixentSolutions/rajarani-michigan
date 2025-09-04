@@ -2,16 +2,26 @@ const express = require("express");
 const router = express.Router();
 const Order = require("../models/orders");
 const emailjs = require("@emailjs/nodejs");
-const { ThermalPrinter, PrinterTypes } = require("node-thermal-printer");
 function buildEmailHTML(items) {
   const rows = items
-    .map(({ name, quantity, price }) => {
-      const unitPrice = parseFloat(price);
-      const lineTotal = quantity * unitPrice;
+    .map(({ name, quantity, basePrice, price, spiceLevel, addons }) => {
+      const unitPrice = parseFloat(basePrice);
+      const lineTotal = parseFloat(price);
+
       return `
           <tr>
-            <td style="padding:8px;border:1px solid #ccc;">${name}</td>
+            <td style="padding:8px;border:1px solid #ccc;">${
+              name.split("_")[0]
+            }</td>
             <td style="padding:8px;border:1px solid #ccc;text-align:center;">${quantity}</td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:center;">${
+              spiceLevel ? spiceLevel : "NA"
+            }</td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:center;">${
+              addons.length > 0
+                ? addons.map((a) => `${a.name} ($${a.price})`).join(", ")
+                : "NA"
+            }</td>
             <td style="padding:8px;border:1px solid #ccc;text-align:right;">$${unitPrice.toFixed(
               2
             )}</td>
@@ -22,10 +32,7 @@ function buildEmailHTML(items) {
     })
     .join("");
 
-  const grandTotal = items.reduce(
-    (sum, { quantity, price }) => sum + quantity * parseFloat(price),
-    0
-  );
+  const subTotal = items.reduce((sum, { price }) => sum + parseFloat(price), 0);
 
   return `
         <table style="border-collapse:collapse;width:100%;font-family:Arial, sans-serif;">
@@ -33,6 +40,8 @@ function buildEmailHTML(items) {
             <tr>
               <th style="padding:8px;border:1px solid #ccc;background:#f2f2f2;">Item</th>
               <th style="padding:8px;border:1px solid #ccc;background:#f2f2f2;">Qty</th>
+              <th style="padding:8px;border:1px solid #ccc;background:#f2f2f2;">Spice Level</th>
+              <th style="padding:8px;border:1px solid #ccc;background:#f2f2f2;">Addons</th>   
               <th style="padding:8px;border:1px solid #ccc;background:#f2f2f2;">Unit Price</th>
               <th style="padding:8px;border:1px solid #ccc;background:#f2f2f2;">Line Total</th>
             </tr>
@@ -40,8 +49,8 @@ function buildEmailHTML(items) {
           <tbody>
             ${rows}
             <tr>
-              <td colspan="3" style="padding:8px;border:1px solid #ccc;text-align:right;font-weight:bold;">Grand Total</td>
-              <td style="padding:8px;border:1px solid #ccc;text-align:right;font-weight:bold;">$${grandTotal.toFixed(
+              <td colspan="5" style="padding:8px;border:1px solid #ccc;text-align:right;font-weight:bold;">Sub Total</td>
+              <td style="padding:8px;border:1px solid #ccc;text-align:right;font-weight:bold;">$${subTotal.toFixed(
                 2
               )}</td>
             </tr>
@@ -54,43 +63,6 @@ router.post("/", async (req, res) => {
   try {
     const order = new Order(req.body);
     const savedOrder = await order.save();
-
-    let printer = new ThermalPrinter({
-      type: PrinterTypes.EPSON,
-      interface: "tcp://96.85.105.126:9100", // Replace with your printer's real IP + port
-    });
-
-    try {
-      printer.alignCenter();
-      printer.bold(true);
-      printer.drawLine();
-      printer.println(`Order Number :  ${req.body.orderNumber}`);
-      printer.println(`Date         :  ${new Date().toLocaleString()}`);
-      printer.println(`Order Type   :  ${req.body.orderType}`);
-      if (req.body.orderType === "dinein") {
-        printer.println(`Table No     :  ${req.body.tableNumber}`);
-      } else {
-        printer.println(`Name         :  ${req.body.customer.name}`);
-        printer.println(`Phone        :  ${req.body.customer.Phone}`);
-      }
-
-      printer.drawLine();
-      printer.bold(false);
-
-      // Loop and print each item
-      req.body.items.forEach((item) => {
-        printer.alignLeft();
-        printer.println(`Name: ${item.name}`);
-        printer.println(`Qty: ${item.quantity}`);
-      });
-
-      // Cut paper
-      printer.cut();
-      const success = await printer.execute(); // Await execution
-      console.log("Print done!", success);
-    } catch (error) {
-      console.error("Print failed:", error);
-    }
 
     const emailHTML = buildEmailHTML(req.body.items);
     // console.log(emailHTML);
@@ -137,7 +109,7 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const filter = {};
+    const filter = { status: "pending" };
     if (req.query.tableNumber) filter.tableNumber = req.query.tableNumber;
     if (req.query.status) filter.status = req.query.status;
 
@@ -171,7 +143,7 @@ router.get("/table/:tableno", async (req, res) => {
     combined.subTotal = Math.round(combined.subTotal * 100) / 100;
     combined.salesTax = Math.round(combined.salesTax * 100) / 100;
     combined.totalAmount = Math.round(combined.totalAmount * 100) / 100;
-
+    console.log(combined);
     res.json(combined);
   } catch (err) {
     res.status(500).json({ error: err.message });

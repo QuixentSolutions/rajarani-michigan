@@ -6,6 +6,8 @@ import { useDispatch } from "react-redux";
 import { clearCart } from "../cartSlice";
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
 import AnniversaryPopup from "./AnniversaryPopup";
+import { FaPlus, FaMinus } from "react-icons/fa";
+import { View, Text, TouchableOpacity } from "react-native";
 
 function Header() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -27,8 +29,19 @@ function Header() {
 
   const [deliveryModes, setDeliveryModes] = useState();
 
-  const totalItems = useSelector((state) => state.cart.totalItems);
-  const cartItems = useSelector((state) => state.cart.items);
+  // const totalItems = useSelector((state) => state.cart.totalItems);
+  // const cartItems = useSelector((state) => state.cart.items);
+
+  // const totalItems = useSelector((state) => state.cart.totalItems);
+
+  const localStorageCartItems = useSelector((state) => state.cart.items);
+  const [cartItems, setCartItems] = useState(localStorageCartItems);
+
+  // Sync when totalItems changes
+  useEffect(() => {
+    setCartItems(localStorageCartItems);
+  }, [localStorageCartItems]);
+
   const dispatch = useDispatch();
 
   const handleCartClick = () => {
@@ -48,7 +61,7 @@ function Header() {
 
   useEffect(() => {
     const subTotal = Object.values(cartItems).reduce(
-      (sum, { quantity, price }) => sum + quantity * price,
+      (sum, { quantity, price }) => sum + parseFloat(price),
       0
     );
     setTotalAmount(subTotal);
@@ -172,7 +185,6 @@ function Header() {
 
     // Store final amount for success popup
     setFinalOrderAmount(finalTotalAmount);
-
     const orderData = {
       orderNumber: String(orderId),
       customer: {
@@ -185,11 +197,16 @@ function Header() {
       // address: orderMode === "delivery" ? String(address) : undefined,
       deliveryAddress: "NA",
       deliveryInstructions: "NA",
-      items: Object.entries(cartItems).map(([name, { quantity, price }]) => ({
-        name,
-        quantity,
-        price,
-      })),
+      items: Object.entries(cartItems).map(
+        ([name, { quantity, basePrice, price, spiceLevel, addons }]) => ({
+          name,
+          quantity,
+          basePrice,
+          price,
+          spiceLevel,
+          addons,
+        })
+      ),
       subTotal: parseFloat(totalAmount.toFixed(2)),
       salesTax: parseFloat(salesTaxAmount.toFixed(2)),
       totalAmount: parseFloat(finalTotalAmount.toFixed(2)),
@@ -317,6 +334,78 @@ function Header() {
           </div> */}
         </div>
       </div>
+    );
+  };
+
+  const CartItem = ({ itemKey, item }) => {
+    const basePrice = parseFloat(item.basePrice || item.price);
+    const [quantity, setQuantity] = useState(item.quantity);
+    const [totalPrice, setTotalPrice] = useState(basePrice * item.quantity);
+
+    const updateCart = async (newQuantity) => {
+      try {
+        let cart = JSON.parse(localStorage.getItem("cart")).items || {};
+
+        if (cart[itemKey]) {
+          if (newQuantity <= 0) {
+            delete cart[itemKey];
+          } else {
+            cart[itemKey].quantity = newQuantity;
+            cart[itemKey].basePrice = basePrice.toFixed(2); // unit price
+            cart[itemKey].price = (newQuantity * basePrice).toFixed(2); // total price
+          }
+        }
+
+        setCartItems(cart);
+        localStorage.setItem(
+          "cart",
+          JSON.stringify({ items: cart, totalItems: cart.length })
+        );
+      } catch (err) {
+        console.error("Error updating cart:", err);
+      }
+    };
+
+    const handleIncrease = () => {
+      const newQty = quantity + 1;
+      setQuantity(newQty);
+      setTotalPrice(newQty * basePrice);
+      updateCart(newQty);
+    };
+
+    const handleDecrease = () => {
+      const newQty = quantity - 1;
+      if (newQty >= 1) {
+        setQuantity(newQty);
+        setTotalPrice(newQty * basePrice);
+        updateCart(newQty);
+      } else {
+        setQuantity(0);
+        setTotalPrice(0);
+        updateCart(0);
+      }
+    };
+
+    return (
+      <View style={{ flexDirection: "row", alignItems: "center", margin: 10 }}>
+        <TouchableOpacity
+          onPress={handleDecrease}
+          style={{ marginHorizontal: 10 }}
+        >
+          <FaMinus name="minus" color="red" />
+        </TouchableOpacity>
+
+        <View style={{ alignItems: "center" }}>
+          <Text style={{ fontSize: 18 }}>{quantity}</Text>
+        </View>
+
+        <TouchableOpacity
+          onPress={handleIncrease}
+          style={{ marginHorizontal: 10 }}
+        >
+          <FaPlus name="plus" color="green" />
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -594,7 +683,7 @@ function Header() {
                     </thead>
                     <tbody style={{ color: "black" }}>
                       {Object.entries(cartItems).map(
-                        ([name, { quantity, price }]) => (
+                        ([name, { quantity, price, spiceLevel, addons }]) => (
                           <tr
                             key={name}
                             style={{
@@ -610,9 +699,32 @@ function Header() {
                               }}
                             >
                               {name}
+                              {spiceLevel ? (
+                                <span style={{ color: "red" }}>
+                                  {" "}
+                                  - {spiceLevel}
+                                </span>
+                              ) : (
+                                ""
+                              )}
+
+                              {addons && addons.length > 0 && (
+                                <>
+                                  <br />
+                                  <small>
+                                    Addons:{" "}
+                                    {addons
+                                      .map((a) => `${a.name} (+$${a.price})`)
+                                      .join(", ")}
+                                  </small>
+                                </>
+                              )}
                             </td>
-                            <td>{quantity}</td>
-                            <td>{(quantity * price).toFixed(2)}</td>
+                            <td>
+                              {" "}
+                              <CartItem itemKey={name} item={cartItems[name]} />
+                            </td>
+                            <td>{price}</td>
                           </tr>
                         )
                       )}
@@ -895,7 +1007,7 @@ function Header() {
             <FaShoppingCart size={38} />
           </button>
 
-          {totalItems > 0 && (
+          {Object.keys(localStorageCartItems).length > 0 && (
             <span
               style={{
                 position: "absolute",
@@ -913,7 +1025,7 @@ function Header() {
                 fontWeight: "bold",
               }}
             >
-              {totalItems}
+              {Object.keys(localStorageCartItems).length}
             </span>
           )}
         </div>

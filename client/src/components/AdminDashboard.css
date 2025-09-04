@@ -1681,3 +1681,47 @@ button:focus-visible,
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
 }
+
+
+.view-details {
+  margin: 20px 0;
+}
+
+.order-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.order-table th,
+.order-table td {
+  border: 1px solid #000;
+  padding: 8px;
+  text-align: center;   /* horizontal center */
+  vertical-align: middle; /* vertical center */
+}
+
+.spice-level {
+  color: red;
+  font-weight: 500;
+}
+
+.addons {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 4px;
+}
+.button-container {
+  display: flex;
+  justify-content: center; /* horizontal center */
+  margin-top: 15px;
+}
+
+.settle-btn {
+  background-color: black;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}

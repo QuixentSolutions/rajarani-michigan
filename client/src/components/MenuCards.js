@@ -1,14 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { FaPlus, FaMinus } from "react-icons/fa";
-
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native-web";
-
+import { FaPlus, FaMinus, FaCheck, FaCheckCircle } from "react-icons/fa";
 import { updateQuantity } from "../cartSlice";
 import { useState, useEffect } from "react";
 import "./MenuCards.css";
@@ -16,15 +7,14 @@ import "./MenuCards.css";
 function Menu() {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
+
   const [notification, setNotification] = useState(null);
   const [menuSections, setMenuSections] = useState([]);
-  const [spiceLevelPopup, setIsSpiceLevelPopup] = useState(false);
-  // const [spiceLevels, setSpiceLevels] = useState([]);
-  // const [selectedSpiceLevel, setSelectedSpiceLevel] = useState("");
 
-  // const [itemName, setItemName] = useState("");
-  // const [change, setChange] = useState("");
-  // const [price, setPrice] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
+  const [selectedSpice, setSelectedSpice] = useState("");
+  const [selectedAddons, setSelectedAddons] = useState([]);
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -49,22 +39,51 @@ function Menu() {
     itemName,
     change,
     price,
+    basePrice,
     spicelevel,
-    addons,
-    event
+    addons
   ) => {
-    // Dispatch the action first
+    // If spicelevel or addons exist, open popup for user choice
+    if (change === 1 && (spicelevel?.length || addons?.length)) {
+      setPendingAction({
+        itemName,
+        change,
+        price,
+        basePrice,
+        spicelevel,
+        addons,
+      });
+      setSelectedSpice(""); // force user to pick
+      setSelectedAddons([]);
+      setShowPopup(true);
+      return;
+    }
 
-    //TODO - Ask confiration for spice level if item has spice level
-    console.log("spicelevel", spicelevel);
-    console.log("addons", addons);
-
-    dispatch(updateQuantity({ itemName, change, price }));
+    proceedWithUpdate({ itemName, change, price, basePrice });
+  };
+  const proceedWithUpdate = ({
+    itemName,
+    change,
+    price,
+    basePrice,
+    spiceLevel,
+    addons,
+  }) => {
+    dispatch(
+      updateQuantity({
+        itemName,
+        change,
+        price,
+        basePrice,
+        spiceLevel,
+        addons,
+      })
+    );
 
     if (change === 1) {
-      // Calculate the new quantity based on the current cart state and the change
       const currentQty = cartItems[itemName]?.quantity || 0;
       const newQty = currentQty + change;
+
       setNotification(
         <>
           <span>
@@ -76,74 +95,19 @@ function Menu() {
           </span>
         </>
       );
-      setTimeout(() => {
-        setNotification(null);
-      }, 1500);
+      setTimeout(() => setNotification(null), 1500);
     }
   };
 
-  // const handleQuantitySpiceLevelChange = (event) => {
-  //   dispatch(updateQuantity({ itemName, change, price, selectedSpiceLevel }));
+  const toggleAddon = (addon) => {
+    setSelectedAddons(
+      (prev) =>
+        prev.some((a) => a.name === addon.name)
+          ? prev.filter((a) => a.name !== addon.name)
+          : [...prev, addon] // ✅ store full object, not just name
+    );
+  };
 
-  //   if (change === 1) {
-  //     // Calculate the new quantity based on the current cart state and the change
-  //     const currentQty = cartItems[itemName]?.quantity || 0;
-  //     const newQty = currentQty + change;
-  //     setNotification(
-  //       <>
-  //         <span>
-  //           {itemName} ({newQty}) - {selectedSpiceLevel} added!
-  //         </span>
-  //         <br />
-  //         <span style={{ fontSize: "0.8em", color: "#555" }}>
-  //           Finalize cart, then place order at cart icon on top
-  //         </span>
-  //       </>
-  //     );
-  //     setTimeout(() => {
-  //       setNotification(null);
-  //     }, 1500);
-
-  //     setItemName("");
-  //     setChange("");
-  //     setPrice("");
-  //   }
-  // };
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: "rgba(0,0,0,0.5)",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    modalContent: {
-      width: 300,
-      padding: 20,
-      backgroundColor: "white",
-      borderRadius: 10,
-      alignItems: "center",
-    },
-    modalText: {
-      fontSize: 18,
-      marginBottom: 20,
-    },
-    closeButton: {
-      backgroundColor: "#FB7802",
-      paddingVertical: 10,
-      paddingHorizontal: 25,
-      borderRadius: 5,
-    },
-    closeButtonText: {
-      color: "white",
-      fontSize: 16,
-    },
-  });
   return (
     <>
       <div className="menu-container">
@@ -201,6 +165,7 @@ function Menu() {
             );
           })}
         </div>
+
         <div className="menu-sections">
           {menuSections.map((section, index) => {
             // eslint-disable-next-line
@@ -225,8 +190,19 @@ function Menu() {
                 </h2>
                 <ul className="menu-items">
                   {section.items.map((item, itemIndex) => {
-                    const qty = cartItems[item.name]?.quantity || 0;
+                    // ✅ Sum all cart quantities for this item name (ignoring spiceLevel/addons)
+                    const qty = Object.values(cartItems).reduce(
+                      (sum, cartItem) => {
+                        return cartItem.itemName === item.name
+                          ? sum + cartItem.quantity
+                          : sum;
+                      },
+                      0
+                    );
+
                     const price = item.newPrice || item.price || 0;
+                    const basePrice = item.price || 0;
+
                     return (
                       <li
                         key={itemIndex}
@@ -262,7 +238,7 @@ function Menu() {
                             justifyContent: "center",
                           }}
                         >
-                          <FaMinus
+                          {/* <FaMinus
                             style={{
                               cursor: "pointer",
                               fontSize: "16px",
@@ -277,8 +253,8 @@ function Menu() {
                                 item.addons
                               )
                             }
-                          />
-                          <span
+                          /> */}
+                          {/* <span
                             style={{
                               fontSize: "16px",
                               width: "20px",
@@ -286,24 +262,38 @@ function Menu() {
                             }}
                           >
                             {qty}
-                          </span>
-                          <FaPlus
-                            style={{
-                              cursor: "pointer",
-                              fontSize: "16px",
-                              marginLeft: "5px",
-                            }}
-                            onClick={(e) =>
-                              handleQuantityChange(
-                                item.name,
-                                1,
-                                price,
-                                item.spicelevel,
-                                item.addons,
-                                e
-                              )
-                            }
-                          />
+                          </span> */}
+
+                          {qty === 0 && (
+                            <FaCheck
+                              style={{
+                                cursor: "pointer",
+                                fontSize: "16px",
+                                marginLeft: "5px",
+                              }}
+                              onClick={(e) =>
+                                handleQuantityChange(
+                                  item.name,
+                                  1,
+                                  price,
+                                  basePrice,
+                                  item.spicelevel,
+                                  item.addons,
+                                  e
+                                )
+                              }
+                            />
+                          )}
+
+                          {qty > 0 && (
+                            <FaCheckCircle
+                              style={{
+                                cursor: "pointer",
+                                fontSize: "16px",
+                                marginLeft: "5px",
+                              }}
+                            />
+                          )}
                         </div>
                       </li>
                     );
@@ -315,55 +305,113 @@ function Menu() {
         </div>
       </div>
 
-      {/* <View style={styles.container}>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={spiceLevelPopup}
-          onRequestClose={() => setIsSpiceLevelPopup(false)} // For Android back button
+      {showPopup && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
         >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalText}>Spice Level</Text>
-
-              <select
-                style={{
-                  padding: "10px 15px",
-                  borderRadius: "8px",
-                  border: "1px solid #ccc",
-                  backgroundColor: "#f9f9f9",
-                  fontSize: "16px",
-                  color: "#333",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                }}
-                onChange={(e) => setSelectedSpiceLevel(e.target.value)}
-              >
-                {spiceLevels &&
-                  spiceLevels.map((level, index) => (
-                    <option key={index} value={level}>
+          <div
+            style={{
+              background: "white",
+              padding: "20px",
+              borderRadius: "8px",
+              minWidth: "300px",
+              color: "black",
+            }}
+          >
+            {/* Spice Level */}
+            {pendingAction?.spicelevel?.length > 0 && (
+              <div style={{ marginBottom: "15px" }}>
+                <strong>Spice Level:</strong>
+                {pendingAction.spicelevel.map((level) => (
+                  <div key={level} style={{ marginTop: "5px" }}>
+                    <label
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="spice"
+                        value={level}
+                        checked={selectedSpice === level}
+                        onChange={() => setSelectedSpice(level)}
+                        style={{ marginRight: "6px" }}
+                      />
                       {level}
-                    </option>
-                  ))}
-              </select>
-              <br />
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setIsSpiceLevelPopup(false)}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Addons */}
+            {pendingAction?.addons?.length > 0 && (
+              <div style={{ marginBottom: "15px" }}>
+                <strong>Addons:</strong>
+                {pendingAction.addons.map((addon) => (
+                  <div key={addon.name} style={{ marginTop: "5px" }}>
+                    <label
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        value={addon.name}
+                        checked={selectedAddons.some(
+                          (a) => a.name === addon.name
+                        )}
+                        onChange={() => toggleAddon(addon)}
+                      />
+                      {addon.name} (+${addon.price})
+                    </label>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+              <button
+                disabled={!selectedSpice && pendingAction?.spicelevel?.length}
+                onClick={() => {
+                  proceedWithUpdate({
+                    ...pendingAction,
+                    spiceLevel: selectedSpice,
+                    addons: selectedAddons, // ✅ full objects
+                  });
+                  setShowPopup(false);
+                  setPendingAction(null);
+                }}
               >
-                <Text
-                  style={styles.closeButtonText}
-                  onClick={(e) =>
-                    handleQuantitySpiceLevelChange(e.target.value)
-                  }
-                >
-                  Add
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-      </View> */}
+                Confirm
+              </button>
+              <button
+                onClick={() => {
+                  setShowPopup(false);
+                  setPendingAction(null);
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

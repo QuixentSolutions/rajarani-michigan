@@ -21,7 +21,17 @@ const orderSchema = new mongoose.Schema({
       name: String,
       quantity: Number,
       price: Number,
-      notes: String,
+      basePrice: Number,
+      spiceLevel: {
+        type: String,
+        enum: ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"],
+      },
+      addons: [
+        {
+          name: String,
+          price: Number,
+        },
+      ],
     },
   ],
   subTotal: Number,

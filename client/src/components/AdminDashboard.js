@@ -185,6 +185,14 @@ const AdminDashboard = ({ onLogout }) => {
   const fetchOrders = createFetchFunction(setOrders, "order");
   const fetchMenuData = createFetchFunction(setMenuData, "menu");
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchOrders();
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
   const refreshSelectedSectionItems = async (sectionToRefresh) => {
     if (!sectionToRefresh) return;
 
@@ -737,6 +745,7 @@ const AdminDashboard = ({ onLogout }) => {
             {modalType === "view-orders" && selectedItem && (
               <div className="view-details">
                 <h4>Order Details</h4>
+
                 <p>
                   <strong>Order ID:</strong> {selectedItem.orderNumber}
                 </p>
@@ -759,33 +768,56 @@ const AdminDashboard = ({ onLogout }) => {
                   <strong>Order Date:</strong>{" "}
                   {new Date(selectedItem.createdAt).toLocaleString()}
                 </p>
-                <div className="order-items">
-                  <h5>Items:</h5>
-                  {selectedItem.items?.map((item, index) => (
-                    <div key={index} className="order-item">
-                      {item.name} - Qty: {item.quantity} - ${item.price}
-                    </div>
-                  ))}
-                </div>
 
-                <button
-                  onClick={() =>
-                    handleSettleOnlineorders(selectedItem.orderNumber)
-                  }
-                  // disabled={isCartEmpty}
-                  style={{
-                    backgroundColor: "black",
-                    color: "#fff",
-                    border: "none",
-                    padding: "10px 20px",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    marginRight: "10px",
-                    marginTop: "10px",
-                  }}
-                >
-                  Settle
-                </button>
+                <table className="order-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Quantity</th>
+                      <th>Price</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedItem.items.map((item) => (
+                      <tr key={item._id}>
+                        <td>
+                          {item.name.split("_")[0]}
+
+                          {item.spiceLevel && (
+                            <span className="spice-level">
+                              {" "}
+                              - {item.spiceLevel}
+                            </span>
+                          )}
+
+                          {item.addons?.length > 0 && (
+                            <div className="addons">
+                              Addons:{" "}
+                              {item.addons
+                                .map((a) => `${a.name} (+$${a.price})`)
+                                .join(", ")}
+                            </div>
+                          )}
+                        </td>
+                        <td>{item.quantity}</td>
+                        <td>${item.basePrice}</td>
+                        <td>${item.price}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <div className="button-container">
+                  <button
+                    onClick={() =>
+                      handleSettleOnlineorders(selectedItem.orderNumber)
+                    }
+                    className="settle-btn"
+                  >
+                    Settle
+                  </button>
+                </div>
               </div>
             )}
 
@@ -1096,16 +1128,36 @@ const AdminDashboard = ({ onLogout }) => {
                 {billDetails.items.map((item) => (
                   <tr key={item._id}>
                     <td style={{ border: "1px solid black", padding: "8px" }}>
-                      {item.name}
+                      {item.name.split("_")[0]}
+                      {item.spiceLevel ? (
+                        <span style={{ color: "red" }}>
+                          {" "}
+                          - {item.spiceLevel}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+
+                      {item.addons && item.addons.length > 0 && (
+                        <>
+                          <br />
+                          <small>
+                            Addons:{" "}
+                            {item.addons
+                              .map((a) => `${a.name} (+$${a.price})`)
+                              .join(", ")}
+                          </small>
+                        </>
+                      )}
                     </td>
                     <td style={{ border: "1px solid black", padding: "8px" }}>
                       {item.quantity}
                     </td>
                     <td style={{ border: "1px solid black", padding: "8px" }}>
-                      ${item.price}
+                      ${item.basePrice}
                     </td>
                     <td style={{ border: "1px solid black", padding: "8px" }}>
-                      ${item.quantity * item.price}
+                      ${item.price}
                     </td>
                   </tr>
                 ))}

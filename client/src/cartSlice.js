@@ -11,8 +11,32 @@ const cartSlice = createSlice({
   initialState: savedCart,
   reducers: {
     updateQuantity: (state, action) => {
-      const { itemName, change, price, spiceLevel } = action.payload;
-      const currentQty = state.items[itemName]?.quantity || 0;
+      const {
+        itemName,
+        change,
+        price, // base price
+        basePrice,
+        spiceLevel = null,
+        addons = [], // [{ name, price }]
+      } = action.payload;
+
+      // ✅ Addon price calculation
+      const addonsTotal = addons.reduce(
+        (sum, addon) => sum + parseFloat(addon.price || 0),
+        0
+      );
+
+      const finalPrice = parseFloat(price) + addonsTotal;
+
+      // ✅ Create a unique key for this variant
+      const key =
+        itemName +
+        (spiceLevel ? `_${spiceLevel}` : "") +
+        (addons.length > 0
+          ? "_" + addons.map((a) => `${a.name}-${a.price}`).join("_")
+          : "");
+
+      const currentQty = state.items[key]?.quantity || 0;
       const newQty = Math.max(0, currentQty + change);
 
       if (newQty > currentQty) {
@@ -22,9 +46,16 @@ const cartSlice = createSlice({
       }
 
       if (newQty === 0) {
-        delete state.items[itemName];
+        delete state.items[key];
       } else {
-        state.items[itemName] = { quantity: newQty, price, spiceLevel };
+        state.items[key] = {
+          quantity: newQty,
+          price: parseFloat(finalPrice).toFixed(2), // unit price including addons
+          basePrice,
+          spiceLevel,
+          addons,
+          itemName, // keep original name for display
+        };
       }
 
       localStorage.setItem("cart", JSON.stringify(state));
@@ -33,7 +64,6 @@ const cartSlice = createSlice({
     clearCart: (state) => {
       state.items = {};
       state.totalItems = 0;
-
       localStorage.removeItem("cart");
     },
   },

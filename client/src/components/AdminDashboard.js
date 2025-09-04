@@ -851,12 +851,50 @@ const AdminDashboard = ({ onLogout }) => {
                 <h4>Order Details</h4>
 
                 <div className="order-items">
-                  <h5>Items:</h5>
-                  {selectedItem?.map((item, index) => (
+                  <table className="order-table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedItem.map((item) => (
+                        <tr key={item._id}>
+                          <td>
+                            {item.name.split("_")[0]}
+
+                            {item.spiceLevel && (
+                              <span className="spice-level">
+                                {" "}
+                                - {item.spiceLevel}
+                              </span>
+                            )}
+
+                            {item.addons?.length > 0 && (
+                              <div className="addons">
+                                Addons:{" "}
+                                {item.addons
+                                  .map((a) => `${a.name} (+$${a.price})`)
+                                  .join(", ")}
+                              </div>
+                            )}
+                          </td>
+                          <td>{item.quantity}</td>
+                          <td>${item.basePrice}</td>
+                          <td>${item.price}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {/* {selectedItem?.map((item, index) => (
                     <div key={index} className="order-item">
                       {item.name} - Qty: {item.quantity} - ${item.price}
                     </div>
-                  ))}
+                  ))} */}
                 </div>
               </div>
             )}
@@ -1287,13 +1325,14 @@ const AdminDashboard = ({ onLogout }) => {
 
     return (
       <div style={{ padding: "20px" }}>
-        <h2 style={{ marginBottom: "10px" }}>Orders</h2>
-
         <table style={{ borderCollapse: "collapse", width: "100%" }}>
           <thead>
             <tr>
               <th style={tableHeaderStyle}>Order Number</th>
+              <th style={tableHeaderStyle}>Sub Total</th>
+              <th style={tableHeaderStyle}>Sales Tax</th>
               <th style={tableHeaderStyle}>Total Amount</th>
+              <th style={tableHeaderStyle}>Payment status</th>
               <th style={tableHeaderStyle}>Order Type</th>
               <th style={tableHeaderStyle}>Name</th>
               <th style={tableHeaderStyle}>Email</th>
@@ -1306,11 +1345,30 @@ const AdminDashboard = ({ onLogout }) => {
               orderReports.map((order) => (
                 <tr key={order._id}>
                   <td style={tableCellStyle}>{order.orderNumber}</td>
+                  <td style={tableCellStyle}>${order.subTotal}</td>
+                  <td style={tableCellStyle}>${order.salesTax}</td>
                   <td style={tableCellStyle}>${order.totalAmount}</td>
+                  <td
+                    style={{
+                      ...tableCellStyle,
+                      color: order.payment.status === "paid" ? "green" : "red",
+                      fontWeight:
+                        order.payment.status === "paid" ? "bold" : "normal",
+                      textAlign: "center",
+                    }}
+                  >
+                    {order.payment.status}
+                  </td>{" "}
                   <td style={tableCellStyle}>{order.orderType}</td>
                   <td style={tableCellStyle}>{order.customer.name}</td>
-                  <td style={tableCellStyle}>{order.customer.email}</td>
-                  <td style={tableCellStyle}>{order.customer.phone}</td>
+                  <td style={tableCellStyle}>
+                    {order.customer.email ? order.customer.email : "NA"}
+                  </td>
+                  <td style={tableCellStyle}>
+                    {order.customer.phone === "+1"
+                      ? "NA"
+                      : order.customer.phone}
+                  </td>
                   <td
                     style={tableCellStyle}
                     onClick={() => viewOrderDetils(order.items)}

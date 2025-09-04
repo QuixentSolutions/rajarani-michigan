@@ -37,6 +37,7 @@ const orderSchema = new mongoose.Schema({
   subTotal: Number,
   salesTax: Number,
   totalAmount: Number,
+  tips: Number,
   payment: {
     method: { type: String, enum: ["cash", "card", "upi"] },
     status: {

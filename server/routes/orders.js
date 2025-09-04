@@ -160,6 +160,7 @@ router.put("/settle", async (req, res) => {
     const update = {
       $set: {
         status: "completed",
+        tips: req.body.tips,
         payment: {
           method: req.body.paymentMethod,
           status: "paid",

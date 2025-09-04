@@ -60,6 +60,9 @@ const AdminDashboard = ({ onLogout }) => {
     oldPrice: "",
   });
 
+  const [tips, setTips] = useState(0);
+  const [tipsPercentage, setTipsPercentage] = useState(0);
+
   const [editingMenuItem, setEditingMenuItem] = useState(null);
   const [editingItemData, setEditingItemData] = useState(null);
 
@@ -962,6 +965,7 @@ const AdminDashboard = ({ onLogout }) => {
           orderNumbers: billDetails.orderNumbers.join(","),
           tableNumber: tableNo,
           paymentMethod: "offline",
+          tips,
         }),
       });
 
@@ -986,6 +990,13 @@ const AdminDashboard = ({ onLogout }) => {
     }
   };
 
+  const tipsPercentageUpdate = async (e) => {
+    setTips(
+      parseFloat((billDetails.totalAmount * e.target.value) / 100).toFixed(2)
+    );
+    setTipsPercentage(e.target.value);
+  };
+
   const handleSettleOnlineorders = async (orderNumber) => {
     let userConfirmed = window.confirm("Sure to settle ?");
 
@@ -1004,6 +1015,7 @@ const AdminDashboard = ({ onLogout }) => {
           orderNumbers: orderNumber,
           tableNumber: "0",
           paymentMethod: "offline",
+          tips: 0,
         }),
       });
 
@@ -1079,32 +1091,15 @@ const AdminDashboard = ({ onLogout }) => {
             style={{ width: "250px", height: "250px", margin: "10px 0" }}
           />
           <div>
-            <button
-              onClick={handleSettle}
-              // disabled={isCartEmpty}
-              style={{
-                backgroundColor: "black",
-                color: "#fff",
-                border: "none",
-                padding: "10px 20px",
-                borderRadius: "4px",
-                cursor: "pointer",
-                marginRight: "10px",
-                marginTop: "10px",
-              }}
-            >
-              Settle
-            </button>
-            <br />
-            <br />
             <div
               style={{
                 marginTop: "16px",
                 padding: "12px 16px",
                 border: "1px solid #ddd",
                 borderRadius: "8px",
-                maxWidth: "300px",
                 backgroundColor: "#fafafa",
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
               <div
@@ -1128,6 +1123,51 @@ const AdminDashboard = ({ onLogout }) => {
                 <span>{billDetails.salesTax.toFixed(2)}</span>
               </div>
               <hr style={{ margin: "8px 0" }} />
+
+              <span>Tips %</span>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: "6px",
+                }}
+              >
+                <select
+                  value={tipsPercentage}
+                  onChange={(e) => tipsPercentageUpdate(e)}
+                  required
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    marginBottom: "15px",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                  }}
+                >
+                  {[5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100].map((_, i) => (
+                    <option key={i} value={i}>
+                      {i}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <input
+                  type="number"
+                  placeholder="Please Enter Tip..."
+                  value={tips}
+                  onChange={(e) => setTips(e.target.value)}
+                  className="form-input"
+                />
+              </div>
+
+              <br />
               <div
                 style={{
                   display: "flex",
@@ -1138,6 +1178,38 @@ const AdminDashboard = ({ onLogout }) => {
                 <span>Total Amount</span>
                 <span>{billDetails.totalAmount.toFixed(2)}</span>
               </div>
+
+              <br />
+              {tips && (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontWeight: "bold",
+                  }}
+                >
+                  <span>With Tips</span>
+                  <span>
+                    {parseFloat(billDetails.totalAmount) + parseFloat(tips)}
+                  </span>
+                </div>
+              )}
+
+              <button
+                onClick={handleSettle}
+                style={{
+                  backgroundColor: "black",
+                  color: "#fff",
+                  border: "none",
+                  padding: "10px 20px",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  marginRight: "10px",
+                  marginTop: "10px",
+                }}
+              >
+                Settle
+              </button>
             </div>
             <br />
             <table
@@ -1332,6 +1404,7 @@ const AdminDashboard = ({ onLogout }) => {
               <th style={tableHeaderStyle}>Sub Total</th>
               <th style={tableHeaderStyle}>Sales Tax</th>
               <th style={tableHeaderStyle}>Total Amount</th>
+              <th style={tableHeaderStyle}>Tip</th>
               <th style={tableHeaderStyle}>Payment status</th>
               <th style={tableHeaderStyle}>Order Type</th>
               <th style={tableHeaderStyle}>Name</th>
@@ -1348,6 +1421,7 @@ const AdminDashboard = ({ onLogout }) => {
                   <td style={tableCellStyle}>${order.subTotal}</td>
                   <td style={tableCellStyle}>${order.salesTax}</td>
                   <td style={tableCellStyle}>${order.totalAmount}</td>
+                  <td style={tableCellStyle}>${order.tips}</td>
                   <td
                     style={{
                       ...tableCellStyle,

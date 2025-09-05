@@ -177,8 +177,7 @@ function Header() {
     }
     setAddressError("");
 
-    const timestamp = Date.now();
-    const orderId = `ORD${timestamp.toString().slice(-4)}`;
+    const orderId = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
 
     const finalTotalAmount = totalAmount * 1.06;
     const salesTaxAmount = totalAmount * 0.06;

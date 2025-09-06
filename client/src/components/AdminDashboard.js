@@ -747,30 +747,138 @@ const AdminDashboard = ({ onLogout }) => {
 
             {modalType === "view-orders" && selectedItem && (
               <div className="view-details">
-                <h4>Order Details</h4>
+                <div
+                  style={{
+                    maxWidth: "500px",
+                    margin: "20px auto",
+                    padding: "20px",
+                    border: "1px solid #ddd",
+                    borderRadius: "12px",
+                    backgroundColor: "#fafafa",
+                    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                    fontFamily: "Arial, sans-serif",
+                  }}
+                >
+                  <h2
+                    style={{
+                      textAlign: "center",
+                      marginBottom: "20px",
+                      color: "#333",
+                    }}
+                  >
+                    Order Details
+                  </h2>
 
-                <p>
-                  <strong>Order ID:</strong> {selectedItem.orderNumber}
-                </p>
-                <p>
-                  <strong>Mobile:</strong> {selectedItem.customer.phone}
-                </p>
-                <p>
-                  <strong>Email:</strong> {selectedItem.customer.email}
-                </p>
-                <p>
-                  <strong>Mode:</strong> {selectedItem.orderType}
-                </p>
-                <p>
-                  <strong>Status:</strong> {selectedItem.status}
-                </p>
-                <p>
-                  <strong>Total:</strong> ${selectedItem.totalAmount}
-                </p>
-                <p>
-                  <strong>Order Date:</strong>{" "}
-                  {new Date(selectedItem.createdAt).toLocaleString()}
-                </p>
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <tbody>
+                      <tr>
+                        <td style={{ padding: "8px", fontWeight: "bold" }}>
+                          Order ID:
+                        </td>
+                        <td style={{ padding: "8px" }}>
+                          {selectedItem.orderNumber}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "8px", fontWeight: "bold" }}>
+                          Mobile:
+                        </td>
+                        <td style={{ padding: "8px" }}>
+                          {selectedItem.customer.phone}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "8px", fontWeight: "bold" }}>
+                          Email:
+                        </td>
+                        <td style={{ padding: "8px" }}>
+                          {selectedItem.customer.email}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "8px", fontWeight: "bold" }}>
+                          Mode:
+                        </td>
+                        <td style={{ padding: "8px" }}>
+                          {selectedItem.orderType}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "8px", fontWeight: "bold" }}>
+                          Status:
+                        </td>
+                        <td
+                          style={{
+                            padding: "8px",
+                            color:
+                              selectedItem.status === "Paid" ? "green" : "red",
+                          }}
+                        >
+                          {selectedItem.status}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "8px", fontWeight: "bold" }}>
+                          Sub Total:
+                        </td>
+                        <td style={{ padding: "8px" }}>
+                          ${selectedItem.subTotal}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "8px", fontWeight: "bold" }}>
+                          Sales Tax:
+                        </td>
+                        <td style={{ padding: "8px" }}>
+                          ${selectedItem.salesTax}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "8px", fontWeight: "bold" }}>
+                          Total:
+                        </td>
+                        <td
+                          style={{
+                            padding: "8px",
+                            fontWeight: "bold",
+                            color: "#2c3e50",
+                          }}
+                        >
+                          ${selectedItem.totalAmount}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "8px", fontWeight: "bold" }}>
+                          Order Date:
+                        </td>
+                        <td style={{ padding: "8px" }}>
+                          {new Date(selectedItem.createdAt).toLocaleString()}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  {/* Centered Button */}
+                  <div style={{ textAlign: "center", marginTop: "20px" }}>
+                    <button
+                      onClick={() =>
+                        handleSettleOnlineorders(selectedItem.orderNumber)
+                      }
+                      style={{
+                        padding: "10px 20px",
+                        backgroundColor: "#007bff",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        fontSize: "16px",
+                      }}
+                      className="settle-btn"
+                    >
+                      Settle
+                    </button>
+                  </div>
+                </div>
 
                 <table className="order-table">
                   <thead>
@@ -810,17 +918,6 @@ const AdminDashboard = ({ onLogout }) => {
                     ))}
                   </tbody>
                 </table>
-
-                <div className="button-container">
-                  <button
-                    onClick={() =>
-                      handleSettleOnlineorders(selectedItem.orderNumber)
-                    }
-                    className="settle-btn"
-                  >
-                    Settle
-                  </button>
-                </div>
               </div>
             )}
 
@@ -1180,7 +1277,7 @@ const AdminDashboard = ({ onLogout }) => {
               </div>
 
               <br />
-              {tips && (
+              {tips > 0 && (
                 <div
                   style={{
                     display: "flex",
@@ -1630,7 +1727,6 @@ const AdminDashboard = ({ onLogout }) => {
                     <th>Email</th>
                     <th>Total Amount</th>
                     <th>Mode</th>
-
                     <th>Order Date</th>
                     <th>Actions</th>
                   </tr>

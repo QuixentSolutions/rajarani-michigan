@@ -58,7 +58,6 @@ function Menu() {
       setShowPopup(true);
       return;
     }
-
     proceedWithUpdate({ itemName, change, price, basePrice });
   };
   const proceedWithUpdate = ({
@@ -294,6 +293,11 @@ function Menu() {
                                 fontSize: "16px",
                                 marginLeft: "5px",
                               }}
+                              onClick={(e) =>
+                                alert(
+                                  "Item already in cart. Adjust quantity in cart."
+                                )
+                              }
                             />
                           )} */}
                         </div>

@@ -50,7 +50,7 @@ const cartSlice = createSlice({
       } else {
         state.items[key] = {
           quantity: newQty,
-          price: parseFloat(finalPrice).toFixed(2), // unit price including addons
+          price: parseFloat(finalPrice).toFixed(2) * newQty, // unit price including addons
           basePrice,
           spiceLevel,
           addons,

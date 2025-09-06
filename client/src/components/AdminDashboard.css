@@ -452,7 +452,6 @@ body {
 
 /* Enhanced view and manage buttons */
 .view-btn {
-  background: linear-gradient(135deg, #17A2B8, #138496);
   color: white;
   border: none;
   padding: clamp(6px, 1vw, 8px) clamp(12px, 2vw, 15px);

@@ -107,7 +107,7 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const filter = { status: "pending" };
+    const filter = {};
     if (req.query.tableNumber) filter.tableNumber = req.query.tableNumber;
     if (req.query.status) filter.status = req.query.status;
 
@@ -174,6 +174,25 @@ router.put("/settle", async (req, res) => {
   }
 });
 
+router.put("/accept", async (req, res) => {
+  try {
+    req.body.updatedAt = new Date();
+    const filter = {
+      orderNumber: req.body.orderNumber,
+    };
+    const update = {
+      $set: {
+        status: "accepted",
+      },
+    };
+
+    const result = await Order.updateOne(filter, update);
+    if (!result) return res.status(404).json({ error: "Order not found" });
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 router.get("/all", async (req, res) => {
   try {
     const totalCount = await Order.countDocuments();

@@ -10,7 +10,7 @@ const AdminDashboard = ({ onLogout }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
 
-  const [options, setOptions] = useState();
+  const [lastOnlineOrderNo, setLastOnlineOrderNo] = useState(0);
 
   const [registrations, setRegistrations] = useState({
     items: [],
@@ -154,6 +154,21 @@ const AdminDashboard = ({ onLogout }) => {
             searchQuery ? `&search=${searchQuery}` : ""
           }`;
           const data = await fetchData(url, authToken);
+
+          // const playSound = () => {
+          //   const audio = new Audio("/neworder.mp3"); // put your sound file in public folder
+          //   audio.play();
+          // };
+          // if (type === "order") {
+          //   const localLastOrderNo = data.filter(
+          //     (order) => order.orderType !== "dinein"
+          //   )[0]?.orderNumber;
+          //   console.log(localLastOrderNo);
+          //   if (lastOnlineOrderNo !== localLastOrderNo) {
+          //     playSound();
+          //   }
+          //   setLastOnlineOrderNo(localLastOrderNo);
+          // }
 
           if (data && typeof data === "object") {
             if (Array.isArray(data)) {
@@ -1094,6 +1109,31 @@ const AdminDashboard = ({ onLogout }) => {
     setTipsPercentage(e.target.value);
   };
 
+  const handleAcceptedOnlineorders = async (orderNumber) => {
+    setIsLoading(true);
+
+    try {
+      // First, save order to database
+      const dbResponse = await fetch("/order/accept", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderNumber: orderNumber,
+        }),
+      });
+
+      const dbData = await dbResponse.json();
+
+      if (!dbResponse.ok) {
+        throw new Error(dbData.message || "Failed to save order.");
+      }
+      await fetchOrders();
+    } catch (err) {
+      console.error("Order process error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const handleSettleOnlineorders = async (orderNumber) => {
     let userConfirmed = window.confirm("Sure to settle ?");
 
@@ -1736,7 +1776,7 @@ const AdminDashboard = ({ onLogout }) => {
                     orders.items.map((order) => (
                       <>
                         {order.orderType !== "dinein" &&
-                          order.status === "pending" && (
+                          order.status !== "completed" && (
                             <tr key={order._id}>
                               <td>
                                 <code>{order.orderNumber || "N/A"}</code>
@@ -1758,12 +1798,35 @@ const AdminDashboard = ({ onLogout }) => {
                                 {new Date(order.createdAt).toLocaleString()}
                               </td>
                               <td>
-                                <button
-                                  className="view-btn"
-                                  onClick={() => handleView(order, "orders")}
-                                >
-                                  Settle
-                                </button>
+                                {order.status === "pending" && (
+                                  <button
+                                    className="view-btn"
+                                    style={{
+                                      background:
+                                        "linear-gradient(135deg, green, blue)",
+                                    }}
+                                    onClick={() =>
+                                      handleAcceptedOnlineorders(
+                                        order.orderNumber
+                                      )
+                                    }
+                                  >
+                                    Accept
+                                  </button>
+                                )}
+
+                                {order.status === "accepted" && (
+                                  <button
+                                    className="view-btn"
+                                    style={{
+                                      background:
+                                        "linear-gradient(135deg, red, black)",
+                                    }}
+                                    onClick={() => handleView(order, "orders")}
+                                  >
+                                    Settle
+                                  </button>
+                                )}
                               </td>
                             </tr>
                           )}

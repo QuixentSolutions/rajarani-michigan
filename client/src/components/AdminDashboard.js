@@ -177,7 +177,7 @@ const AdminDashboard = ({ onLogout }) => {
           if (data && typeof data === "object") {
             if (Array.isArray(data)) {
               setter({ items: data, totalPages: 1, currentPage: 1 });
-            } else if (type === "menu" && data.sections) {
+            } else if (type === "menu/all" && data.sections) {
               setter({
                 items: data.sections || [],
                 totalPages: data.totalPages || 1,
@@ -205,7 +205,7 @@ const AdminDashboard = ({ onLogout }) => {
 
   const fetchRegistrations = createFetchFunction(setRegistrations, "register");
   const fetchOrders = createFetchFunction(setOrders, "order");
-  const fetchMenuData = createFetchFunction(setMenuData, "menu");
+  const fetchMenuData = createFetchFunction(setMenuData, "menu/all");
 
   useEffect(() => {
     const intervalId = setInterval(() => {

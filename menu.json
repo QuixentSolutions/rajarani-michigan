@@ -5,106 +5,58 @@ db.menus.insert([
   "days": [ "Friday","Saturday", "Sunday"],
   "items": [
     {
-
       "name": "Crispy Chicken Wings",
-
       "price": "15.99",
-
       "addons": [
-
         { "name": "Add Veggies", "price": "1.00" },
-
         { "name": "Add Meat", "price": "2.00" }
-
       ],
-
       "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
-
     },
     {
-
       "name": "Paneer Majestic",
-
       "price": "14.99",
-
       "addons": [
-
         { "name": "Add Veggies", "price": "1.00" },
-
         { "name": "Add Meat", "price": "2.00" }
-
       ],
-
       "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
-
     },
     {
-
       "name": "Schezwan Shrimp Fried Rice",
-
       "price": "16.99",
-
       "addons": [
-
         { "name": "Add Veggies", "price": "1.00" },
-
         { "name": "Add Meat", "price": "2.00" }
-
       ],
-
       "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
-
     },
     {
-
       "name": "Lamb Ghee Roast W Kushka",
-
       "price": "18.99",
-
       "addons": [
-
         { "name": "Add Veggies", "price": "1.00" },
-
         { "name": "Add Meat", "price": "2.00" }
-
       ],
-
       "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
-
     },
-     {
-
+    {
       "name": "Village Style Goat Pepper Fry",
-
       "price": "17.99",
-
       "addons": [
-
         { "name": "Add Veggies", "price": "1.00" },
-
         { "name": "Add Meat", "price": "2.00" }
-
       ],
-
       "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
-
     } ,
     {
-
       "name": "Ambur Chicken Biryani",
-
       "price": "16.99",
-
       "addons": [
-
         { "name": "Add Veggies", "price": "1.00" },
-
         { "name": "Add Meat", "price": "2.00" }
-
       ],
-
       "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
-
     }]
   },
   {

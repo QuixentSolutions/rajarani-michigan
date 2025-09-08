@@ -5,7 +5,7 @@ import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { clearCart, rehydrateCart } from "../cartSlice";
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
-import AnniversaryPopup from "./AnniversaryPopup";
+// import AnniversaryPopup from "./AnniversaryPopup";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import { View, Text, TouchableOpacity } from "react-native";
 
@@ -499,7 +499,7 @@ function Header() {
             <div className="logo">
               <img className="header-logo" src="../logo.png" alt="logo" />
             </div>
-            <AnniversaryPopup />
+            {/* <AnniversaryPopup /> */}
             <div className="social-icons">
               <SocialIcon
                 className="social-icon"

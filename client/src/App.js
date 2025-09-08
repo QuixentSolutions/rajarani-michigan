@@ -22,7 +22,7 @@ const HomePage = () => {
       <ReviewBanner />
       <Hero />
       <Discount />
-      <RegistrationCard />
+      {/* <RegistrationCard /> */}
       <MenuCards />
       <Footer />
       <WhatsAppFloatingButton />

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import "./AdminDashboard.css";
+import { JsonEditor } from "json-edit-react";
 
 const AdminDashboard = ({ onLogout }) => {
   const [authToken] = useState("Basic " + btoa("admin:password123"));
@@ -22,11 +23,14 @@ const AdminDashboard = ({ onLogout }) => {
     totalPages: 1,
     currentPage: 1,
   });
+
   const [menuData, setMenuData] = useState({
     items: [],
     totalPages: 1,
     currentPage: 1,
   });
+
+  const [data, setData] = useState(menuData);
 
   const [selected, setSelected] = useState({
     dinein: null,
@@ -210,24 +214,6 @@ const AdminDashboard = ({ onLogout }) => {
 
     return () => clearInterval(intervalId);
   }, []);
-
-  const refreshSelectedSectionItems = async (sectionToRefresh) => {
-    if (!sectionToRefresh) return;
-
-    try {
-      const response = await fetch(`/api/admin/menu/${sectionToRefresh._id}`, {
-        headers: { Authorization: authToken },
-      });
-
-      if (response.ok) {
-        const updatedSection = await response.json();
-        setSelectedSection(updatedSection);
-        await fetchMenuData();
-      }
-    } catch (err) {
-      console.log("Failed to refresh section items:", err);
-    }
-  };
 
   const addMenuItem = async () => {
     if (!selectedSection || !newMenuItem.name || !newMenuItem.newPrice) {
@@ -465,14 +451,31 @@ const AdminDashboard = ({ onLogout }) => {
     setShowModal(true);
   };
 
-  const handleManageItems = (section) => {
-    setSelectedSection(section);
-    refreshSelectedSectionItems(section);
-    setModalType("manage-items");
-    setShowModal(true);
-    setEditingMenuItem(null);
-    setNewMenuItem({ name: "", newPrice: "", oldPrice: "" });
-    setEditingItemData(null);
+  const handleSaveMenu = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/menu`, {
+        method: "POST",
+        headers: {
+          Authorization: authToken,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ data: data.items }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          `Server responded with ${response.status}: ${
+            errorData.message || "Failed to update status"
+          }`
+        );
+      }
+      await fetchMenuData();
+      setIsLoading(false);
+    } catch (err) {
+      console.error("Error loading order:", err);
+    }
   };
 
   const renderPagination = (data, fetcher) => {
@@ -1017,41 +1020,6 @@ const AdminDashboard = ({ onLogout }) => {
         </div>
       </div>
     );
-  };
-
-  const updateOrderStatus = async (orderId, newStatus) => {
-    try {
-      setError("");
-      setSuccess("Updating order status...");
-      const response = await fetch(`/orders/${orderId}/status`, {
-        method: "PUT",
-        headers: {
-          Authorization: authToken,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          `Server responded with ${response.status}: ${
-            errorData.message || "Failed to update status"
-          }`
-        );
-      }
-
-      const result = await response.json();
-      setSuccess(
-        `Order ${orderId} status updated to ${result.order.status.toUpperCase()}!`
-      );
-      fetchOrders(orders.currentPage);
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(`Failed to update order status: ${err.message}`);
-    } finally {
-      setEditingOrderId(null);
-    }
   };
 
   if (isLoading) {
@@ -1861,9 +1829,28 @@ const AdminDashboard = ({ onLogout }) => {
             >
               <h2 className="section-title">Menu Management</h2>
             </div>
+            <div
+              className="section-header"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <button
+                className="view-btn"
+                style={{
+                  background: "linear-gradient(135deg, red, black)",
+                }}
+                onClick={() => handleSaveMenu()}
+              >
+                Update Menu
+              </button>
+            </div>
 
             <div className="table-container">
-              <table className="data-table">
+              <JsonEditor data={menuData} setData={setData} />
+              {/* <table className="data-table">
                 <thead>
                   <tr>
                     <th>Section Title</th>
@@ -1907,12 +1894,6 @@ const AdminDashboard = ({ onLogout }) => {
                             >
                               View
                             </button>
-                            {/* <button
-                            className="manage-btn"
-                            onClick={() => handleManageItems(section)}
-                          >
-                            Manage Items
-                          </button> */}
                           </div>
                         </td>
                       </tr>
@@ -1925,7 +1906,7 @@ const AdminDashboard = ({ onLogout }) => {
                     </tr>
                   )}
                 </tbody>
-              </table>
+              </table>{" "} */}
             </div>
 
             {renderPagination(menuData, (page) =>

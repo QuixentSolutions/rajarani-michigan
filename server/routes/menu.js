@@ -2,19 +2,43 @@ const express = require("express");
 const router = express.Router();
 const Menu = require("../models/menu");
 
-// router.post("/", async (req, res) => {
-//   try {
-//     const menu = new Menu(req.body);
-//     const savedMenu = await menu.save();
-//     res.status(201).json(savedMenu);
-//   } catch (err) {
-//     res.status(400).json({ error: err.message });
-//   }
-// });
+router.post("/", async (req, res) => {
+  try {
+    const records = req.body.data;
+
+    // Prepare bulk operations
+    const bulkOps = records.map((record) => ({
+      updateOne: {
+        filter: { _id: record._id },
+        update: { $set: record },
+        upsert: false, // set to true if you want to insert if not found
+      },
+    }));
+
+    const result = await Menu.bulkWrite(bulkOps);
+
+    res.status(201).json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 
 router.get("/", async (req, res) => {
   try {
-    const menu = await Menu.find();
+    const daysOfWeek = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    const today = daysOfWeek[new Date().getDay()];
+
+    const menu = await Menu.find({
+      days: today,
+    });
     const result = {
       message: "Menu sections retrieved successfully",
       sections: menu,

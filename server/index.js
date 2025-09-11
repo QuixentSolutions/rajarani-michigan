@@ -12,11 +12,28 @@ require("dotenv").config();
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+const paymentRoutes = require("./routes/payment");
+app.use("/api/payment", paymentRoutes);
 
 // Connect to MongoDB
 mongoose.connect("mongodb://127.0.0.1:27017/rajarani", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+});
+
+// MongoDB connection event listeners
+const db = mongoose.connection;
+
+db.on('error', (error) => {
+  console.error('MongoDB connection error:', error);
+});
+
+db.once('open', () => {
+  console.log('Connected to MongoDB successfully');
+});
+
+db.on('disconnected', () => {
+  console.log('MongoDB disconnected');
 });
 
 app.use("/health", healthRoutes);

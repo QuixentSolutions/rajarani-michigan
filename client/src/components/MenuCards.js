@@ -108,7 +108,6 @@ function Menu() {
           : [...prev, addon] // ✅ store full object, not just name
     );
   };
-
   return (
     <>
       <div className="menu-container" id="menu">

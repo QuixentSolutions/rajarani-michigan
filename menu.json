@@ -5,16 +5,7 @@ db.menus.insert([
   "days": [ "Friday","Saturday", "Sunday"],
   "items": [
     {
-      "name": "Crispy Chicken Wings",
-      "price": "15.99",
-      "addons": [
-        { "name": "Add Veggies", "price": "1.00" },
-        { "name": "Add Meat", "price": "2.00" }
-      ],
-      "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
-    },
-    {
-      "name": "Paneer Majestic",
+      "name": "Breaded Crispy Mushroom",
       "price": "14.99",
       "addons": [
         { "name": "Add Veggies", "price": "1.00" },
@@ -23,7 +14,16 @@ db.menus.insert([
       "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
     },
     {
-      "name": "Schezwan Shrimp Fried Rice",
+      "name": "Tandoori Corn",
+      "price": "14.99",
+      "addons": [
+        { "name": "Add Veggies", "price": "1.00" },
+        { "name": "Add Meat", "price": "2.00" }
+      ],
+      "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
+    },
+    {
+      "name": "Idiyappam W Atukkal Paya",
       "price": "16.99",
       "addons": [
         { "name": "Add Veggies", "price": "1.00" },
@@ -32,7 +32,25 @@ db.menus.insert([
       "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
     },
     {
-      "name": "Lamb Ghee Roast W Kushka",
+      "name": "Chicken Kizhi Parotta",
+      "price": "16.99",
+      "addons": [
+        { "name": "Add Veggies", "price": "1.00" },
+        { "name": "Add Meat", "price": "2.00" }
+      ],
+      "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
+    },
+    {
+      "name": "Goat Liver Pepper Fry",
+      "price": "16.99",
+      "addons": [
+        { "name": "Add Veggies", "price": "1.00" },
+        { "name": "Add Meat", "price": "2.00" }
+      ],
+      "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
+    } ,
+    {
+      "name": "Ambur Goat Biryani",
       "price": "18.99",
       "addons": [
         { "name": "Add Veggies", "price": "1.00" },
@@ -41,16 +59,7 @@ db.menus.insert([
       "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
     },
     {
-      "name": "Village Style Goat Pepper Fry",
-      "price": "17.99",
-      "addons": [
-        { "name": "Add Veggies", "price": "1.00" },
-        { "name": "Add Meat", "price": "2.00" }
-      ],
-      "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
-    } ,
-    {
-      "name": "Ambur Chicken Biryani",
+      "name": "Salem RR Chicken Biryani",
       "price": "16.99",
       "addons": [
         { "name": "Add Veggies", "price": "1.00" },

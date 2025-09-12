@@ -111,7 +111,7 @@ function Menu() {
 
   return (
     <>
-      <div className="menu-container">
+      <div className="menu-container" id="menu">
         {notification && (
           <div className="item-added-notification">{notification}</div>
         )}

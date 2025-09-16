@@ -336,18 +336,8 @@ function Header() {
         return;
       }
 
-      if (expMonth > 12 || expMonth < 1) {
-        alert("Invalid Expiry Month ");
-        return;
-      }
-
       if (!expYear) {
-        alert("Expiry year cannot be empty");
-        return;
-      }
-
-      if (expYear < 25) {
-        alert("Invalid Expiry year");
+        alert("Expiry Year cannot be empty");
         return;
       }
 
@@ -362,7 +352,7 @@ function Header() {
       const secureData = {
         authData: {
           clientKey:
-            "3p45FqNUmcJ7ch57c4d2qyZ4G4ktE52UN6vL6Rpd7P4j5b3ca3zgw6r6C8LVwfuF", // from sandbox or production
+            "2W5usw3d34vZ5GYH9gA4VH8sDhaygjCS4Zr4aZecVvhEYNky6PRYmt96QctpPZP2", // from sandbox or production
           apiLoginID: "4nhA365NPUm", // from sandbox or production
         },
         cardData: { cardNumber, month: expMonth, year: expYear, cardCode: cvv },
@@ -376,7 +366,6 @@ function Header() {
       // Wrap dispatchData in a Promise to use async/await
       const response = await new Promise((resolve, reject) => {
         window.Accept.dispatchData(secureData, (res) => {
-          console.log(res);
           if (res.messages.resultCode === "Error") {
             reject(res.messages.message[0].text);
           } else {
@@ -391,11 +380,11 @@ function Header() {
         body: JSON.stringify({
           opaqueData: response.opaqueData,
           amount: onlinePaymentAmount,
-          orderId: successOrderId,
         }),
       });
 
       const result = await dbResponse.json();
+      console.log("Payment result:", result);
       if (result.code === 200) {
         setIsLoading(false);
         alert("Payment successful!");

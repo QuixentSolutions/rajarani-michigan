@@ -17,3 +17,12 @@ const settingsSchema = new mongoose.Schema({
 const Settings = mongoose.model("settings", settingsSchema);
 
 module.exports = Settings;
+
+// {
+//   _id: ObjectId('68b0a36189eb99f2b640938c'),
+//   name: 'order_settings',
+//   settings: { dinein: true, pickup: true, delivery: false },
+//   createdAt: ISODate('2025-08-28T18:43:45.488Z'),
+//   updatedAt: ISODate('2025-08-28T18:43:45.488Z'),
+//   __v: 0
+// }

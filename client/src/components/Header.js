@@ -22,9 +22,12 @@ function Header() {
   const [orderMode, setOrderMode] = useState("dinein");
   const [address, setAddress] = useState("");
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
+  const [isPaymentPopupOpen, setIsPaymentPopupOpen] = useState(false);
   const [successOrderId, setSuccessOrderId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [onlinePaymentAmount, setOnlinePaymentAmount] = useState(0);
+
   const [finalOrderAmount, setFinalOrderAmount] = useState(0);
 
   const [deliveryModes, setDeliveryModes] = useState();
@@ -124,13 +127,6 @@ function Header() {
   };
 
   const handleOrderNow = async (e) => {
-    let userConfirmed = window.confirm("Shall we finalize your order ?");
-
-    if (!userConfirmed) {
-      // User clicked "OK", proceed with deletion
-      return;
-    }
-
     setIsLoading(true);
     setIsPopupOpen(false);
     e.preventDefault();
@@ -176,6 +172,13 @@ function Header() {
       return;
     }
     setAddressError("");
+
+    let userConfirmed = window.confirm("Shall we finalize your order ?");
+
+    if (!userConfirmed) {
+      // User clicked "OK", proceed with deletion
+      return;
+    }
 
     const orderId = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
 
@@ -226,16 +229,30 @@ function Header() {
         throw new Error(dbData.message || "Failed to save order.");
       }
 
-      setSuccessOrderId(orderId);
-      setIsSuccessPopupOpen(true);
-      setIsPopupOpen(false);
-      setMobileNumber("+1");
-      setTableNumber("1");
-      setEmail("");
-      setName("");
-      setAddress("");
-      dispatch(clearCart());
-      setIsLoading(false);
+      if (orderMode !== "dinein") {
+        setOnlinePaymentAmount(parseFloat(finalTotalAmount.toFixed(2)));
+        setIsPaymentPopupOpen(true);
+        setSuccessOrderId(orderId);
+        setIsPopupOpen(false);
+        setMobileNumber("+1");
+        setTableNumber("1");
+        setEmail("");
+        setName("");
+        setAddress("");
+        dispatch(clearCart());
+        setIsLoading(false);
+      } else {
+        setSuccessOrderId(orderId);
+        setIsSuccessPopupOpen(true);
+        setIsPopupOpen(false);
+        setMobileNumber("+1");
+        setTableNumber("1");
+        setEmail("");
+        setName("");
+        setAddress("");
+        dispatch(clearCart());
+        setIsLoading(false);
+      }
     } catch (err) {
       console.error("Order process error:", err);
       alert(
@@ -295,42 +312,246 @@ function Header() {
             Your order has been placed and a confirmation email has been sent
             with all the details. - <strong>{successOrderId}</strong>
           </p>
-          {/* 
-          <p style={{ marginTop: "20px" }}>
-            <strong>Payment Options</strong>
+        </div>
+      </div>
+    );
+  };
+
+  const PaymentPopup = () => {
+    const [cardNumber, setCardNumber] = useState("");
+    const [expMonth, setExpMonth] = useState("");
+    const [expYear, setExpYear] = useState("");
+    const [cvv, setCvv] = useState("");
+
+    const sendPayment = async (e) => {
+      e.preventDefault();
+
+      if (!cardNumber) {
+        alert("Card number cannot be empty");
+        return;
+      }
+
+      if (!expMonth) {
+        alert("Expiry Month cannot be empty");
+        return;
+      }
+
+      if (!expYear) {
+        alert("Expiry Year cannot be empty");
+        return;
+      }
+
+      if (!cvv) {
+        alert("CVV cannot be empty");
+        return;
+      }
+
+      setIsLoading(true);
+      setIsPaymentPopupOpen(false);
+
+      const secureData = {
+        authData: {
+          clientKey:
+            "2W5usw3d34vZ5GYH9gA4VH8sDhaygjCS4Zr4aZecVvhEYNky6PRYmt96QctpPZP2", // from sandbox or production
+          apiLoginID: "4nhA365NPUm", // from sandbox or production
+        },
+        cardData: { cardNumber, month: expMonth, year: expYear, cardCode: cvv },
+      };
+
+      if (!window.Accept || !window.Accept.dispatchData) {
+        alert("Payment library not loaded");
+        return;
+      }
+
+      // Wrap dispatchData in a Promise to use async/await
+      const response = await new Promise((resolve, reject) => {
+        window.Accept.dispatchData(secureData, (res) => {
+          if (res.messages.resultCode === "Error") {
+            reject(res.messages.message[0].text);
+          } else {
+            resolve(res);
+          }
+        });
+      });
+
+      const dbResponse = await fetch("/order/payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          opaqueData: response.opaqueData,
+          amount: onlinePaymentAmount,
+        }),
+      });
+
+      const result = await dbResponse.json();
+      console.log("Payment result:", result);
+      if (result.code === 200) {
+        setIsLoading(false);
+        alert("Payment successful!");
+      } else {
+        setIsLoading(false);
+        alert("Payment failure, Please pay at counter!");
+      }
+    };
+
+    return (
+      <div className="payment-overlay">
+        <div className="payment-card">
+          <h2>Payment Details</h2>
+          <strong style={{ color: "black" }}>
+            {" "}
+            Order Created Successfully: {successOrderId}
+          </strong>
+          <br />
+          <br />
+          <p style={{ color: "black" }}>
+            Pay now or skip and settle at the counter
           </p>
           <br />
-          <hr /> */}
-          {/* <img
-            src="https://rajarani-michigan.s3.us-east-2.amazonaws.com/general/qr.png"
-            alt="Payment QR Code"
-            style={{ width: "250px", height: "250px", margin: "10px 0" }}
-          />
-          <hr /> */}
-          {/* Venmo Payment Button */}
-          {/* <div style={{ textAlign: "center", margin: "20px 0" }}>
-            <h4 style={{ marginBottom: "15px", color: "#333" }}>
-              Pay with Venmo
-            </h4>
-            <a
-              href={`https://venmo.com/Rajarani1?txn=pay&amount=${finalOrderAmount.toFixed(
-                2
-              )}&note=${successOrderId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: "inline-block" }}
-            >
-              <img
-                src="https://cdn.iconscout.com/icon/free/png-256/venmo-2-569346.png"
-                alt="Pay with Venmo"
-                style={{ width: "120px", height: "auto" }}
+          <hr />
+          <br />
+          <form onSubmit={sendPayment} className="payment-form">
+            <input
+              className="payment-input"
+              value={cardNumber}
+              onChange={(e) => setCardNumber(e.target.value)}
+              placeholder="Card Number"
+              type="number"
+            />
+            <div className="payment-row">
+              <input
+                className="payment-input small-field"
+                value={expMonth}
+                onChange={(e) => setExpMonth(e.target.value)}
+                placeholder="MM"
+                type="number"
+                maxlength="2"
               />
-            </a>
-            <p style={{ marginTop: "10px", color: "#666", fontSize: "14px" }}>
-              Total Amount: ${finalOrderAmount.toFixed(2)}
-            </p>
-          </div> */}
+              <input
+                className="payment-input small-field"
+                value={expYear}
+                onChange={(e) => setExpYear(e.target.value)}
+                placeholder="YY"
+                type="number"
+                maxlength="2"
+              />
+              <input
+                className="payment-input small-field"
+                value={cvv}
+                onChange={(e) => setCvv(e.target.value)}
+                placeholder="CVV"
+                type="number"
+                maxlength="2"
+              />
+            </div>
+
+            <button type="submit" className="payment-button">
+              Pay ${onlinePaymentAmount}
+            </button>
+            <button
+              type="submit"
+              className="close-button"
+              onClick={() => setIsPaymentPopupOpen(false)}
+            >
+              Close
+            </button>
+          </form>
         </div>
+
+        <style jsx>{`
+          .payment-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+          }
+
+          .payment-card {
+            background: linear-gradient(135deg, #ffffff, #f9f9f9);
+            padding: 30px;
+            border-radius: 16px;
+            width: 400px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            text-align: center;
+          }
+
+          .payment-card h2 {
+            margin-bottom: 20px;
+            color: #333;
+          }
+
+          .payment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+          }
+
+          .payment-input {
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            transition: border 0.3s ease;
+          }
+
+          .payment-input:focus {
+            border-color: #4a90e2;
+          }
+
+          .payment-row {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+          }
+
+          .payment-input.small-field {
+            width: 6rem; /* smaller width */
+            font-size: 14px; /* slightly smaller font */
+            padding: 8px 10px;
+          }
+
+          .payment-input.small {
+            flex: 1;
+          }
+
+          .payment-button {
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(90deg, #4a90e2, #357abd);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.1s ease;
+          }
+          .close-button {
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(90deg, red, red);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.1s ease;
+          }
+
+          .payment-button:hover {
+            background: linear-gradient(90deg, #357abd, #2a5d9f);
+          }
+
+          .payment-button:active {
+            transform: scale(0.97);
+          }
+        `}</style>
       </div>
     );
   };
@@ -448,6 +669,8 @@ function Header() {
     <>
       {isLoading && <Loader />}
       {isSuccessPopupOpen && <SuccessPopup />}
+      {isPaymentPopupOpen && <PaymentPopup />}
+
       <style>
         {`
           @media (max-width: 768px) {

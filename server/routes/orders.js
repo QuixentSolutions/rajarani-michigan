@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const Order = require("../models/orders");
 const emailjs = require("@emailjs/nodejs");
+const { APIContracts, APIControllers } = require("authorizenet");
+
 function buildEmailHTML(items) {
   const rows = items
     .map(({ name, quantity, basePrice, price, spiceLevel, addons }) => {
@@ -205,6 +207,69 @@ router.get("/all", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+router.post("/payment", async (req, res) => {
+  const API_LOGIN_ID = process.env.AUTHORIZE_API_LOGIN_ID;
+  const TRANSACTION_KEY = process.env.AUTHORIZE_TRANSACTION_KEY;
+  const { opaqueData, amount } = req.body;
+  const merchantAuthentication = new APIContracts.MerchantAuthenticationType();
+  merchantAuthentication.setName(API_LOGIN_ID);
+  merchantAuthentication.setTransactionKey(TRANSACTION_KEY);
+
+  const creditCard = new APIContracts.CreditCardType();
+  creditCard.setCardNumber(opaqueData.dataValue); // tokenized card from Accept.js
+  // creditCard.setExpirationDate("XXXX"); // not needed if using opaqueData
+  // creditCard.setCardCode("XXX"); // optional if using opaqueData
+
+  const paymentType = new APIContracts.PaymentType();
+  paymentType.setOpaqueData(opaqueData);
+
+  const transactionRequestType = new APIContracts.TransactionRequestType();
+  transactionRequestType.setTransactionType(
+    APIContracts.TransactionTypeEnum.AUTHCAPTURETRANSACTION
+  );
+  transactionRequestType.setPayment(paymentType);
+  transactionRequestType.setAmount(amount);
+
+  const createRequest = new APIContracts.CreateTransactionRequest();
+  createRequest.setMerchantAuthentication(merchantAuthentication);
+  createRequest.setTransactionRequest(transactionRequestType);
+
+  const ctrl = new APIControllers.CreateTransactionController(
+    createRequest.getJSON()
+  );
+
+  ctrl.execute(() => {
+    const apiResponse = ctrl.getResponse();
+    const response = new APIContracts.CreateTransactionResponse(apiResponse);
+
+    if (
+      response != null &&
+      response.getMessages().getResultCode() === APIContracts.MessageTypeEnum.OK
+    ) {
+      if (response.getTransactionResponse().getMessages() != null) {
+        res.json({
+          success: true,
+          message: "Transaction approved",
+          transactionId: response.getTransactionResponse().getTransId(),
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          error: response
+            .getTransactionResponse()
+            .getErrors()[0]
+            .getErrorText(),
+        });
+      }
+    } else {
+      res.status(400).json({
+        success: false,
+        error: response.getMessages().getMessage()[0].getText(),
+      });
+    }
+  });
 });
 
 module.exports = router;

@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import "./AdminDashboard.css";
-import { JsonEditor } from "json-edit-react";
 
 const AdminDashboard = ({ onLogout }) => {
   const [authToken] = useState("Basic " + btoa("admin:password123"));
@@ -30,17 +29,13 @@ const AdminDashboard = ({ onLogout }) => {
     currentPage: 1,
   });
 
-  const [data, setData] = useState(menuData);
-
   const [selected, setSelected] = useState({
     dinein: null,
     pickup: null,
     delivery: null,
   });
 
-  // ========== NEW STATE FOR TABLE STATUSES (ADDED) ==========
   const [tableStatuses, setTableStatuses] = useState([]);
-  // ========== NEW STATE FOR PICKUP/DELIVERY (ADDED) ==========
   const [pickupOrders, setPickupOrders] = useState([]);
   const [deliveryOrders, setDeliveryOrders] = useState([]);
 
@@ -55,13 +50,14 @@ const AdminDashboard = ({ onLogout }) => {
   const [searchMenuQuery, setSearchMenuQuery] = useState("");
 
   const [tableNo, setTableNo] = useState("");
-
   const [billDetails, setBillDetails] = useState(null);
 
+  // Simplified menu item state without addons and spice levels CRUD
   const [newMenuItem, setNewMenuItem] = useState({
     name: "",
-    newPrice: "",
-    oldPrice: "",
+    price: "",
+    spiceLevels: [],
+    addons: [],
   });
 
   const [tips, setTips] = useState(0);
@@ -159,21 +155,6 @@ const AdminDashboard = ({ onLogout }) => {
           }`;
           const data = await fetchData(url, authToken);
 
-          // const playSound = () => {
-          //   const audio = new Audio("/neworder.mp3"); // put your sound file in public folder
-          //   audio.play();
-          // };
-          // if (type === "order") {
-          //   const localLastOrderNo = data.filter(
-          //     (order) => order.orderType !== "dinein"
-          //   )[0]?.orderNumber;
-          //   console.log(localLastOrderNo);
-          //   if (lastOnlineOrderNo !== localLastOrderNo) {
-          //     playSound();
-          //   }
-          //   setLastOnlineOrderNo(localLastOrderNo);
-          // }
-
           if (data && typeof data === "object") {
             if (Array.isArray(data)) {
               setter({ items: data, totalPages: 1, currentPage: 1 });
@@ -215,21 +196,27 @@ const AdminDashboard = ({ onLogout }) => {
     return () => clearInterval(intervalId);
   }, []);
 
+  // Simplified addMenuItem function without addons and spice levels CRUD
   const addMenuItem = async () => {
-    if (!selectedSection || !newMenuItem.name || !newMenuItem.newPrice) {
+    if (!selectedSection || !newMenuItem.name || !newMenuItem.price) {
       setError("Please fill in all required fields");
       return;
     }
 
     try {
-      const url = `/api/admin/menu/${selectedSection._id}/items`;
+      const url = `http://localhost:5001/menu/category/${selectedSection._id}/item`;
       const response = await fetch(url, {
         method: "POST",
         headers: {
           Authorization: authToken,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(newMenuItem),
+        body: JSON.stringify({ 
+          name: newMenuItem.name, 
+          price: parseFloat(newMenuItem.price),
+          spiceLevels: newMenuItem.spiceLevels,
+          addons: newMenuItem.addons,
+        }),
       });
 
       if (!response.ok) {
@@ -241,10 +228,10 @@ const AdminDashboard = ({ onLogout }) => {
 
       const result = await response.json();
       setSuccess("Menu item added successfully!");
-      setNewMenuItem({ name: "", newPrice: "", oldPrice: "" });
+      setNewMenuItem({ name: "", price: "", spiceLevels: [], addons: [] });
 
-      if (result.section) {
-        setSelectedSection(result.section);
+      if (result) {
+        setSelectedSection(result);
       }
 
       await fetchMenuData();
@@ -256,6 +243,7 @@ const AdminDashboard = ({ onLogout }) => {
     }
   };
 
+  // Simplified updateMenuItem function
   const updateMenuItem = async (itemToUpdate, updatedFields) => {
     try {
       if (!itemToUpdate || !itemToUpdate._id) {
@@ -266,14 +254,19 @@ const AdminDashboard = ({ onLogout }) => {
         throw new Error("No section selected");
       }
 
-      const url = `/api/admin/menu/${selectedSection._id}/items/${itemToUpdate._id}`;
+      const url = `http://localhost:5001/menu/category/${selectedSection._id}/item/${itemToUpdate._id}`;
       const response = await fetch(url, {
         method: "PUT",
         headers: {
           Authorization: authToken,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updatedFields),
+        body: JSON.stringify({
+          name: updatedFields.name,
+          price: parseFloat(updatedFields.price),
+          spiceLevels: updatedFields.spiceLevels,
+          addons: updatedFields.addons,
+        }),
       });
 
       if (!response.ok) {
@@ -293,8 +286,8 @@ const AdminDashboard = ({ onLogout }) => {
       setEditingMenuItem(null);
       setEditingItemData(null);
 
-      if (result.section) {
-        setSelectedSection(result.section);
+      if (result) {
+        setSelectedSection(result);
       }
 
       await fetchMenuData();
@@ -314,7 +307,7 @@ const AdminDashboard = ({ onLogout }) => {
         throw new Error("No section selected");
       }
 
-      const url = `/api/admin/menu/${selectedSection._id}/items/${itemId}`;
+      const url = `http://localhost:5001/menu/category/${selectedSection._id}/item/${itemId}`;
       const response = await fetch(url, {
         method: "DELETE",
         headers: {
@@ -338,8 +331,8 @@ const AdminDashboard = ({ onLogout }) => {
       const result = await response.json();
       setSuccess("Menu item deleted successfully!");
 
-      if (result.section) {
-        setSelectedSection(result.section);
+      if (result) {
+        setSelectedSection(result.updatedCategory);
       }
 
       await fetchMenuData();
@@ -349,12 +342,13 @@ const AdminDashboard = ({ onLogout }) => {
     }
   };
 
+  // Remove all addon and spice level management functions
+
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       setError("");
 
-      // ========== FAKE TABLE DATA FOR UI DEVELOPMENT (ADDED) ==========
       const fakeTableData = [
         { tableNumber: "T1", status: "Available" },
         { tableNumber: "T2", status: "Available" },
@@ -438,6 +432,7 @@ const AdminDashboard = ({ onLogout }) => {
       console.error("Error loading order:", err);
     }
   };
+  
   const LoadingSpinner = () => (
     <div className="loading-container">
       <div className="spinner"></div>
@@ -454,13 +449,13 @@ const AdminDashboard = ({ onLogout }) => {
   const handleSaveMenu = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/menu`, {
+      const response = await fetch(`http://localhost:5001/menu`, {
         method: "POST",
         headers: {
           Authorization: authToken,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data: data.items }),
+        body: JSON.stringify({ data: menuData.items }),
       });
 
       if (!response.ok) {
@@ -473,8 +468,10 @@ const AdminDashboard = ({ onLogout }) => {
       }
       await fetchMenuData();
       setIsLoading(false);
+      setSuccess("Menu updated successfully!");
+      setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      console.error("Error loading order:", err);
+      setError(`Failed to save menu: ${err.message}`);
     }
   };
 
@@ -540,7 +537,6 @@ const AdminDashboard = ({ onLogout }) => {
     if (!showModal) return null;
 
     const type = modalType?.replace("view-", "");
-
     let modalTitle;
 
     if (modalType === "manage-items") {
@@ -588,42 +584,106 @@ const AdminDashboard = ({ onLogout }) => {
                       />
                     </div>
                     <div className="form-group">
-                      <label>New Price *</label>
+                      <label>Price *</label>
                       <input
                         type="number"
                         step="0.01"
                         placeholder="0.00"
-                        value={newMenuItem.newPrice}
+                        value={newMenuItem.price}
                         onChange={(e) =>
                           setNewMenuItem({
                             ...newMenuItem,
-                            newPrice: e.target.value,
+                            price: e.target.value,
                           })
                         }
                         className="form-input"
                       />
                     </div>
-                    <div className="form-group">
-                      <label>Old Price</label>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Spice Levels</label>
+                    <div className="checkbox-group">
+                      {["Mild", "Medium", "Hot", "Very Hot", "Indian Hot"].map((level) => (
+                        <label key={level} className="checkbox-label">
+                          <input
+                            type="checkbox"
+                            value={level}
+                            checked={newMenuItem.spiceLevels.includes(level)}
+                            onChange={(e) => {
+                              const { checked, value } = e.target;
+                              setNewMenuItem((prev) => ({
+                                ...prev,
+                                spiceLevels: checked
+                                  ? [...prev.spiceLevels, value]
+                                  : prev.spiceLevels.filter((l) => l !== value),
+                              }));
+                            }}
+                          />
+                          {level}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Addons</label>
+                    <div className="addons-input-group">
+                      <input
+                        type="text"
+                        placeholder="Addon Name"
+                        id="newAddonName"
+                        className="form-input"
+                      />
                       <input
                         type="number"
                         step="0.01"
-                        placeholder="0.00"
-                        value={newMenuItem.oldPrice}
-                        onChange={(e) =>
-                          setNewMenuItem({
-                            ...newMenuItem,
-                            oldPrice: e.target.value,
-                          })
-                        }
+                        placeholder="Price"
+                        id="newAddonPrice"
                         className="form-input"
                       />
-                    </div>
-                    <div className="form-group">
-                      <button onClick={addMenuItem} className="btn-primary">
-                        Add Item
+                      <button
+                        onClick={() => {
+                          const name = document.getElementById("newAddonName").value;
+                          const price = parseFloat(document.getElementById("newAddonPrice").value);
+                          if (name && !isNaN(price)) {
+                            setNewMenuItem({
+                              ...newMenuItem,
+                              addons: [...newMenuItem.addons, { name, price }],
+                            });
+                            document.getElementById("newAddonName").value = "";
+                            document.getElementById("newAddonPrice").value = "";
+                          }
+                        }}
+                        className="btn-secondary"
+                      >
+                        Add Addon
                       </button>
                     </div>
+                    <div className="tags-container">
+                      {newMenuItem.addons.map((addon, index) => (
+                        <span key={index} className="tag-display">
+                          {addon.name} (${addon.price})
+                          <button
+                            onClick={() =>
+                              setNewMenuItem({
+                                ...newMenuItem,
+                                addons: newMenuItem.addons.filter((_, i) => i !== index),
+                              })
+                            }
+                            className="tag-remove-btn"
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <button onClick={addMenuItem} className="btn-primary">
+                      Add Item
+                    </button>
                   </div>
                 </div>
 
@@ -653,36 +713,81 @@ const AdminDashboard = ({ onLogout }) => {
                               <input
                                 type="number"
                                 step="0.01"
-                                value={editingItemData?.newPrice || ""}
+                                value={editingItemData?.price || ""}
                                 onChange={(e) => {
                                   setEditingItemData({
                                     ...editingItemData,
-                                    newPrice: e.target.value,
+                                    price: e.target.value,
                                   });
                                 }}
                                 className="form-input"
-                                placeholder="New price"
+                                placeholder="Price"
                               />
-                              <input
-                                type="number"
-                                step="0.01"
-                                value={editingItemData?.oldPrice || ""}
-                                onChange={(e) => {
-                                  setEditingItemData({
-                                    ...editingItemData,
-                                    oldPrice: e.target.value,
-                                  });
-                                }}
-                                className="form-input"
-                                placeholder="Old price (optional)"
-                              />
+
+                              {/* Removed CRUD functionality for spice levels in edit mode */}
+
+                              <div className="form-group">
+                                <label>Addons</label>
+                                <div className="addons-input-group">
+                                  <input
+                                    type="text"
+                                    placeholder="Addon Name"
+                                    id={`editAddonName-${item._id}`}
+                                    className="form-input"
+                                  />
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="Price"
+                                    id={`editAddonPrice-${item._id}`}
+                                    className="form-input"
+                                  />
+                                  <button
+                                    onClick={() => {
+                                      const name = document.getElementById(`editAddonName-${item._id}`).value;
+                                      const price = parseFloat(document.getElementById(`editAddonPrice-${item._id}`).value);
+                                      if (name && !isNaN(price)) {
+                                        setEditingItemData({
+                                          ...editingItemData,
+                                          addons: [...(editingItemData.addons || []), { name, price }],
+                                        });
+                                        document.getElementById(`editAddonName-${item._id}`).value = "";
+                                        document.getElementById(`editAddonPrice-${item._id}`).value = "";
+                                      }
+                                    }}
+                                    className="btn-secondary"
+                                  >
+                                    Add Addon
+                                  </button>
+                                </div>
+                                <div className="tags-container">
+                                  {editingItemData?.addons?.map((addon, i) => (
+                                    <span key={i} className="tag-display">
+                                      {addon.name} (${addon.price})
+                                      <button
+                                        onClick={() =>
+                                          setEditingItemData({
+                                            ...editingItemData,
+                                            addons: editingItemData.addons.filter((_, idx) => idx !== i),
+                                          })
+                                        }
+                                        className="tag-remove-btn"
+                                      >
+                                        ✕
+                                      </button>
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+
                               <div className="edit-actions">
                                 <button
                                   onClick={() => {
                                     updateMenuItem(editingItemData, {
                                       name: editingItemData.name,
-                                      newPrice: editingItemData.newPrice,
-                                      oldPrice: editingItemData.oldPrice,
+                                      price: editingItemData.price,
+                                      spiceLevels: editingItemData.spiceLevels,
+                                      addons: editingItemData.addons,
                                     });
                                   }}
                                   className="btn-success"
@@ -706,14 +811,38 @@ const AdminDashboard = ({ onLogout }) => {
                               <h5>{item.name}</h5>
                               <div className="price-info">
                                 <span className="new-price">
-                                  ${item.newPrice}
+                                  ${item.price}
                                 </span>
-                                {item.oldPrice && (
-                                  <span className="old-price">
-                                    ${item.oldPrice}
-                                  </span>
-                                )}
                               </div>
+                              
+                              {/* Display Spice Levels */}
+                              {item.spiceLevels && item.spiceLevels.length > 0 && (
+                                <div className="spice-levels-display">
+                                  <strong>Spice Levels:</strong>
+                                  <div className="tags-container">
+                                    {item.spiceLevels.map((level, index) => (
+                                      <span key={index} className="tag-display">
+                                        {level}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Display Addons */}
+                              {item.addons && item.addons.length > 0 && (
+                                <div className="addons-display">
+                                  <strong>Addons:</strong>
+                                  <div className="addons-list-display">
+                                    {item.addons.map((addon, index) => (
+                                      <div key={index} className="addon-display">
+                                        {addon.name} - ${addon.price}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
                               <div className="item-actions">
                                 <button
                                   onClick={() => {
@@ -876,7 +1005,6 @@ const AdminDashboard = ({ onLogout }) => {
                     </tbody>
                   </table>
 
-                  {/* Centered Button */}
                   <div style={{ textAlign: "center", marginTop: "20px" }}>
                     <button
                       onClick={() =>
@@ -924,7 +1052,7 @@ const AdminDashboard = ({ onLogout }) => {
                             <div className="addons">
                               Addons:{" "}
                               {item.addons
-                                .map((a) => `${a.name} (+$${a.price})`)
+                                .map((a) => `${a.name} (+${a.price})`)
                                 .join(", ")}
                             </div>
                           )}
@@ -948,7 +1076,6 @@ const AdminDashboard = ({ onLogout }) => {
                 <p>
                   <strong>Color:</strong> {selectedItem.color}
                 </p>
-
                 <p>
                   <strong>Created:</strong>{" "}
                   {new Date(selectedItem.createdAt).toLocaleString()}
@@ -958,6 +1085,16 @@ const AdminDashboard = ({ onLogout }) => {
                   {selectedItem.items?.map((item, index) => (
                     <div key={index} className="menu-item">
                       {item.name} - ${item.price}
+                      {item.spiceLevels && item.spiceLevels.length > 0 && (
+                        <div className="spice-levels">
+                          Spice Levels: {item.spiceLevels.join(", ")}
+                        </div>
+                      )}
+                      {item.addons && item.addons.length > 0 && (
+                        <div className="addons">
+                          Addons: {item.addons.map(a => `${a.name} (${a.price})`).join(", ")}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -967,7 +1104,6 @@ const AdminDashboard = ({ onLogout }) => {
             {modalType === "view-order-report-details" && selectedItem && (
               <div className="view-details">
                 <h4>Order Details</h4>
-
                 <div className="order-items">
                   <table className="order-table">
                     <thead>
@@ -995,7 +1131,7 @@ const AdminDashboard = ({ onLogout }) => {
                               <div className="addons">
                                 Addons:{" "}
                                 {item.addons
-                                  .map((a) => `${a.name} (+$${a.price})`)
+                                  .map((a) => `${a.name} (+${a.price})`)
                                   .join(", ")}
                               </div>
                             )}
@@ -1007,12 +1143,6 @@ const AdminDashboard = ({ onLogout }) => {
                       ))}
                     </tbody>
                   </table>
-
-                  {/* {selectedItem?.map((item, index) => (
-                    <div key={index} className="order-item">
-                      {item.name} - Qty: {item.quantity} - ${item.price}
-                    </div>
-                  ))} */}
                 </div>
               </div>
             )}
@@ -1030,14 +1160,12 @@ const AdminDashboard = ({ onLogout }) => {
     let userConfirmed = window.confirm("Sure to settle ?");
 
     if (!userConfirmed) {
-      // User clicked "OK", proceed with deletion
       return;
     }
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // First, save order to database
       const dbResponse = await fetch("/order/settle", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -1081,7 +1209,6 @@ const AdminDashboard = ({ onLogout }) => {
     setIsLoading(true);
 
     try {
-      // First, save order to database
       const dbResponse = await fetch("/order/accept", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -1102,17 +1229,16 @@ const AdminDashboard = ({ onLogout }) => {
       setIsLoading(false);
     }
   };
+
   const handleSettleOnlineorders = async (orderNumber) => {
     let userConfirmed = window.confirm("Sure to settle ?");
 
     if (!userConfirmed) {
-      // User clicked "OK", proceed with deletion
       return;
     }
     setIsLoading(true);
 
     try {
-      // First, save order to database
       const dbResponse = await fetch("/order/settle", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -1249,9 +1375,9 @@ const AdminDashboard = ({ onLogout }) => {
                     borderRadius: "4px",
                   }}
                 >
-                  {[5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100].map((_, i) => (
-                    <option key={i} value={i}>
-                      {i}
+                  {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100].map((percentage) => (
+                    <option key={percentage} value={percentage}>
+                      {percentage}%
                     </option>
                   ))}
                 </select>
@@ -1359,7 +1485,7 @@ const AdminDashboard = ({ onLogout }) => {
                           <small>
                             Addons:{" "}
                             {item.addons
-                              .map((a) => `${a.name} (+$${a.price})`)
+                              .map((a) => `${a.name} (+${a.price})`)
                               .join(", ")}
                           </small>
                         </>
@@ -1437,7 +1563,6 @@ const AdminDashboard = ({ onLogout }) => {
     let userConfirmed = window.confirm("Are you sure to make changes ?");
 
     if (!userConfirmed) {
-      // User clicked "OK", proceed with deletion
       return;
     }
 
@@ -1470,7 +1595,7 @@ const AdminDashboard = ({ onLogout }) => {
     const [orderReports, setOrderReports] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const limit = 10; // items per page
+    const limit = 10;
 
     const tableHeaderStyle = {
       border: "1px solid #000",
@@ -1537,7 +1662,7 @@ const AdminDashboard = ({ onLogout }) => {
                     }}
                   >
                     {order.payment.status}
-                  </td>{" "}
+                  </td>
                   <td style={tableCellStyle}>{order.orderType}</td>
                   <td style={tableCellStyle}>{order.customer.name}</td>
                   <td style={tableCellStyle}>
@@ -1558,7 +1683,7 @@ const AdminDashboard = ({ onLogout }) => {
               ))
             ) : (
               <tr>
-                <td colSpan="2" style={tableCellStyle}>
+                <td colSpan="11" style={tableCellStyle}>
                   No orders found
                 </td>
               </tr>
@@ -1566,7 +1691,6 @@ const AdminDashboard = ({ onLogout }) => {
           </tbody>
         </table>
 
-        {/* Pagination */}
         <div style={{ marginTop: "10px", textAlign: "center" }}>
           <button
             onClick={() => setPage((p) => Math.max(p - 1, 1))}
@@ -1704,7 +1828,6 @@ const AdminDashboard = ({ onLogout }) => {
               <h2 className="section-title">Order Management</h2>
             </div>
 
-            {/* ========== DATA-DRIVEN TABLE DISPLAY (MODIFIED) ========== */}
             <div className="subsection-header">
               <h3>Dine-In</h3>
             </div>
@@ -1725,7 +1848,7 @@ const AdminDashboard = ({ onLogout }) => {
             <div className="subsection-header">
               <h3>Pending Orders (Pickup or Delivery)</h3>
             </div>
-            {/* ======================================================== */}
+            
             <div className="table-container">
               <table className="data-table">
                 <thead>
@@ -1849,64 +1972,40 @@ const AdminDashboard = ({ onLogout }) => {
             </div>
 
             <div className="table-container">
-              <JsonEditor data={menuData} setData={setData} />
-              {/* <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Section Title</th>
-                    <th>Color</th>
-                    <th>Number of Items</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {menuData.items.length > 0 ? (
-                    menuData.items.map((section, index) => (
-                      <tr key={section._id || section.id || index}>
-                        <td>
-                          <strong>
-                            {section.title ||
-                              section.name ||
-                              `Section ${index + 1}`}
-                          </strong>
-                        </td>
-                        <td>
-                          <div className="color-display">
-                            <div
-                              className="color-circle"
-                              style={{
-                                backgroundColor: section.color || "#FFA500",
-                              }}
-                            ></div>
-                            <span>{section.color || "#FFA500"}</span>
-                          </div>
-                        </td>
-                        <td>
-                          <strong>
-                            {section.itemCount || section.items?.length || 0}
-                          </strong>
-                        </td>
-                        <td>
-                          <div style={{ display: "flex", gap: "10px" }}>
-                            <button
-                              className="view-btn"
-                              onClick={() => handleView(section, "menu")}
-                            >
-                              View
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="4" className="empty-state">
-                        No menu sections found
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>{" "} */}
+              <div className="category-list">
+                {menuData.items.length > 0 ? (
+                  menuData.items.map((category, index) => (
+                    <div
+                      key={category._id || index}
+                      className="category-card"
+                    >
+                      <h3>{category.title}</h3>
+                      <p>Items: {category.items?.length || 0}</p>
+                      <button
+                        className="btn-primary"
+                        onClick={() => {
+                          setSelectedSection(category);
+                          setModalType("manage-items");
+                          setShowModal(true);
+                        }}
+                        style={{
+                          marginTop: "10px",
+                          padding: "8px 16px",
+                          backgroundColor: "#007bff",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer"
+                        }}
+                      >
+                        Manage Items
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="empty-state">No menu categories found. Please add categories via the backend or a tool like MongoDB Compass.</p>
+                )}
+              </div>
             </div>
 
             {renderPagination(menuData, (page) =>

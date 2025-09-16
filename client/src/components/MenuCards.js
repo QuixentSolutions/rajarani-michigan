@@ -40,17 +40,17 @@ function Menu() {
     change,
     price,
     basePrice,
-    spicelevel,
+    spiceLevels, // Changed to plural
     addons
   ) => {
-    // If spicelevel or addons exist, open popup for user choice
-    if (change === 1 && (spicelevel?.length || addons?.length)) {
+    // If spiceLevels or addons exist, open popup for user choice
+    if (change === 1 && (spiceLevels?.length || addons?.length)) {
       setPendingAction({
         itemName,
         change,
         price,
         basePrice,
-        spicelevel,
+        spiceLevels, // Changed to plural
         addons,
       });
       setSelectedSpice(""); // force user to pick
@@ -277,7 +277,7 @@ function Menu() {
                                 1,
                                 price,
                                 basePrice,
-                                item.spicelevel,
+                                item.spiceLevels, // Changed to plural
                                 item.addons,
                                 e
                               )
@@ -335,10 +335,10 @@ function Menu() {
             }}
           >
             {/* Spice Level */}
-            {pendingAction?.spicelevel?.length > 0 && (
+            {pendingAction?.spiceLevels?.length > 0 && (
               <div style={{ marginBottom: "15px" }}>
                 <strong>Spice Level:</strong>
-                {pendingAction.spicelevel.map((level) => (
+                {pendingAction.spiceLevels.map((level) => (
                   <div key={level} style={{ marginTop: "5px" }}>
                     <label
                       style={{
@@ -392,7 +392,7 @@ function Menu() {
 
             <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
               <button
-                disabled={!selectedSpice && pendingAction?.spicelevel?.length}
+                disabled={!selectedSpice && pendingAction?.spiceLevels?.length}
                 onClick={() => {
                   proceedWithUpdate({
                     ...pendingAction,

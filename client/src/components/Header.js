@@ -5,9 +5,7 @@ import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { clearCart, rehydrateCart } from "../cartSlice";
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
-// import AnniversaryPopup from "./AnniversaryPopup";
 import { FaPlus, FaMinus } from "react-icons/fa";
-import { View, Text, TouchableOpacity } from "react-native";
 
 function Header() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -26,18 +24,23 @@ function Header() {
   const [isLoading, setIsLoading] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0);
   const [finalOrderAmount, setFinalOrderAmount] = useState(0);
-
   const [deliveryModes, setDeliveryModes] = useState();
 
-  // const totalItems = useSelector((state) => state.cart.totalItems);
-  // const cartItems = useSelector((state) => state.cart.items);
-
-  // const totalItems = useSelector((state) => state.cart.totalItems);
+  // NEW PAYMENT MODAL STATES
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
+  const [cardData, setCardData] = useState({
+    cardNumber: '',
+    expiryMonth: '',
+    expiryYear: '',
+    cvv: '',
+    cardholderName: ''
+  });
 
   const localStorageCartItems = useSelector((state) => state.cart.items);
   const [cartItems, setCartItems] = useState(localStorageCartItems);
 
-  // Sync when totalItems changes
   useEffect(() => {
     setCartItems(localStorageCartItems);
   }, [localStorageCartItems]);
@@ -79,7 +82,6 @@ function Header() {
       }
 
       const obj = dbData[0]?.settings || {};
-      // Get only keys where value is true
       const result = Object.keys(obj).filter((key) => obj[key]);
       setDeliveryModes(result || []);
     };
@@ -123,16 +125,8 @@ function Header() {
     }
   };
 
+  // UPDATED ORDER NOW HANDLER - Now opens payment modal
   const handleOrderNow = async (e) => {
-    let userConfirmed = window.confirm("Shall we finalize your order ?");
-
-    if (!userConfirmed) {
-      // User clicked "OK", proceed with deletion
-      return;
-    }
-
-    setIsLoading(true);
-    setIsPopupOpen(false);
     e.preventDefault();
 
     // Validate mobile number for non-dine-in orders
@@ -142,27 +136,20 @@ function Header() {
       (!mobileNumber || !mobileRegex.test(mobileNumber.trim()))
     ) {
       setMobileError("Please enter a valid mobile number.");
-      setIsLoading(false);
-      setIsPopupOpen(true);
       return;
     }
     setMobileError("");
 
-    // Validate email (CRITICAL - this must happen first)
-
+    // Validate email for non-dine-in orders
     if (orderMode !== "dinein") {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!email || !emailRegex.test(email.trim())) {
         setEmailError("Please enter a valid email address.");
-        setIsLoading(false);
-        setIsPopupOpen(true);
         return;
       }
 
       if (!name || name.trim().length < 2) {
         setNameError("Name cannot be empty");
-        setIsLoading(false);
-        setIsPopupOpen(true);
         return;
       }
     }
@@ -171,82 +158,454 @@ function Header() {
     // Validate address for delivery
     if (orderMode === "delivery" && !address) {
       setAddressError("Please enter a valid delivery address.");
-      setIsLoading(false);
-      setIsPopupOpen(true);
       return;
     }
     setAddressError("");
 
-    const orderId = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
+    // Close order modal and open payment modal
+    setIsPopupOpen(false);
+    setShowPaymentModal(true);
+  };
 
-    const finalTotalAmount = totalAmount * 1.06;
-    const salesTaxAmount = totalAmount * 0.06;
+  // FIXED PAYMENT MODAL FUNCTIONS
+  const formatCardNumber = (value) => {
+    const digits = value.replace(/\D/g, '');
+    return digits.replace(/(\d{4})/g, '$1 ').trim();
+  };
 
-    // Store final amount for success popup
-    setFinalOrderAmount(finalTotalAmount);
+  // Fixed input handlers to prevent cursor jumping
+  const handleCardNumberChange = (e) => {
+    const formatted = formatCardNumber(e.target.value);
+    if (formatted.replace(/\s/g, '').length <= 16) {
+      setCardData(prev => ({ ...prev, cardNumber: formatted }));
+    }
+  };
+
+  const handleExpiryMonthChange = (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 2);
+    setCardData(prev => ({ ...prev, expiryMonth: value }));
+  };
+
+  const handleExpiryYearChange = (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    setCardData(prev => ({ ...prev, expiryYear: value }));
+  };
+
+  const handleCvvChange = (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    setCardData(prev => ({ ...prev, cvv: value }));
+  };
+
+  const handleCardholderNameChange = (e) => {
+    setCardData(prev => ({ ...prev, cardholderName: e.target.value }));
+  };
+
+  const validatePaymentForm = () => {
+    const { cardNumber, expiryMonth, expiryYear, cvv, cardholderName } = cardData;
+    
+    if (!cardNumber || cardNumber.replace(/\s/g, '').length < 16) {
+      setPaymentError('Please enter a valid 16-digit card number');
+      return false;
+    }
+    
+    if (!expiryMonth || parseInt(expiryMonth) < 1 || parseInt(expiryMonth) > 12) {
+      setPaymentError('Please enter a valid expiry month (01-12)');
+      return false;
+    }
+    
+    if (!expiryYear || expiryYear.length !== 4 || parseInt(expiryYear) < new Date().getFullYear()) {
+      setPaymentError('Please enter a valid expiry year');
+      return false;
+    }
+    
+    if (!cvv || cvv.length < 3) {
+      setPaymentError('Please enter a valid CVV');
+      return false;
+    }
+    
+    if (!cardholderName.trim()) {
+      setPaymentError('Please enter cardholder name');
+      return false;
+    }
+    
+    return true;
+  };
+const processPayment = async () => {
+  if (!validatePaymentForm()) {
+    return;
+  }
+
+  setPaymentLoading(true);
+  setPaymentError('');
+
+  try {
+    // Prepare order data
     const orderData = {
-      orderNumber: String(orderId),
+      orderNumber: `ORD-${Math.floor(10000 + Math.random() * 90000)}`,
       customer: {
         name: name.trim() || "Guest",
+        firstName: name.trim().split(' ')[0] || "Customer",
+        lastName: name.trim().split(' ').slice(1).join(' ') || "Guest",
         phone: String(mobileNumber),
         email: email.trim(),
       },
       orderType: String(orderMode),
       tableNumber: orderMode === "dinein" ? String(`T${tableNumber}`) : "0",
-      // address: orderMode === "delivery" ? String(address) : undefined,
-      deliveryAddress: "NA",
-      deliveryInstructions: "NA",
+      deliveryAddress: orderMode === "delivery" ? address : "NA",
       items: Object.entries(cartItems).map(
         ([name, { quantity, basePrice, price, spiceLevel, addons }]) => ({
           name,
-          quantity,
-          basePrice,
-          price,
+          quantity: parseInt(quantity),
+          basePrice: parseFloat(basePrice || price),
+          price: parseFloat(price),
           spiceLevel,
           addons,
         })
       ),
       subTotal: parseFloat(totalAmount.toFixed(2)),
-      salesTax: parseFloat(salesTaxAmount.toFixed(2)),
-      totalAmount: parseFloat(finalTotalAmount.toFixed(2)),
-      status: "pending",
+      salesTax: parseFloat((totalAmount * 0.06).toFixed(2)),
+      totalAmount: parseFloat((totalAmount * 1.06).toFixed(2)),
     };
 
-    try {
-      // First, save order to database
-      const dbResponse = await fetch("/order", {
+    // Create mock payment nonce (replace with real Accept.js tokenization)
+    const paymentNonce = `nonce_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    // Prepare billing info
+    const billingInfo = {
+      cardholderName: cardData.cardholderName,
+      zipCode: '12345' // You might want to add this field to your form
+    };
+
+    // Send correct data structure to backend
+    const response = await fetch('/api/payment/process', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        paymentNonce: paymentNonce,           // ✅ Correct property name
+        dataDescriptor: 'COMMON.ACCEPT.INAPP.PAYMENT', // ✅ Required by backend
+        orderData: orderData,                 // ✅ Correct structure
+        billingInfo: billingInfo             // ✅ Matches backend expectation
+      }),
+    });
+
+    const result = await response.json();
+    console.log('Payment API response:', result);
+
+    if (response.ok && result.success) {
+      // Payment successful - save order to database
+      const orderResponse = await fetch("/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderData),
+        body: JSON.stringify({
+          ...orderData,
+          payment: {
+            method: 'card',
+            status: 'paid',
+            transactionId: result.transactionId
+          },
+          status: 'accepted'
+        }),
       });
 
-      const dbData = await dbResponse.json();
-
-      if (!dbResponse.ok) {
-        throw new Error(dbData.message || "Failed to save order.");
+      if (orderResponse.ok) {
+        setSuccessOrderId(orderData.orderNumber);
+        setFinalOrderAmount(orderData.totalAmount);
+        setIsSuccessPopupOpen(true);
+        setShowPaymentModal(false);
+        setIsPopupOpen(false);
+        
+        // Clear form and cart
+        setMobileNumber("+1");
+        setTableNumber("1");
+        setEmail("");
+        setName("");
+        setAddress("");
+        setCardData({
+          cardNumber: '',
+          expiryMonth: '',
+          expiryYear: '',
+          cvv: '',
+          cardholderName: ''
+        });
+        dispatch(clearCart());
+      } else {
+        throw new Error('Failed to save order');
       }
-
-      setSuccessOrderId(orderId);
-      setIsSuccessPopupOpen(true);
-      setIsPopupOpen(false);
-      setMobileNumber("+1");
-      setTableNumber("1");
-      setEmail("");
-      setName("");
-      setAddress("");
-      dispatch(clearCart());
-      setIsLoading(false);
-    } catch (err) {
-      console.error("Order process error:", err);
-      alert(
-        `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`
-      );
-    } finally {
-      setIsLoading(false);
+    } else {
+      setPaymentError(result.message || 'Payment failed. Please try again.');
     }
-  };
+  } catch (error) {
+    console.error('Payment error:', error);
+    setPaymentError('Payment processing failed. Please try again.');
+  } finally {
+    setPaymentLoading(false);
+  }
+};
 
   const isCartEmpty = Object.keys(cartItems).length === 0;
+
+  // FIXED PAYMENT MODAL COMPONENT
+  const PaymentModal = () => (
+    <div style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.8)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 1002,
+    }}>
+      <div style={{
+        backgroundColor: "#fff",
+        borderRadius: "12px",
+        padding: "30px",
+        width: "90vw",
+        maxWidth: "450px",
+        maxHeight: "85vh",
+        overflowY: "auto",
+        position: "relative",
+        border: "3px solid #1abc9c",
+        boxShadow: "0 15px 35px rgba(0, 0, 0, 0.3)"
+      }}>
+        {/* Header */}
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "25px",
+          paddingBottom: "15px",
+          borderBottom: "2px solid #ecf0f1"
+        }}>
+          <h3 style={{ margin: 0, color: "#2c3e50", fontSize: "1.4em" }}>
+            💳 Payment Details
+          </h3>
+          <button
+            onClick={() => setShowPaymentModal(false)}
+            style={{
+              background: "#e74c3c",
+              color: "white",
+              border: "none",
+              borderRadius: "50%",
+              width: "30px",
+              height: "30px",
+              cursor: "pointer",
+              fontSize: "16px"
+            }}
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Order Summary - FIXED VISIBILITY */}
+        <div style={{
+          backgroundColor: "#f8f9fa",
+          padding: "15px",
+          borderRadius: "8px",
+          marginBottom: "20px",
+          border: "1px solid #e9ecef",
+          color: "#2c3e50" // FIXED: Added explicit color
+        }}>
+          <h4 style={{ margin: "0 0 10px 0", color: "#2c3e50" }}>Order Summary</h4>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px", color: "#2c3e50" }}>
+            <span>Subtotal:</span>
+            <span>${totalAmount.toFixed(2)}</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px", color: "#2c3e50" }}>
+            <span>Tax (6%):</span>
+            <span>${(totalAmount * 0.06).toFixed(2)}</span>
+          </div>
+          <div style={{ 
+            display: "flex", 
+            justifyContent: "space-between", 
+            fontWeight: "bold", 
+            borderTop: "1px solid #dee2e6", 
+            paddingTop: "5px",
+            color: "#2c3e50" // FIXED: Added explicit color
+          }}>
+            <span>Total:</span>
+            <span>${(totalAmount * 1.06).toFixed(2)}</span>
+          </div>
+        </div>
+
+        {/* Payment Form - FIXED INPUT HANDLERS */}
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ marginBottom: "15px" }}>
+            <label style={{ display: "block", marginBottom: "5px", fontWeight: "600", color: "#2c3e50" }}>
+              Card Number
+            </label>
+            <input
+              type="text"
+              placeholder="1234 5678 9012 3456"
+              value={cardData.cardNumber}
+              onChange={handleCardNumberChange} // FIXED: Direct handler
+              style={{
+                width: "100%",
+                padding: "12px",
+                border: "2px solid #ecf0f1",
+                borderRadius: "6px",
+                fontSize: "16px",
+                boxSizing: "border-box",
+                color: "#2c3e50" // FIXED: Added text color
+              }}
+            />
+          </div>
+
+          <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: "block", marginBottom: "5px", fontWeight: "600", color: "#2c3e50" }}>
+                Month
+              </label>
+              <input
+                type="text"
+                placeholder="MM"
+                value={cardData.expiryMonth}
+                onChange={handleExpiryMonthChange} // FIXED: Direct handler
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  border: "2px solid #ecf0f1",
+                  borderRadius: "6px",
+                  fontSize: "16px",
+                  boxSizing: "border-box",
+                  color: "#2c3e50" // FIXED: Added text color
+                }}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: "block", marginBottom: "5px", fontWeight: "600", color: "#2c3e50" }}>
+                Year
+              </label>
+              <input
+                type="text"
+                placeholder="YYYY"
+                value={cardData.expiryYear}
+                onChange={handleExpiryYearChange} // FIXED: Direct handler
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  border: "2px solid #ecf0f1",
+                  borderRadius: "6px",
+                  fontSize: "16px",
+                  boxSizing: "border-box",
+                  color: "#2c3e50" // FIXED: Added text color
+                }}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: "block", marginBottom: "5px", fontWeight: "600", color: "#2c3e50" }}>
+                CVV
+              </label>
+              <input
+                type="text"
+                placeholder="123"
+                value={cardData.cvv}
+                onChange={handleCvvChange} // FIXED: Direct handler
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  border: "2px solid #ecf0f1",
+                  borderRadius: "6px",
+                  fontSize: "16px",
+                  boxSizing: "border-box",
+                  color: "#2c3e50" // FIXED: Added text color
+                }}
+              />
+            </div>
+          </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", marginBottom: "5px", fontWeight: "600", color: "#2c3e50" }}>
+              Cardholder Name
+            </label>
+            <input
+              type="text"
+              placeholder="John Doe"
+              value={cardData.cardholderName}
+              onChange={handleCardholderNameChange} // FIXED: Direct handler
+              style={{
+                width: "100%",
+                padding: "12px",
+                border: "2px solid #ecf0f1",
+                borderRadius: "6px",
+                fontSize: "16px",
+                boxSizing: "border-box",
+                color: "#2c3e50" // FIXED: Added text color
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Error Message */}
+        {paymentError && (
+          <div style={{
+            backgroundColor: "#f8d7da",
+            color: "#721c24",
+            padding: "10px",
+            borderRadius: "6px",
+            marginBottom: "15px",
+            border: "1px solid #f5c6cb"
+          }}>
+            {paymentError}
+          </div>
+        )}
+
+        {/* Security Info */}
+        <div style={{
+          backgroundColor: "#d4edda",
+          color: "#155724",
+          padding: "10px",
+          borderRadius: "6px",
+          marginBottom: "20px",
+          fontSize: "14px",
+          border: "1px solid #c3e6cb"
+        }}>
+          🔒 Your payment information is encrypted and secure
+        </div>
+
+        {/* Action Buttons */}
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button
+            onClick={() => setShowPaymentModal(false)}
+            style={{
+              flex: 1,
+              padding: "12px",
+              border: "2px solid #6c757d",
+              backgroundColor: "transparent",
+              color: "#6c757d",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: "16px",
+              fontWeight: "600"
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={processPayment}
+            disabled={paymentLoading}
+            style={{
+              flex: 2,
+              padding: "12px",
+              border: "none",
+              backgroundColor: paymentLoading ? "#aaa" : "#28a745",
+              color: "white",
+              borderRadius: "6px",
+              cursor: paymentLoading ? "not-allowed" : "pointer",
+              fontSize: "16px",
+              fontWeight: "600"
+            }}
+          >
+            {paymentLoading ? "Processing..." : `Pay $${(totalAmount * 1.06).toFixed(2)}`}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   const SuccessPopup = () => {
     return (
@@ -295,46 +654,15 @@ function Header() {
             Your order has been placed and a confirmation email has been sent
             with all the details. - <strong>{successOrderId}</strong>
           </p>
-          {/* 
-          <p style={{ marginTop: "20px" }}>
-            <strong>Payment Options</strong>
+          <p style={{ marginTop: "10px", color: "#28a745", fontSize: "16px", fontWeight: "bold" }}>
+            Payment Successful - Total: ${finalOrderAmount?.toFixed(2)}
           </p>
-          <br />
-          <hr /> */}
-          {/* <img
-            src="https://rajarani-michigan.s3.us-east-2.amazonaws.com/general/qr.png"
-            alt="Payment QR Code"
-            style={{ width: "250px", height: "250px", margin: "10px 0" }}
-          />
-          <hr /> */}
-          {/* Venmo Payment Button */}
-          {/* <div style={{ textAlign: "center", margin: "20px 0" }}>
-            <h4 style={{ marginBottom: "15px", color: "#333" }}>
-              Pay with Venmo
-            </h4>
-            <a
-              href={`https://venmo.com/Rajarani1?txn=pay&amount=${finalOrderAmount.toFixed(
-                2
-              )}&note=${successOrderId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: "inline-block" }}
-            >
-              <img
-                src="https://cdn.iconscout.com/icon/free/png-256/venmo-2-569346.png"
-                alt="Pay with Venmo"
-                style={{ width: "120px", height: "auto" }}
-              />
-            </a>
-            <p style={{ marginTop: "10px", color: "#666", fontSize: "14px" }}>
-              Total Amount: ${finalOrderAmount.toFixed(2)}
-            </p>
-          </div> */}
         </div>
       </div>
     );
   };
 
+  // FIXED CART ITEM COMPONENT - Replaced React Native components with HTML
   const CartItem = ({ itemKey, item }) => {
     const basePrice = parseFloat(item.basePrice || item.price);
     const [quantity, setQuantity] = useState(item.quantity);
@@ -349,8 +677,8 @@ function Header() {
             delete cart[itemKey];
           } else {
             cart[itemKey].quantity = newQuantity;
-            cart[itemKey].basePrice = basePrice.toFixed(2); // unit price
-            cart[itemKey].price = (newQuantity * basePrice).toFixed(2); // total price
+            cart[itemKey].basePrice = basePrice.toFixed(2);
+            cart[itemKey].price = (newQuantity * basePrice).toFixed(2);
           }
         }
 
@@ -385,26 +713,45 @@ function Header() {
       }
     };
 
+    // FIXED: Replaced React Native components with HTML
     return (
-      <View style={{ flexDirection: "row", alignItems: "center", margin: 10 }}>
-        <TouchableOpacity
-          onPress={handleDecrease}
-          style={{ marginHorizontal: 10 }}
+      <div style={{ display: "flex", alignItems: "center", margin: "10px" }}>
+        <button
+          onClick={handleDecrease}
+          style={{
+            marginLeft: "10px",
+            marginRight: "10px",
+            backgroundColor: "transparent",
+            border: "1px solid #dc3545",
+            borderRadius: "4px",
+            padding: "5px 8px",
+            cursor: "pointer",
+            color: "#dc3545"
+          }}
         >
-          <FaMinus name="minus" color="red" />
-        </TouchableOpacity>
+          <FaMinus />
+        </button>
 
-        <View style={{ alignItems: "center" }}>
-          <Text style={{ fontSize: 18 }}>{quantity}</Text>
-        </View>
+        <div style={{ textAlign: "center" }}>
+          <span style={{ fontSize: "18px", color: "#2c3e50", fontWeight: "bold" }}>{quantity}</span>
+        </div>
 
-        <TouchableOpacity
-          onPress={handleIncrease}
-          style={{ marginHorizontal: 10 }}
+        <button
+          onClick={handleIncrease}
+          style={{
+            marginLeft: "10px",
+            marginRight: "10px",
+            backgroundColor: "transparent",
+            border: "1px solid #28a745",
+            borderRadius: "4px",
+            padding: "5px 8px",
+            cursor: "pointer",
+            color: "#28a745"
+          }}
         >
-          <FaPlus name="plus" color="green" />
-        </TouchableOpacity>
-      </View>
+          <FaPlus />
+        </button>
+      </div>
     );
   };
 
@@ -447,7 +794,10 @@ function Header() {
   return (
     <>
       {isLoading && <Loader />}
+      {paymentLoading && <Loader />}
       {isSuccessPopupOpen && <SuccessPopup />}
+      {showPaymentModal && <PaymentModal />}
+      
       <style>
         {`
           @media (max-width: 768px) {
@@ -493,13 +843,13 @@ function Header() {
           }
         `}
       </style>
+      
       <header>
         <div className="header-container">
           <div className="nav">
             <div className="logo">
               <img className="header-logo" src="../logo.png" alt="logo" />
             </div>
-            {/* <AnniversaryPopup /> */}
             <div className="social-icons">
               <SocialIcon
                 className="social-icon"
@@ -535,7 +885,6 @@ function Header() {
                   style={{ color: "#FF4C4C" }}
                 />
               </a>
-
               <a
                 href="mailto:rajaranicanton2@gmail.com"
                 style={{ color: "#2a2a2a" }}
@@ -551,54 +900,11 @@ function Header() {
                   style={{ color: "#28A745" }}
                 />
               </a>
-              {/* <div
-                style={{
-                  position: "relative",
-                  display: "inline-block",
-                  marginLeft: "10px",
-                }}
-              >
-                <button
-                  href="#"
-                  aria-label="Cart"
-                  style={{
-                    border: "none",
-                    background: "transparent",
-                    color: "white",
-                    cursor: "pointer",
-                  }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleCartClick();
-                  }}
-                >
-                  <FaShoppingCart />
-                </button>
-                {totalItems > 0 && (
-                  <span
-                    style={{
-                      position: "absolute",
-                      top: "-10px",
-                      right: "-10px",
-                      backgroundColor: "white",
-                      color: "black",
-                      borderRadius: "50%",
-                      width: "18px",
-                      height: "18px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "12px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {totalItems}
-                  </span>
-                )}
-              </div> */}
             </div>
           </div>
         </div>
+
+        {/* ORDER CONFIRMATION MODAL */}
         {isPopupOpen && (
           <div
             style={{
@@ -713,7 +1019,7 @@ function Header() {
                                   <small>
                                     Addons:{" "}
                                     {addons
-                                      .map((a) => `${a.name} (+$${a.price})`)
+                                      .map((a) => `${a.name} (+${a.price})`)
                                       .join(", ")}
                                   </small>
                                 </>
@@ -736,7 +1042,7 @@ function Header() {
                 type="text"
                 placeholder="Subtotal"
                 disabled
-                value={`Subtotal: $${totalAmount.toFixed(2)}`}
+                value={`Subtotal: ${totalAmount.toFixed(2)}`}
                 style={{
                   width: "100%",
                   padding: "8px",
@@ -749,7 +1055,7 @@ function Header() {
                 type="text"
                 placeholder="Sales Tax"
                 disabled
-                value={`Sales Tax (6%): $${(totalAmount * 0.06).toFixed(2)}`}
+                value={`Sales Tax (6%): ${(totalAmount * 0.06).toFixed(2)}`}
                 style={{
                   width: "100%",
                   padding: "8px",
@@ -762,7 +1068,7 @@ function Header() {
                 type="text"
                 placeholder="Total Amount"
                 disabled
-                value={`Total Amount: $${(totalAmount * 1.06).toFixed(2)}`}
+                value={`Total Amount: ${(totalAmount * 1.06).toFixed(2)}`}
                 style={{
                   width: "100%",
                   padding: "8px",
@@ -871,8 +1177,7 @@ function Header() {
                   justifyContent: "space-evenly",
                 }}
               >
-                {/* {["dinein", "pickup", "delivery"].map((mode) => ( */}
-                {deliveryModes.map((mode) => (
+                {deliveryModes && deliveryModes.map((mode) => (
                   <label
                     key={mode}
                     style={{
@@ -941,9 +1246,9 @@ function Header() {
                   )}
                 </>
               )}
-              {(deliveryModes.includes("dinein") ||
+              {(deliveryModes && (deliveryModes.includes("dinein") ||
                 deliveryModes.includes("pickup") ||
-                deliveryModes.includes("delivery")) && (
+                deliveryModes.includes("delivery"))) && (
                 <button
                   onClick={handleOrderNow}
                   disabled={isCartEmpty}
@@ -982,11 +1287,11 @@ function Header() {
 
         <div
           style={{
-            position: "fixed", // make it float
-            bottom: "20px", // distance from bottom
-            right: "20px", // distance from right
+            position: "fixed",
+            bottom: "20px",
+            right: "20px",
             display: "inline-block",
-            zIndex: 1000, // keeps it on top of other elements
+            zIndex: 1000,
           }}
         >
           <button

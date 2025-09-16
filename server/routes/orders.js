@@ -212,7 +212,7 @@ router.get("/all", async (req, res) => {
 router.post("/payment", async (req, res) => {
   const API_LOGIN_ID = process.env.AUTHORIZE_API_LOGIN_ID;
   const TRANSACTION_KEY = process.env.AUTHORIZE_TRANSACTION_KEY;
-  const { opaqueData, amount } = req.body;
+  const { opaqueData, amount, orderId } = req.body;
   const merchantAuthentication = new APIContracts.MerchantAuthenticationType();
   merchantAuthentication.setName(API_LOGIN_ID);
   merchantAuthentication.setTransactionKey(TRANSACTION_KEY);
@@ -240,7 +240,7 @@ router.post("/payment", async (req, res) => {
     createRequest.getJSON()
   );
 
-  ctrl.execute(() => {
+  ctrl.execute(async () => {
     const apiResponse = ctrl.getResponse();
     const response = new APIContracts.CreateTransactionResponse(apiResponse);
 
@@ -249,6 +249,21 @@ router.post("/payment", async (req, res) => {
       response.getMessages().getResultCode() === APIContracts.MessageTypeEnum.OK
     ) {
       if (response.getTransactionResponse().getMessages() != null) {
+        const filter = {
+          orderNumber: req.body.orderId,
+        };
+        const update = {
+          $set: {
+            status: "completed",
+            updatedAt: new Date(),
+            payment: {
+              method: "online",
+              status: "paid",
+              transactionId: response.getTransactionResponse().getTransId(),
+            },
+          },
+        };
+        await Order.updateOne(filter, update);
         res.json({
           success: true,
           message: "Transaction approved",

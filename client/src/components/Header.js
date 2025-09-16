@@ -380,11 +380,11 @@ function Header() {
         body: JSON.stringify({
           opaqueData: response.opaqueData,
           amount: onlinePaymentAmount,
+          orderId: successOrderId,
         }),
       });
 
       const result = await dbResponse.json();
-      console.log("Payment result:", result);
       if (result.code === 200) {
         setIsLoading(false);
         alert("Payment successful!");

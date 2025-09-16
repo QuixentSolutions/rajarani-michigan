@@ -115,29 +115,29 @@ router.post("/category/:categoryId/item", async (req, res) => {
 
     // Validate required fields
     if (!name || price === undefined || price === null) {
-      return res.status(400).json({ 
-        error: "Name and price are required fields" 
+      return res.status(400).json({
+        error: "Name and price are required fields",
       });
     }
 
     // Ensure categoryId is valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-      return res.status(400).json({ 
-        error: "Invalid category ID format" 
+      return res.status(400).json({
+        error: "Invalid category ID format",
       });
     }
 
     const updatedCategory = await Menu.findByIdAndUpdate(
       categoryId,
-      { 
-        $push: { 
-          items: { 
-            name, 
-            price: parseFloat(price), 
-            spicelevel: spicelevel || [], 
-            addons: addons || [] 
-          } 
-        } 
+      {
+        $push: {
+          items: {
+            name,
+            price: parseFloat(price),
+            spicelevel: spicelevel || [],
+            addons: addons || [],
+          },
+        },
       },
       { new: true, runValidators: true }
     );
@@ -170,8 +170,8 @@ router.put("/category/:categoryId/item/:itemId", async (req, res) => {
 
     // Validate required fields
     if (!name || price === undefined || price === null) {
-      return res.status(400).json({ 
-        error: "Name and price are required fields" 
+      return res.status(400).json({
+        error: "Name and price are required fields",
       });
     }
 

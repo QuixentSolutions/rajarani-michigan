@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import "./AdminMenu.css"; // Import the new CSS file
 
+const spiceLevels = ["Mild", "Medium", "Hot", "Very Mild", "Indian Hot"];
 const AdminMenu = ({
   menuData,
   handleSaveMenu,
@@ -34,20 +35,20 @@ const AdminMenu = ({
     }
 
     try {
-      const url = `http://localhost:5001/menu/category/${selectedSection._id}/item`;
+      const url = `/menu/category/${selectedSection._id}/item`;
       const response = await fetch(url, {
         method: "POST",
         headers: {
           Authorization: authToken,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
-          name: newMenuItem.name, 
+        body: JSON.stringify({
+          name: newMenuItem.name,
           price: parseFloat(newMenuItem.price),
           spicelevel: newMenuItem.spicelevel,
-          addons: newMenuItem.addons.map(addon => ({
+          addons: newMenuItem.addons.map((addon) => ({
             ...addon,
-            name: addon.name.replace(/^Add\s/, '').trim() // Remove "Add " prefix
+            name: addon.name.replace(/^Add\s/, "").trim(), // Remove "Add " prefix
           })),
         }),
       });
@@ -91,7 +92,7 @@ const AdminMenu = ({
         throw new Error("No section selected");
       }
 
-      const url = `http://localhost:5001/menu/category/${selectedSection._id}/item/${itemToUpdate._id}`;
+      const url = `menu/category/${selectedSection._id}/item/${itemToUpdate._id}`;
       const response = await fetch(url, {
         method: "PUT",
         headers: {
@@ -148,7 +149,7 @@ const AdminMenu = ({
         throw new Error("No section selected");
       }
 
-      const url = `http://localhost:5001/menu/category/${selectedSection._id}/item/${itemId}`;
+      const url = `/menu/category/${selectedSection._id}/item/${itemId}`;
       const response = await fetch(url, {
         method: "DELETE",
         headers: {
@@ -257,19 +258,37 @@ const AdminMenu = ({
                               <div className="form-group">
                                 <label>Spice Levels</label>
                                 <div className="checkbox-group">
-                                  {[...new Set([...["Mild", "Medium", "Hot", "Very Mild", "Indian Hot"], ...(editingItemData?.spicelevel || [])])].map((level) => (
-                                    <label key={level} className="checkbox-label">
+                                  {[
+                                    ...new Set([
+                                      ...spiceLevels,
+                                      ...(editingItemData?.spicelevel || []),
+                                    ]),
+                                  ].map((level) => (
+                                    <label
+                                      key={level}
+                                      className="checkbox-label"
+                                    >
                                       <input
                                         type="checkbox"
                                         value={level}
-                                        checked={editingItemData?.spicelevel?.includes(level) || false}
+                                        style={{ marginRight: "1rem" }}
+                                        checked={
+                                          editingItemData?.spicelevel?.includes(
+                                            level
+                                          ) || false
+                                        }
                                         onChange={(e) => {
                                           const { checked, value } = e.target;
                                           setEditingItemData((prev) => ({
                                             ...prev,
                                             spicelevel: checked
-                                              ? [...(prev.spicelevel || []), value]
-                                              : (prev.spicelevel || []).filter((l) => l !== value),
+                                              ? [
+                                                  ...(prev.spicelevel || []),
+                                                  value,
+                                                ]
+                                              : (prev.spicelevel || []).filter(
+                                                  (l) => l !== value
+                                                ),
                                           }));
                                         }}
                                       />
@@ -277,7 +296,7 @@ const AdminMenu = ({
                                     </label>
                                   ))}
                                 </div>
-                                <div className="input-group" style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+                                {/* <div className="input-group" style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
                                   <input
                                     type="text"
                                     placeholder="Add new spice level..."
@@ -302,7 +321,7 @@ const AdminMenu = ({
                                   >
                                     Add
                                   </button>
-                                </div>
+                                </div> */}
                               </div>
                               <h4>Addons</h4>
                               <div className="form-group">
@@ -315,28 +334,64 @@ const AdminMenu = ({
                                     ];
                                     const allAddonsMap = new Map();
 
-                                    predefinedAddons.forEach(addon => allAddonsMap.set(addon.name, addon));
+                                    predefinedAddons.forEach((addon) =>
+                                      allAddonsMap.set(addon.name, addon)
+                                    );
 
-                                    (editingItemData?.addons || []).forEach(addon => {
-                                      const normalizedName = addon.name.replace(/^Add\s/, '').trim();
-                                      if (!allAddonsMap.has(normalizedName)) {
-                                        allAddonsMap.set(normalizedName, { ...addon, name: normalizedName });
+                                    (editingItemData?.addons || []).forEach(
+                                      (addon) => {
+                                        const normalizedName = addon.name
+                                          .replace(/^Add\s/, "")
+                                          .trim();
+                                        if (!allAddonsMap.has(normalizedName)) {
+                                          allAddonsMap.set(normalizedName, {
+                                            ...addon,
+                                            name: normalizedName,
+                                          });
+                                        }
                                       }
-                                    });
+                                    );
 
-                                    return Array.from(allAddonsMap.values()).map((addon) => (
-                                      <label key={addon.name} className="checkbox-label">
+                                    return Array.from(
+                                      allAddonsMap.values()
+                                    ).map((addon) => (
+                                      <label
+                                        key={addon.name}
+                                        className="checkbox-label"
+                                      >
                                         <input
                                           type="checkbox"
+                                          style={{ marginRight: "1rem" }}
                                           value={addon.name}
-                                          checked={editingItemData?.addons?.some(selectedAddon => selectedAddon.name.replace(/^Add\s/, '').trim() === addon.name) || false}
+                                          checked={
+                                            editingItemData?.addons?.some(
+                                              (selectedAddon) =>
+                                                selectedAddon.name
+                                                  .replace(/^Add\s/, "")
+                                                  .trim() === addon.name
+                                            ) || false
+                                          }
                                           onChange={(e) => {
                                             const { checked, value } = e.target;
                                             setEditingItemData((prev) => {
                                               const newAddons = checked
-                                                ? [...(prev.addons || []), { name: value, price: addon.price }]
-                                                : (prev.addons || []).filter((selectedAddon) => selectedAddon.name.replace(/^Add\s/, '').trim() !== value);
-                                              return { ...prev, addons: newAddons };
+                                                ? [
+                                                    ...(prev.addons || []),
+                                                    {
+                                                      name: value,
+                                                      price: addon.price,
+                                                    },
+                                                  ]
+                                                : (prev.addons || []).filter(
+                                                    (selectedAddon) =>
+                                                      selectedAddon.name
+                                                        .replace(/^Add\s/, "")
+                                                        .trim() !== value
+                                                  );
+                                              return {
+                                                ...prev,
+                                                addons: newAddons,
+                                              };
                                             });
                                           }}
                                         />
@@ -345,7 +400,14 @@ const AdminMenu = ({
                                     ));
                                   })()}
                                 </div>
-                                <div className="input-group" style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+                                {/* <div
+                                  className="input-group"
+                                  style={{
+                                    marginTop: "10px",
+                                    display: "flex",
+                                    gap: "10px",
+                                  }}
+                                >
                                   <input
                                     type="text"
                                     placeholder="Add new addon name..."
@@ -363,18 +425,28 @@ const AdminMenu = ({
                                   />
                                   <button
                                     onClick={() => {
-                                      const nameInput = document.getElementById('editNewAddonNameInput');
-                                      const priceInput = document.getElementById('editNewAddonPriceInput');
+                                      const nameInput = document.getElementById(
+                                        "editNewAddonNameInput"
+                                      );
+                                      const priceInput =
+                                        document.getElementById(
+                                          "editNewAddonPriceInput"
+                                        );
                                       const name = nameInput.value.trim();
-                                      const price = parseFloat(priceInput.value);
+                                      const price = parseFloat(
+                                        priceInput.value
+                                      );
 
-                                      if (name !== '' && !isNaN(price)) {
+                                      if (name !== "" && !isNaN(price)) {
                                         setEditingItemData((prev) => ({
                                           ...prev,
-                                          addons: [...(prev.addons || []), { name, price }],
+                                          addons: [
+                                            ...(prev.addons || []),
+                                            { name, price },
+                                          ],
                                         }));
-                                        nameInput.value = '';
-                                        priceInput.value = '';
+                                        nameInput.value = "";
+                                        priceInput.value = "";
                                       }
                                     }}
                                     className="btn-secondary"
@@ -382,7 +454,7 @@ const AdminMenu = ({
                                   >
                                     Add
                                   </button>
-                                </div>
+                                </div> */}
                               </div>
 
                               <div className="edit-actions">
@@ -415,31 +487,39 @@ const AdminMenu = ({
                             <div className="item-display">
                               <h5>{item.name}</h5>
                               <div className="price-info">
-                                <span className="new-price">
-                                  ${item.price}
-                                </span>
+                                <span className="new-price">${item.price}</span>
                               </div>
-                              
-                              {(item.addons && item.addons.length > 0) || (item.spicelevel && item.spicelevel.length > 0) ? (
+
+                              {(item.addons && item.addons.length > 0) ||
+                              (item.spicelevel &&
+                                item.spicelevel.length > 0) ? (
                                 <div className="addons-display">
                                   {item.addons && item.addons.length > 0 && (
                                     <>
                                       <strong>Addons:</strong>
                                       <div className="addons-list-display">
                                         {item.addons.map((addon, index) => (
-                                          <div key={index} className="addon-display">
-                                            {addon.name.replace(/^Add\s/, '').trim()} - ${addon.price}
+                                          <div
+                                            key={index}
+                                            className="addon-display"
+                                          >
+                                            {addon.name
+                                              .replace(/^Add\s/, "")
+                                              .trim()}{" "}
+                                            - ${addon.price}
                                           </div>
                                         ))}
                                       </div>
                                     </>
                                   )}
 
-                                  {item.spicelevel && item.spicelevel.length > 0 && (
-                                    <div className="spice-levels-display">
-                                      <strong>Spice Levels:</strong> {item.spicelevel.join(", ")}
-                                    </div>
-                                  )}
+                                  {item.spicelevel &&
+                                    item.spicelevel.length > 0 && (
+                                      <div className="spice-levels-display">
+                                        <strong>Spice Levels:</strong>{" "}
+                                        {item.spicelevel.join(", ")}
+                                      </div>
+                                    )}
                                 </div>
                               ) : null}
 
@@ -450,10 +530,14 @@ const AdminMenu = ({
                                     setEditingItemData({
                                       ...item,
                                       spicelevel: [...(item.spicelevel || [])],
-                                      addons: (item.addons || []).map(addon => ({
-                                        ...addon,
-                                        name: addon.name.replace(/^Add\s/, '').trim()
-                                      }))
+                                      addons: (item.addons || []).map(
+                                        (addon) => ({
+                                          ...addon,
+                                          name: addon.name
+                                            .replace(/^Add\s/, "")
+                                            .trim(),
+                                        })
+                                      ),
                                     });
                                   }}
                                   className="btn-edit"
@@ -518,10 +602,16 @@ const AdminMenu = ({
                   <div className="form-group">
                     <label>Spice Levels</label>
                     <div className="checkbox-group">
-                      {[...new Set([...["Mild", "Medium", "Hot", "Very Mild", "Indian Hot"], ...(newMenuItem.spicelevel || [])])].map((level) => (
+                      {[
+                        ...new Set([
+                          ...spiceLevels,
+                          ...(newMenuItem.spicelevel || []),
+                        ]),
+                      ].map((level) => (
                         <label key={level} className="checkbox-label">
                           <input
                             type="checkbox"
+                            style={{ marginRight: "1rem" }}
                             value={level}
                             checked={newMenuItem.spicelevel.includes(level)}
                             onChange={(e) => {
@@ -538,7 +628,14 @@ const AdminMenu = ({
                         </label>
                       ))}
                     </div>
-                    <div className="input-group" style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+                    {/* <div
+                      className="input-group"
+                      style={{
+                        marginTop: "10px",
+                        display: "flex",
+                        gap: "10px",
+                      }}
+                    >
                       <input
                         type="text"
                         placeholder="Add new spice level..."
@@ -548,14 +645,15 @@ const AdminMenu = ({
                       />
                       <button
                         onClick={() => {
-                          const input = document.getElementById('newSpiceLevelInput');
+                          const input =
+                            document.getElementById("newSpiceLevelInput");
                           const value = input.value.trim();
-                          if (value !== '') {
+                          if (value !== "") {
                             setNewMenuItem((prev) => ({
                               ...prev,
                               spicelevel: [...prev.spicelevel, value],
                             }));
-                            input.value = '';
+                            input.value = "";
                           }
                         }}
                         className="btn-secondary"
@@ -563,53 +661,86 @@ const AdminMenu = ({
                       >
                         Add
                       </button>
-                    </div>
+                    </div> */}
                   </div>
                   <h4>Addons</h4>
                   <div className="form-group">
                     <label>Select Addons</label>
-                                <div className="checkbox-group">
-                                  {(() => {
-                                    const predefinedAddons = [
-                                      { name: "Veggies", price: 1 },
-                                      { name: "Meat", price: 2 },
-                                    ];
-                                    const allAddonsMap = new Map();
+                    <div className="checkbox-group">
+                      {(() => {
+                        const predefinedAddons = [
+                          { name: "Veggies", price: 1 },
+                          { name: "Meat", price: 2 },
+                        ];
+                        const allAddonsMap = new Map();
 
-                                    predefinedAddons.forEach(addon => allAddonsMap.set(addon.name, addon));
+                        predefinedAddons.forEach((addon) =>
+                          allAddonsMap.set(addon.name, addon)
+                        );
 
-                                    (newMenuItem.addons || []).forEach(addon => {
-                                      const normalizedName = addon.name.replace(/^Add\s/, '').trim();
-                                      if (!allAddonsMap.has(normalizedName)) {
-                                        allAddonsMap.set(normalizedName, { ...addon, name: normalizedName });
-                                      }
+                        (newMenuItem.addons || []).forEach((addon) => {
+                          const normalizedName = addon.name
+                            .replace(/^Add\s/, "")
+                            .trim();
+                          if (!allAddonsMap.has(normalizedName)) {
+                            allAddonsMap.set(normalizedName, {
+                              ...addon,
+                              name: normalizedName,
+                            });
+                          }
+                        });
+
+                        return Array.from(allAddonsMap.values()).map(
+                          (addon) => {
+                            const isChecked = newMenuItem.addons.some(
+                              (selectedAddon) =>
+                                selectedAddon.name
+                                  .replace(/^Add\s/, "")
+                                  .trim() === addon.name
+                            );
+                            return (
+                              <label
+                                key={addon.name}
+                                className="checkbox-label"
+                              >
+                                <input
+                                  type="checkbox"
+                                  value={addon.name}
+                                  style={{ marginRight: "1rem" }}
+                                  checked={isChecked}
+                                  onChange={(e) => {
+                                    const { checked, value } = e.target;
+                                    setNewMenuItem((prev) => {
+                                      const newAddons = checked
+                                        ? [
+                                            ...prev.addons,
+                                            { name: value, price: addon.price },
+                                          ]
+                                        : prev.addons.filter(
+                                            (selectedAddon) =>
+                                              selectedAddon.name
+                                                .replace(/^Add\s/, "")
+                                                .trim() !== value
+                                          );
+                                      return { ...prev, addons: newAddons };
                                     });
-
-                                    return Array.from(allAddonsMap.values()).map((addon) => {
-                                      const isChecked = newMenuItem.addons.some(selectedAddon => selectedAddon.name.replace(/^Add\s/, '').trim() === addon.name);
-                                      return (
-                                        <label key={addon.name} className="checkbox-label">
-                                          <input
-                                            type="checkbox"
-                                            value={addon.name}
-                                            checked={isChecked}
-                                            onChange={(e) => {
-                                              const { checked, value } = e.target;
-                                              setNewMenuItem((prev) => {
-                                                const newAddons = checked
-                                                  ? [...prev.addons, { name: value, price: addon.price }]
-                                                  : prev.addons.filter((selectedAddon) => selectedAddon.name.replace(/^Add\s/, '').trim() !== value);
-                                                return { ...prev, addons: newAddons };
-                                              });
-                                            }}
-                                          />
-                                          {addon.name} (${addon.price})
-                                        </label>
-                                      );
-                                    });
-                                  })()}
-                                </div>
-                    <div className="input-group" style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+                                  }}
+                                />
+                                {addon.name} (${addon.price})
+                              </label>
+                            );
+                          }
+                        );
+                      })()}
+                    </div>
+                    {/* <div
+                      className="input-group"
+                      style={{
+                        marginTop: "10px",
+                        display: "flex",
+                        gap: "10px",
+                      }}
+                    >
                       <input
                         type="text"
                         placeholder="Add new addon name..."
@@ -627,18 +758,20 @@ const AdminMenu = ({
                       />
                       <button
                         onClick={() => {
-                          const nameInput = document.getElementById('newAddonNameInput');
-                          const priceInput = document.getElementById('newAddonPriceInput');
+                          const nameInput =
+                            document.getElementById("newAddonNameInput");
+                          const priceInput =
+                            document.getElementById("newAddonPriceInput");
                           const name = nameInput.value.trim();
                           const price = parseFloat(priceInput.value);
 
-                          if (name !== '' && !isNaN(price)) {
+                          if (name !== "" && !isNaN(price)) {
                             setNewMenuItem((prev) => ({
                               ...prev,
                               addons: [...prev.addons, { name, price }],
                             }));
-                            nameInput.value = '';
-                            priceInput.value = '';
+                            nameInput.value = "";
+                            priceInput.value = "";
                           }
                         }}
                         className="btn-secondary"
@@ -646,7 +779,7 @@ const AdminMenu = ({
                       >
                         Add
                       </button>
-                    </div>
+                    </div> */}
                   </div>
 
                   <div className="form-group">
@@ -677,14 +810,14 @@ const AdminMenu = ({
           <h2 className="section-title">Menu Management</h2>
           <button
             className="btn-primary"
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer"
-          }}
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#007bff",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
             onClick={() => fetchMenuData(1, searchMenuQuery)}
           >
             Refresh Menu
@@ -696,7 +829,9 @@ const AdminMenu = ({
             menuData.items.map((category, index) => (
               <div key={category._id || index} className="menu-category-card">
                 <h3 className="category-title">{category.title}</h3>
-                <p className="category-item-count">Items: {category.items?.length || 0}</p>
+                <p className="category-item-count">
+                  Items: {category.items?.length || 0}
+                </p>
                 <button
                   className="manage-items-btn"
                   onClick={() => {
@@ -710,7 +845,10 @@ const AdminMenu = ({
               </div>
             ))
           ) : (
-            <p className="empty-state">No menu categories found. Please add categories via the backend or a tool like MongoDB Compass.</p>
+            <p className="empty-state">
+              No menu categories found. Please add categories via the backend or
+              a tool like MongoDB Compass.
+            </p>
           )}
         </div>
 

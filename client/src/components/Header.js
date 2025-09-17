@@ -132,36 +132,36 @@ function Header() {
     e.preventDefault();
 
     // Validate mobile number for non-dine-in orders
-    const mobileRegex = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}$/;
-    if (
-      orderMode !== "dinein" &&
-      (!mobileNumber || !mobileRegex.test(mobileNumber.trim()))
-    ) {
-      setMobileError("Please enter a valid mobile number.");
-      setIsLoading(false);
-      setIsPopupOpen(true);
-      return;
-    }
-    setMobileError("");
+    // const mobileRegex = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}$/;
+    // if (
+    //   orderMode !== "dinein" &&
+    //   (!mobileNumber || !mobileRegex.test(mobileNumber.trim()))
+    // ) {
+    //   setMobileError("Please enter a valid mobile number.");
+    //   setIsLoading(false);
+    //   setIsPopupOpen(true);
+    //   return;
+    // }
+    // setMobileError("");
 
-    // Validate email (CRITICAL - this must happen first)
+    // // Validate email (CRITICAL - this must happen first)
 
-    if (orderMode !== "dinein") {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!email || !emailRegex.test(email.trim())) {
-        setEmailError("Please enter a valid email address.");
-        setIsLoading(false);
-        setIsPopupOpen(true);
-        return;
-      }
+    // if (orderMode !== "dinein") {
+    //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    //   if (!email || !emailRegex.test(email.trim())) {
+    //     setEmailError("Please enter a valid email address.");
+    //     setIsLoading(false);
+    //     setIsPopupOpen(true);
+    //     return;
+    //   }
 
-      if (!name || name.trim().length < 2) {
-        setNameError("Name cannot be empty");
-        setIsLoading(false);
-        setIsPopupOpen(true);
-        return;
-      }
-    }
+    //   if (!name || name.trim().length < 2) {
+    //     setNameError("Name cannot be empty");
+    //     setIsLoading(false);
+    //     setIsPopupOpen(true);
+    //     return;
+    //   }
+    // }
     setEmailError("");
 
     // Validate address for delivery
@@ -336,8 +336,18 @@ function Header() {
         return;
       }
 
+      if (expMonth > 12 || expMonth < 1) {
+        alert("Invalid Expiry Month ");
+        return;
+      }
+
       if (!expYear) {
-        alert("Expiry Year cannot be empty");
+        alert("Expiry year cannot be empty");
+        return;
+      }
+
+      if (expYear < 25) {
+        alert("Invalid Expiry year");
         return;
       }
 
@@ -352,7 +362,7 @@ function Header() {
       const secureData = {
         authData: {
           clientKey:
-            "2W5usw3d34vZ5GYH9gA4VH8sDhaygjCS4Zr4aZecVvhEYNky6PRYmt96QctpPZP2", // from sandbox or production
+            "3p45FqNUmcJ7ch57c4d2qyZ4G4ktE52UN6vL6Rpd7P4j5b3ca3zgw6r6C8LVwfuF", // from sandbox or production
           apiLoginID: "4nhA365NPUm", // from sandbox or production
         },
         cardData: { cardNumber, month: expMonth, year: expYear, cardCode: cvv },
@@ -366,6 +376,7 @@ function Header() {
       // Wrap dispatchData in a Promise to use async/await
       const response = await new Promise((resolve, reject) => {
         window.Accept.dispatchData(secureData, (res) => {
+          console.log(res);
           if (res.messages.resultCode === "Error") {
             reject(res.messages.message[0].text);
           } else {

@@ -1191,7 +1191,7 @@ const AdminDashboard = ({ onLogout }) => {
           <h2 style={{ margin: "1rem" }}>Order Details for {tableNo}</h2>
 
           <img
-            src="https://rajarani-michigan.s3.us-east-2.amazonaws.com/general/qr.png"
+            src="https://rajarani-canton.s3.us-east-2.amazonaws.com/general/qr.png"
             alt="Payment QR Code"
             style={{ width: "250px", height: "250px", margin: "10px 0" }}
           />

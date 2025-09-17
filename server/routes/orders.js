@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const Order = require("../models/orders");
 const emailjs = require("@emailjs/nodejs");
+const axios = require("axios");
+
 const { APIContracts, APIControllers } = require("authorizenet");
 
 function buildEmailHTML(items) {
@@ -72,34 +74,34 @@ router.post("/", async (req, res) => {
       console.log("No customer email provided, skipping email send.");
       return res.status(201).json(savedOrder);
     }
-    const templateParams = {
-      email: req.body.customer.email.trim(), // Changed from 'to_email' to 'email' to match your template
-      name: req.body.customer.name.trim(),
-      mobile_number: String(req.body.customer.phone),
-      order_mode: String(req.body.orderType),
-      order_id: String(req.body.orderNumber),
-      sub_total: req.body.subTotal.toFixed(2),
-      sales_tax: req.body.salesTax.toFixed(2),
-      total_amount: req.body.totalAmount.toFixed(2),
-      address: req.body.deliveryAddress ? req.body.deliveryAddress : "N/A",
-      order_details: emailHTML,
-    };
+    // const templateParams = {
+    //   email: req.body.customer.email.trim(), // Changed from 'to_email' to 'email' to match your template
+    //   name: req.body.customer.name.trim(),
+    //   mobile_number: String(req.body.customer.phone),
+    //   order_mode: String(req.body.orderType),
+    //   order_id: String(req.body.orderNumber),
+    //   sub_total: req.body.subTotal.toFixed(2),
+    //   sales_tax: req.body.salesTax.toFixed(2),
+    //   total_amount: req.body.totalAmount.toFixed(2),
+    //   address: req.body.deliveryAddress ? req.body.deliveryAddress : "N/A",
+    //   order_details: emailHTML,
+    // };
 
-    const serviceId = process.env.EMAILJS_SERVICE_ID;
-    const templateId = process.env.EMAILJS_ORDER_TEMPLATE_ID;
-    const publicKey = process.env.EMAILJS_PUBLIC_KEY;
-    const privateKey = process.env.EMAILJS_PRIVATE_KEY;
-    emailjs
-      .send(serviceId, templateId, templateParams, {
-        publicKey: publicKey,
-        privateKey: privateKey,
-      })
-      .then((response) => {
-        console.log("Email sent successfully!", response.status, response.text);
-      })
-      .catch((err) => {
-        console.error("Failed to send email:", err);
-      });
+    // const serviceId = process.env.EMAILJS_SERVICE_ID;
+    // const templateId = process.env.EMAILJS_ORDER_TEMPLATE_ID;
+    // const publicKey = process.env.EMAILJS_PUBLIC_KEY;
+    // const privateKey = process.env.EMAILJS_PRIVATE_KEY;
+    // emailjs
+    //   .send(serviceId, templateId, templateParams, {
+    //     publicKey: publicKey,
+    //     privateKey: privateKey,
+    //   })
+    //   .then((response) => {
+    //     console.log("Email sent successfully!", response.status, response.text);
+    //   })
+    //   .catch((err) => {
+    //     console.error("Failed to send email:", err);
+    //   });
 
     res.status(201).json(savedOrder);
   } catch (err) {
@@ -210,81 +212,110 @@ router.get("/all", async (req, res) => {
 });
 
 router.post("/payment", async (req, res) => {
-  const API_LOGIN_ID = process.env.AUTHORIZE_API_LOGIN_ID;
-  const TRANSACTION_KEY = process.env.AUTHORIZE_TRANSACTION_KEY;
-  const { opaqueData, amount, orderId } = req.body;
-  const merchantAuthentication = new APIContracts.MerchantAuthenticationType();
-  merchantAuthentication.setName(API_LOGIN_ID);
-  merchantAuthentication.setTransactionKey(TRANSACTION_KEY);
+  try {
+    // 1️⃣ Extract data from request
+    const { opaqueData, amount, orderId } = req.body;
 
-  const creditCard = new APIContracts.CreditCardType();
-  creditCard.setCardNumber(opaqueData.dataValue); // tokenized card from Accept.js
-  // creditCard.setExpirationDate("XXXX"); // not needed if using opaqueData
-  // creditCard.setCardCode("XXX"); // optional if using opaqueData
+    if (!opaqueData || !opaqueData.dataValue || !opaqueData.dataDescriptor) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid opaqueData" });
+    }
 
-  const paymentType = new APIContracts.PaymentType();
-  paymentType.setOpaqueData(opaqueData);
+    // 2️⃣ Load and trim credentials
+    const API_LOGIN_ID = process.env.AUTHORIZE_API_LOGIN_ID?.trim();
+    const TRANSACTION_KEY = process.env.AUTHORIZE_TRANSACTION_KEY?.trim();
 
-  const transactionRequestType = new APIContracts.TransactionRequestType();
-  transactionRequestType.setTransactionType(
-    APIContracts.TransactionTypeEnum.AUTHCAPTURETRANSACTION
-  );
-  transactionRequestType.setPayment(paymentType);
-  transactionRequestType.setAmount(amount);
+    if (!API_LOGIN_ID || !TRANSACTION_KEY) {
+      return res
+        .status(500)
+        .json({ success: false, error: "Server missing API credentials" });
+    }
 
-  const createRequest = new APIContracts.CreateTransactionRequest();
-  createRequest.setMerchantAuthentication(merchantAuthentication);
-  createRequest.setTransactionRequest(transactionRequestType);
-
-  const ctrl = new APIControllers.CreateTransactionController(
-    createRequest.getJSON()
-  );
-
-  ctrl.execute(async () => {
-    const apiResponse = ctrl.getResponse();
-    const response = new APIContracts.CreateTransactionResponse(apiResponse);
-
-    if (
-      response != null &&
-      response.getMessages().getResultCode() === APIContracts.MessageTypeEnum.OK
-    ) {
-      if (response.getTransactionResponse().getMessages() != null) {
-        const filter = {
-          orderNumber: req.body.orderId,
-        };
-        const update = {
-          $set: {
-            status: "completed",
-            updatedAt: new Date(),
-            payment: {
-              method: "online",
-              status: "paid",
-              transactionId: response.getTransactionResponse().getTransId(),
+    const payload = {
+      createTransactionRequest: {
+        merchantAuthentication: {
+          name: API_LOGIN_ID,
+          transactionKey: TRANSACTION_KEY,
+        },
+        refId: orderId,
+        transactionRequest: {
+          transactionType: "authCaptureTransaction",
+          amount: amount,
+          payment: {
+            opaqueData: {
+              dataDescriptor: "COMMON.ACCEPT.INAPP.PAYMENT",
+              dataValue: opaqueData.dataValue,
             },
           },
-        };
-        await Order.updateOne(filter, update);
-        res.json({
-          success: true,
-          message: "Transaction approved",
-          transactionId: response.getTransactionResponse().getTransId(),
-        });
-      } else {
-        res.status(400).json({
-          success: false,
-          error: response
-            .getTransactionResponse()
-            .getErrors()[0]
-            .getErrorText(),
-        });
-      }
-    } else {
-      res.status(400).json({
-        success: false,
-        error: response.getMessages().getMessage()[0].getText(),
+          order: {
+            invoiceNumber: orderId,
+            description: "New online order placed",
+          },
+        },
+      },
+    };
+
+    axios
+      .post("https://api.authorize.net/xml/v1/request.api", payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then(async (response) => {
+        if (
+          response &&
+          response.data.transactionResponse &&
+          response.data.transactionResponse?.responseCode === "1" &&
+          response.data.messages?.resultCode === "Ok"
+        ) {
+          const filter = { orderNumber: orderId };
+          const update = {
+            $set: {
+              status: "completed",
+              updatedAt: new Date(),
+              payment: {
+                method: "online",
+                status: "paid",
+                transactionId: response.transactionResponse.transId,
+              },
+            },
+          };
+          await Order.updateOne(filter, update);
+          return res.json({
+            code: 200,
+            status: "success",
+            transactionId: response.transactionResponse.transId,
+            authCode: response.transactionResponse.authCode,
+            message: response.transactionResponse.messages[0].description,
+          });
+        } else {
+          // Payment failed or declined
+          const errorMessage =
+            (response.data.transactionResponse &&
+              response.data.transactionResponse.errors?.[0]?.errorText) ||
+            response.data.messages.message?.[0]?.text ||
+            "Transaction failed";
+
+          return res.json({
+            code: 500,
+            status: "failed",
+            message: errorMessage,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error(
+          "Transaction error:",
+          error.response ? error.response.data : error.message
+        );
       });
-    }
-  });
+  } catch (err) {
+    console.error("Payment error:", err);
+    return res
+      .status(500)
+      .json({ success: false, error: "Internal server error" });
+  }
 });
 
 module.exports = router;

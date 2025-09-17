@@ -10,7 +10,7 @@ function PhotoStream() {
   const imageUrls = Array.from(
     { length: 10 },
     (_, i) =>
-      `https://rajarani-michigan.s3.us-east-2.amazonaws.com/photo-stream/${
+      `https://rajarani-canton.s3.us-east-2.amazonaws.com/photo-stream/${
         i + 1
       }.png`
   );
@@ -18,7 +18,7 @@ function PhotoStream() {
   //   const imageUrls = Array.from({ length: 10 }, (_, i) =>
   //   tryExtensions.map(
   //     (ext) =>
-  //       `https://rajarani-michigan.s3.us-east-2.amazonaws.com/photo-stream/${i + 1}${ext}`
+  //       `https://rajarani-canton.s3.us-east-2.amazonaws.com/photo-stream/${i + 1}${ext}`
   //   )
   // ).flat();
 

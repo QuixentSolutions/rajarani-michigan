@@ -74,34 +74,34 @@ router.post("/", async (req, res) => {
       console.log("No customer email provided, skipping email send.");
       return res.status(201).json(savedOrder);
     }
-    const templateParams = {
-      email: req.body.customer.email.trim(), // Changed from 'to_email' to 'email' to match your template
-      name: req.body.customer.name.trim(),
-      mobile_number: String(req.body.customer.phone),
-      order_mode: String(req.body.orderType),
-      order_id: String(req.body.orderNumber),
-      sub_total: req.body.subTotal.toFixed(2),
-      sales_tax: req.body.salesTax.toFixed(2),
-      total_amount: req.body.totalAmount.toFixed(2),
-      address: req.body.deliveryAddress ? req.body.deliveryAddress : "N/A",
-      order_details: emailHTML,
-    };
+    // const templateParams = {
+    //   email: req.body.customer.email.trim(), // Changed from 'to_email' to 'email' to match your template
+    //   name: req.body.customer.name.trim(),
+    //   mobile_number: String(req.body.customer.phone),
+    //   order_mode: String(req.body.orderType),
+    //   order_id: String(req.body.orderNumber),
+    //   sub_total: req.body.subTotal.toFixed(2),
+    //   sales_tax: req.body.salesTax.toFixed(2),
+    //   total_amount: req.body.totalAmount.toFixed(2),
+    //   address: req.body.deliveryAddress ? req.body.deliveryAddress : "N/A",
+    //   order_details: emailHTML,
+    // };
 
-    const serviceId = process.env.EMAILJS_SERVICE_ID;
-    const templateId = process.env.EMAILJS_ORDER_TEMPLATE_ID;
-    const publicKey = process.env.EMAILJS_PUBLIC_KEY;
-    const privateKey = process.env.EMAILJS_PRIVATE_KEY;
-    emailjs
-      .send(serviceId, templateId, templateParams, {
-        publicKey: publicKey,
-        privateKey: privateKey,
-      })
-      .then((response) => {
-        console.log("Email sent successfully!", response.status, response.text);
-      })
-      .catch((err) => {
-        console.error("Failed to send email:", err);
-      });
+    // const serviceId = process.env.EMAILJS_SERVICE_ID;
+    // const templateId = process.env.EMAILJS_ORDER_TEMPLATE_ID;
+    // const publicKey = process.env.EMAILJS_PUBLIC_KEY;
+    // const privateKey = process.env.EMAILJS_PRIVATE_KEY;
+    // emailjs
+    //   .send(serviceId, templateId, templateParams, {
+    //     publicKey: publicKey,
+    //     privateKey: privateKey,
+    //   })
+    //   .then((response) => {
+    //     console.log("Email sent successfully!", response.status, response.text);
+    //   })
+    //   .catch((err) => {
+    //     console.error("Failed to send email:", err);
+    //   });
 
     res.status(201).json(savedOrder);
   } catch (err) {

@@ -7,7 +7,7 @@ function Discount() {
   const imageUrls = Array.from(
     { length: 10 },
     (_, i) =>
-      `https://rajarani-michigan.s3.us-east-2.amazonaws.com/promotions/${
+      `https://rajarani-canton.s3.us-east-2.amazonaws.com/promotions/${
         i + 1
       }.png`
   );
@@ -113,47 +113,46 @@ function Discount() {
     //     )} */}
     //   </div>
     // </div>
-     <section className="hero">
-
-          <div className="container">
-             <h2
-        style={{
-          color: "white",
-          textAlign: "center",
-          margin: "20px 0",
-          fontSize: "24px",
-          fontWeight: "bold",
-        }}
-      >
-        PROMOTIONS
-      </h2>
-            { discountImages.length === 0 ? (
-              <div className="hero-carousel shimmer">
-                <div className="shimmer-effect">Loading......</div>
-              </div>
-            ) : (
-              <Carousel
-                infiniteLoop
-                autoPlay
-                interval={3000}
-                showThumbs={false}
-                showStatus={false}
-                className="hero-carousel"
-              >
-                {discountImages.map((image, index) => (
-                  <div key={index}>
-                    <img
-                      src={image}
-                      alt={`Gallery View ${index + 1}`}
-                      className="carousel-image"
-                      onError={() => handleImageError(index)}
-                    />
-                  </div>
-                ))}
-              </Carousel>
-            )}
+    <section className="hero">
+      <div className="container">
+        <h2
+          style={{
+            color: "white",
+            textAlign: "center",
+            margin: "20px 0",
+            fontSize: "24px",
+            fontWeight: "bold",
+          }}
+        >
+          PROMOTIONS
+        </h2>
+        {discountImages.length === 0 ? (
+          <div className="hero-carousel shimmer">
+            <div className="shimmer-effect">Loading......</div>
           </div>
-        </section>
+        ) : (
+          <Carousel
+            infiniteLoop
+            autoPlay
+            interval={3000}
+            showThumbs={false}
+            showStatus={false}
+            className="hero-carousel"
+          >
+            {discountImages.map((image, index) => (
+              <div key={index}>
+                <img
+                  src={image}
+                  alt={`Gallery View ${index + 1}`}
+                  className="carousel-image"
+                  onError={() => handleImageError(index)}
+                />
+              </div>
+            ))}
+          </Carousel>
+        )}
+      </div>
+    </section>
   );
 }
 

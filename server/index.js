@@ -13,7 +13,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 const paymentRoutes = require("./routes/payment");
-app.use("/api/payment", paymentRoutes);
+app.use("/payment", paymentRoutes);
 
 // Connect to MongoDB
 mongoose.connect("mongodb://127.0.0.1:27017/rajarani", {

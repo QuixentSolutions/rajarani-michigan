@@ -61,6 +61,7 @@ const orderSchema = new mongoose.Schema({
   },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+  sentToKitchen: { type: Number, enum: [0, 1], default: 0 },
 });
 
 module.exports = mongoose.model("Order", orderSchema);

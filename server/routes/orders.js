@@ -207,4 +207,42 @@ router.get("/all", async (req, res) => {
   }
 });
 
+router.get("/kitchen", async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+
+    const filter = {
+      orderType: "dinein",
+      sentToKitchen: 0,
+    };
+
+    const totalCount = await Order.countDocuments(filter);
+    const orders = await Order.find(filter)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    res.json({ results: orders, totalPages: Math.ceil(totalCount / limit) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put("/kitchen/:id/send", async (req, res) => {
+  try {
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { sentToKitchen: 1, updatedAt: new Date() },
+      { new: true }
+    );
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

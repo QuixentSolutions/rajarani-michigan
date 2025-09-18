@@ -25,7 +25,7 @@
   },
   "proxy": "http://localhost:5001",
   "scripts": {
-    "start": "HTTPS=true HOST=0.0.0.0 DANGEROUSLY_DISABLE_HOST_CHECK=true PORT=80 react-scripts start",
+    "start": "HOST=0.0.0.0 DANGEROUSLY_DISABLE_HOST_CHECK=true PORT=80 react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

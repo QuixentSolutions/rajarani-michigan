@@ -52,6 +52,12 @@ function Hero() {
             <h1>
               Experience the <span>Taste</span> of the South
             </h1>
+          </div>
+          <div
+            style={{
+              textAlign: "center",
+            }}
+          >
             <img src="/halal_food.png" alt="Halal" />
           </div>
           <p

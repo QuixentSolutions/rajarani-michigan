@@ -67,23 +67,11 @@ function Hero() {
               textAlign: "justify",
             }}
           >
-            A divine blend of Indian tradition and authentic South Indian taste
-            awaits you at <strong>Raja Rani Indian Restaurant</strong> in
-            Canton, MI. From crispy dosas to rich curries, biryanis, and
-            handcrafted appetizers — every dish is made with fresh ingredients,
-            bold spices, and traditional Indian cooking methods.
-          </p>
-          <p
-            style={{
-              fontSize: "18px",
-              lineHeight: "1.6",
-              textAlign: "justify",
-            }}
-          >
-            We proudly serve 100% <strong>Halal</strong> meat, ensuring both
-            quality and authenticity. Come enjoy our flavorful vegetarian and
-            non-vegetarian options prepared by expert chefs who bring the heart
-            of India to your plate.
+            <strong>Raja Rani Indian Restaurant in Canton, MI</strong>, serves
+            authentic South Indian food with fresh ingredients and bold spices.
+            From crispy dosas to rich curries and flavorful biryanis, every dish
+            is made with care. We offer 100% <strong>Halal</strong> meat and
+            have both vegetarian and non-vegetarian choices.
           </p>
         </div>
         {isLoading || validImages.length === 0 ? (

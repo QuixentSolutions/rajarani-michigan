@@ -4,69 +4,196 @@ db.menus.insert([
   "color": "#FFA500",
   "days": [ "Friday","Saturday", "Sunday"],
   "items": [
-    {
-      "name": "Breaded Crispy Mushroom",
-      "price": "14.99",
-      "addons": [
-        { "name": "Add Veggies", "price": "1.00" },
-        { "name": "Add Meat", "price": "2.00" }
-      ],
-      "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
-    },
-    {
-      "name": "Tandoori Corn",
-      "price": "14.99",
-      "addons": [
-        { "name": "Add Veggies", "price": "1.00" },
-        { "name": "Add Meat", "price": "2.00" }
-      ],
-      "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
-    },
-    {
-      "name": "Idiyappam W Atukkal Paya",
-      "price": "16.99",
-      "addons": [
-        { "name": "Add Veggies", "price": "1.00" },
-        { "name": "Add Meat", "price": "2.00" }
-      ],
-      "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
-    },
-    {
-      "name": "Chicken Kizhi Parotta",
-      "price": "16.99",
-      "addons": [
-        { "name": "Add Veggies", "price": "1.00" },
-        { "name": "Add Meat", "price": "2.00" }
-      ],
-      "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
-    },
-    {
-      "name": "Goat Liver Pepper Fry",
-      "price": "16.99",
-      "addons": [
-        { "name": "Add Veggies", "price": "1.00" },
-        { "name": "Add Meat", "price": "2.00" }
-      ],
-      "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
-    } ,
-    {
-      "name": "Ambur Goat Biryani",
-      "price": "18.99",
-      "addons": [
-        { "name": "Add Veggies", "price": "1.00" },
-        { "name": "Add Meat", "price": "2.00" }
-      ],
-      "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
-    },
-    {
-      "name": "Salem RR Chicken Biryani",
-      "price": "16.99",
-      "addons": [
-        { "name": "Add Veggies", "price": "1.00" },
-        { "name": "Add Meat", "price": "2.00" }
-      ],
-      "spicelevel": ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"]
-    }]
+  {
+    "name": "Cut Mirchi",
+    "price": "8.99",
+    "addons": [
+      {
+        "name": "Add Veggies",
+        "price": "1.00"
+      },
+      {
+        "name": "Add Meat",
+        "price": "2.00"
+      }
+    ],
+    "spicelevel": [
+      "Medium",
+      "Very Mild",
+      "Hot",
+      "Indian Hot",
+      "Mild"
+    ]
+  },
+  {
+    "name": "Mushroom Manchurian",
+    "price": "14.99",
+    "addons": [
+      {
+        "name": "Add Veggies",
+        "price": "1.00"
+      },
+      {
+        "name": "Add Meat",
+        "price": "2.00"
+      }
+    ],
+    "spicelevel": [
+      "Medium",
+      "Very Mild",
+      "Hot",
+      "Indian Hot",
+      "Mild"
+    ]
+  },
+  {
+    "name": "Chilli Mushroom",
+    "price": "14.99",
+    "addons": [
+      {
+        "name": "Add Veggies",
+        "price": "1.00"
+      },
+      {
+        "name": "Add Meat",
+        "price": "2.00"
+      }
+    ],
+    "spicelevel": [
+      "Medium",
+      "Very Mild",
+      "Hot",
+      "Indian Hot",
+      "Mild"
+    ]
+  },
+  {
+    "name": "Raja Rani Special Chicken Wings",
+    "price": "15.99",
+    "addons": [
+      {
+        "name": "Add Veggies",
+        "price": "1.00"
+      },
+      {
+        "name": "Add Meat",
+        "price": "2.00"
+      }
+    ],
+    "spicelevel": [
+      "Medium",
+      "Very Mild",
+      "Hot",
+      "Indian Hot",
+      "Mild"
+    ]
+  },
+  {
+    "name": "Nethili Fish Fry",
+    "price": "16.99",
+    "addons": [
+      {
+        "name": "Add Veggies",
+        "price": "1.00"
+      },
+      {
+        "name": "Add Meat",
+        "price": "2.00"
+      }
+    ],
+    "spicelevel": [
+      "Medium",
+      "Very Mild",
+      "Hot",
+      "Indian Hot",
+      "Mild"
+    ]
+  },
+  {
+    "name": "Lamb Chops",
+    "price": "19.99",
+    "addons": [
+      {
+        "name": "Add Veggies",
+        "price": "1.00"
+      },
+      {
+        "name": "Add Meat",
+        "price": "2.00"
+      }
+    ],
+    "spicelevel": [
+      "Medium",
+      "Very Mild",
+      "Hot",
+      "Indian Hot",
+      "Mild"
+    ]
+  },
+  {
+    "name": "Squid Pepper Fry W Kushka",
+    "price": "16.99",
+    "addons": [
+      {
+        "name": "Add Veggies",
+        "price": "1.00"
+      },
+      {
+        "name": "Add Meat",
+        "price": "2.00"
+      }
+    ],
+    "spicelevel": [
+      "Medium",
+      "Very Mild",
+      "Hot",
+      "Indian Hot",
+      "Mild"
+    ]
+  },
+  {
+    "name": "Vaniyambadi Chicken Briyani",
+    "price": "16.99",
+    "addons": [
+      {
+        "name": "Add Veggies",
+        "price": "1.00"
+      },
+      {
+        "name": "Add Meat",
+        "price": "2.00"
+      }
+    ],
+    "spicelevel": [
+      "Medium",
+      "Very Mild",
+      "Hot",
+      "Indian Hot",
+      "Mild"
+    ]
+  },
+  {
+    "name": "Bhai Style Mutton Briyani",
+    "price": "18.99",
+    "addons": [
+      {
+        "name": "Add Veggies",
+        "price": "1.00"
+      },
+      {
+        "name": "Add Meat",
+        "price": "2.00"
+      }
+    ],
+    "spicelevel": [
+      "Medium",
+      "Very Mild",
+      "Hot",
+      "Indian Hot",
+      "Mild"
+    ]
+  } 
+    ]
   },
   {
     "title": "People Choice",

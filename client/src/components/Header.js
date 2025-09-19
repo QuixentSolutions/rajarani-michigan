@@ -1051,7 +1051,7 @@ function Header() {
                     </div>
                   )}
                   <input
-                    type="tel"
+                    type="text"
                     placeholder="Name"
                     value={name}
                     onChange={handleNameChange}

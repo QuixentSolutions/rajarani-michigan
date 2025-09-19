@@ -15,6 +15,14 @@ app.use(bodyParser.json());
 const paymentRoutes = require("./routes/payment");
 app.use("/payment", paymentRoutes);
 
+// Serve React build
+app.use(express.static(path.join(__dirname, "../client/build")));
+
+// Fallback for React Router
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
+});
+
 // Connect to MongoDB
 mongoose.connect("mongodb://127.0.0.1:27017/rajarani", {
   useNewUrlParser: true,

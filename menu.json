@@ -1,202 +1,7 @@
 db.menus.insertMany([
   {
-  "title": "Weekend Specials",
-  "color": "#FFA500",
-  "days": [ "Friday","Saturday", "Sunday"],
-  "items": [
-  {
-    "name": "Cut Mirchi",
-    "price": "8.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Mushroom Manchurian",
-    "price": "14.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Chilli Mushroom",
-    "price": "14.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Raja Rani Special Chicken Wings",
-    "price": "15.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Nethili Fish Fry",
-    "price": "16.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Lamb Chops",
-    "price": "19.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Squid Pepper Fry W Kushka",
-    "price": "16.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Vaniyambadi Chicken Briyani",
-    "price": "16.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Bhai Style Mutton Briyani",
-    "price": "18.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  } 
-    ]
-  },
-  {
-    "title": "People Choice",
+    "_id": "68d382edc05455211ec1d1eb",
+    "title": "Weekend Specials",
     "color": "#FFA500",
     "days": [
       "Friday",
@@ -204,10 +9,10 @@ db.menus.insertMany([
       "Sunday"
     ],
     "items": [
-      {
+       {
         "_id": "68d382edc05455211ec1d1ec",
-        "name": "Cut Mirchi",
-        "price": "8.99",
+        "name": "Pav Bhaji",
+        "price": "9.99",
         "addons": [
           {
             "_id": "68d382edc05455211ec1d1ed",
@@ -230,8 +35,8 @@ db.menus.insertMany([
       },
       {
         "_id": "68d382edc05455211ec1d1ef",
-        "name": "Mushroom Manchurian",
-        "price": "14.99",
+        "name": "Banana Bajji",
+        "price": "9.99",
         "addons": [
           {
             "_id": "68d382edc05455211ec1d1f0",
@@ -254,8 +59,8 @@ db.menus.insertMany([
       },
       {
         "_id": "68d382edc05455211ec1d1f2",
-        "name": "Chilli Mushroom",
-        "price": "14.99",
+        "name": "Chicken Seek Kebab",
+        "price": "17.99",
         "addons": [
           {
             "_id": "68d382edc05455211ec1d1f3",
@@ -278,8 +83,8 @@ db.menus.insertMany([
       },
       {
         "_id": "68d382edc05455211ec1d1f5",
-        "name": "Raja Rani Special Chicken Wings",
-        "price": "15.99",
+        "name": "Chicken Manchurian Balls",
+        "price": "16.99",
         "addons": [
           {
             "_id": "68d382edc05455211ec1d1f6",
@@ -302,40 +107,21 @@ db.menus.insertMany([
       },
       {
         "_id": "68d382edc05455211ec1d1f8",
-        "name": "Nethili Fish Fry",
+        "name": "Paneer Kulcha",
+        "price": "3.99",
+      },
+      {
+        "_id": "68d382edc05455211ec1d1f9",
+        "name": "Chicken Kola urundai Briyani",
         "price": "16.99",
         "addons": [
-          {
-            "_id": "68d382edc05455211ec1d1f9",
-            "name": "Add Veggies",
-            "price": "1.00"
-          },
           {
             "_id": "68d382edc05455211ec1d1fa",
-            "name": "Add Meat",
-            "price": "2.00"
-          }
-        ],
-        "spicelevel": [
-          "Medium",
-          "Very Mild",
-          "Hot",
-          "Indian Hot",
-          "Mild"
-        ]
-      },
-      {
-        "_id": "68d382edc05455211ec1d1fb",
-        "name": "Lamb Chops",
-        "price": "19.99",
-        "addons": [
-          {
-            "_id": "68d382edc05455211ec1d1fc",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
-            "_id": "68d382edc05455211ec1d1fd",
+            "_id": "68d382edc05455211ec1d1fb",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -349,65 +135,17 @@ db.menus.insertMany([
         ]
       },
       {
-        "_id": "68d382edc05455211ec1d1fe",
-        "name": "Squid Pepper Fry W Kushka",
-        "price": "16.99",
-        "addons": [
-          {
-            "_id": "68d382edc05455211ec1d1ff",
-            "name": "Add Veggies",
-            "price": "1.00"
-          },
-          {
-            "_id": "68d382edc05455211ec1d200",
-            "name": "Add Meat",
-            "price": "2.00"
-          }
-        ],
-        "spicelevel": [
-          "Medium",
-          "Very Mild",
-          "Hot",
-          "Indian Hot",
-          "Mild"
-        ]
-      },
-      {
-        "_id": "68d382edc05455211ec1d201",
-        "name": "Vaniyambadi Chicken Briyani",
-        "price": "16.99",
-        "addons": [
-          {
-            "_id": "68d382edc05455211ec1d202",
-            "name": "Add Veggies",
-            "price": "1.00"
-          },
-          {
-            "_id": "68d382edc05455211ec1d203",
-            "name": "Add Meat",
-            "price": "2.00"
-          }
-        ],
-        "spicelevel": [
-          "Medium",
-          "Very Mild",
-          "Hot",
-          "Indian Hot",
-          "Mild"
-        ]
-      },
-      {
-        "_id": "68d382edc05455211ec1d204",
-        "name": "Bhai Style Mutton Briyani",
+        "_id": "68d382edc05455211ec1d1fc",
+        "name": "Ambur Goat Briyani",
         "price": "18.99",
         "addons": [
           {
-            "_id": "68d382edc05455211ec1d205",
+            "_id": "68d382edc05455211ec1d1fd",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
-            "_id": "68d382edc05455211ec1d206",
+            "_id": "68d382edc05455211ec1d1fe",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -419,6 +157,10 @@ db.menus.insertMany([
           "Indian Hot",
           "Mild"
         ]
+      },
+      {
+        "name": "Carrot Halwa",
+        "price": "6.99",
       }
     ]
   },

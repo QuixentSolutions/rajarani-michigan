@@ -15,25 +15,7 @@ function Menu() {
   const [pendingAction, setPendingAction] = useState(null);
   const [selectedSpice, setSelectedSpice] = useState("");
   const [selectedAddons, setSelectedAddons] = useState([]);
-
-  useEffect(() => {
-    const fetchMenu = async () => {
-      try {
-        const response = await fetch(`/menu`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        // Correctly extract the 'sections' array from the API response
-        setMenuSections(data.sections || []);
-      } catch (error) {
-        console.error("Failed to fetch menu data:", error);
-        setMenuSections([]); // Set to empty array on error
-      }
-    };
-
-    fetchMenu();
-  }, []);
+  const [refereshMenu, setRefreshMenu] = useState(0);
 
   const handleQuantityChange = (
     itemName,
@@ -43,6 +25,7 @@ function Menu() {
     spicelevel,
     addons
   ) => {
+    setRefreshMenu(new Date());
     // If spicelevel or addons exist, open popup for user choice
     if (change === 1 && (spicelevel?.length || addons?.length)) {
       setPendingAction({
@@ -99,6 +82,25 @@ function Menu() {
       setTimeout(() => setNotification(null), 1500);
     }
   };
+
+  useEffect(() => {
+    const fetchMenu = async () => {
+      try {
+        const response = await fetch(`/menu`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        // Correctly extract the 'sections' array from the API response
+        setMenuSections(data.sections || []);
+      } catch (error) {
+        console.error("Failed to fetch menu data:", error);
+        setMenuSections([]); // Set to empty array on error
+      }
+    };
+
+    fetchMenu();
+  }, [refereshMenu]);
 
   const toggleAddon = (addon) => {
     setSelectedAddons(

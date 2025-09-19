@@ -1,19 +1,27 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
+require("dotenv").config();
+
 const healthRoutes = require("./routes/health");
 const orderRoutes = require("./routes/orders");
 const menuRoutes = require("./routes/menu");
 const registerRoutes = require("./routes/register");
 const settingsRoutes = require("./routes/settings");
-require("dotenv").config();
+const paymentRoutes = require("./routes/payment");
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
-const paymentRoutes = require("./routes/payment");
+app.use(express.json());
+// app.use(bodyParser.json());
+
+// API routes first
+app.use("/health", healthRoutes);
+app.use("/menu", menuRoutes);
+app.use("/order", orderRoutes);
+app.use("/register", registerRoutes);
+app.use("/settings", settingsRoutes);
 app.use("/payment", paymentRoutes);
 
 // Serve React build
@@ -25,33 +33,15 @@ app.get("*", (req, res) => {
 });
 
 // Connect to MongoDB
-mongoose.connect("mongodb://127.0.0.1:27017/rajarani", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose
+  .connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/rajarani", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
-// MongoDB connection event listeners
-const db = mongoose.connection;
-
-db.on('error', (error) => {
-  console.error('MongoDB connection error:', error);
-});
-
-db.once('open', () => {
-  console.log('Connected to MongoDB successfully');
-});
-
-db.on('disconnected', () => {
-  console.log('MongoDB disconnected');
-});
-
-app.use("/health", healthRoutes);
-app.use("/menu", menuRoutes);
-app.use("/order", orderRoutes);
-app.use("/register", registerRoutes);
-app.use("/settings", settingsRoutes);
-
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () =>
-  console.log(`Server running on http://localhost:${5001}`)
+  console.log(`Server running on http://localhost:${PORT}`)
 );

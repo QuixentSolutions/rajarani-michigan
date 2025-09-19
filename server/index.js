@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const path = require("path");
 const healthRoutes = require("./routes/health");
 const orderRoutes = require("./routes/orders");
 const menuRoutes = require("./routes/menu");

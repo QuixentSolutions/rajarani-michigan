@@ -10,6 +10,12 @@ const AdminDashboard = ({ onLogout }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
 
+  const spiceLevels = ["Mild", "Medium", "Hot", "Very Mild", "Indian Hot"];
+  const addons = [
+    { name: "Veggies", price: 1 },
+    { name: "Meat", price: 2 },
+  ];
+
   const [lastOnlineOrderNo, setLastOnlineOrderNo] = useState(0);
 
   const [registrations, setRegistrations] = useState({
@@ -197,7 +203,10 @@ const AdminDashboard = ({ onLogout }) => {
   const fetchRegistrations = createFetchFunction(setRegistrations, "register");
   const fetchOrders = createFetchFunction(setOrders, "order");
   const fetchMenuData = createFetchFunction(setMenuData, "menu/all");
-  const fetchKitchenOrders = createFetchFunction(setKitchenOrders, "order/kitchen");
+  const fetchKitchenOrders = createFetchFunction(
+    setKitchenOrders,
+    "order/kitchen"
+  );
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -222,13 +231,13 @@ const AdminDashboard = ({ onLogout }) => {
           Authorization: authToken,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
-          name: newMenuItem.name, 
+        body: JSON.stringify({
+          name: newMenuItem.name,
           price: parseFloat(newMenuItem.price),
           spicelevel: newMenuItem.spicelevel,
-          addons: newMenuItem.addons.map(addon => ({
+          addons: newMenuItem.addons.map((addon) => ({
             ...addon,
-            name: addon.name.replace(/^Add\s/, '').trim() // Remove "Add " prefix
+            name: addon.name.replace(/^Add\s/, "").trim(), // Remove "Add " prefix
           })),
         }),
       });
@@ -459,7 +468,7 @@ const AdminDashboard = ({ onLogout }) => {
       // console.error("Error loading order:", err);
     }
   };
-  
+
   const LoadingSpinner = () => (
     <div className="loading-container">
       <div className="spinner"></div>
@@ -593,7 +602,7 @@ const AdminDashboard = ({ onLogout }) => {
             {modalType === "manage-items" && selectedSection && (
               <div className="items-management">
                 <div className="existing-items-section">
-                  <h4>Existing Items ({selectedSection.items?.length || 0})</h4>
+                  <h4>Total Items ({selectedSection.items?.length || 0})</h4>
                   <div className="items-grid">
                     {selectedSection.items?.map((item, index) => {
                       const itemKey = item._id || `item-${item.name}-${index}`;
@@ -631,21 +640,39 @@ const AdminDashboard = ({ onLogout }) => {
 
                               {/* Spice Levels in edit mode */}
                               <div className="form-group">
-                                <label>Spice Levels</label>
+                                <h4>Spice Levels</h4>
                                 <div className="checkbox-group">
-                                  {[...new Set([...["Mild", "Medium", "Hot", "Very Mild", "Indian Hot"], ...(editingItemData?.spicelevel || [])])].map((level) => (
-                                    <label key={level} className="checkbox-label">
+                                  {[
+                                    ...new Set([
+                                      ...spiceLevels,
+                                      ...(editingItemData?.spicelevel || []),
+                                    ]),
+                                  ].map((level) => (
+                                    <label
+                                      key={level}
+                                      className="checkbox-label"
+                                    >
                                       <input
                                         type="checkbox"
+                                        style={{ marginRight: "10px" }}
                                         value={level}
-                                        checked={editingItemData?.spicelevel?.includes(level) || false}
+                                        checked={
+                                          editingItemData?.spicelevel?.includes(
+                                            level
+                                          ) || false
+                                        }
                                         onChange={(e) => {
                                           const { checked, value } = e.target;
                                           setEditingItemData((prev) => ({
                                             ...prev,
                                             spicelevel: checked
-                                              ? [...(prev.spicelevel || []), value]
-                                              : (prev.spicelevel || []).filter((l) => l !== value),
+                                              ? [
+                                                  ...(prev.spicelevel || []),
+                                                  value,
+                                                ]
+                                              : (prev.spicelevel || []).filter(
+                                                  (l) => l !== value
+                                                ),
                                           }));
                                         }}
                                       />
@@ -653,7 +680,14 @@ const AdminDashboard = ({ onLogout }) => {
                                     </label>
                                   ))}
                                 </div>
-                                <div className="input-group" style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+                                {/* <div
+                                  className="input-group"
+                                  style={{
+                                    marginTop: "10px",
+                                    display: "flex",
+                                    gap: "10px",
+                                  }}
+                                >
                                   <input
                                     type="text"
                                     placeholder="Add new spice level..."
@@ -663,14 +697,19 @@ const AdminDashboard = ({ onLogout }) => {
                                   />
                                   <button
                                     onClick={() => {
-                                      const input = document.getElementById('editSpiceLevelInput');
+                                      const input = document.getElementById(
+                                        "editSpiceLevelInput"
+                                      );
                                       const value = input.value.trim();
-                                      if (value !== '') {
+                                      if (value !== "") {
                                         setEditingItemData((prev) => ({
                                           ...prev,
-                                          spicelevel: [...(prev.spicelevel || []), value],
+                                          spicelevel: [
+                                            ...(prev.spicelevel || []),
+                                            value,
+                                          ],
                                         }));
-                                        input.value = '';
+                                        input.value = "";
                                       }
                                     }}
                                     className="btn-secondary"
@@ -678,43 +717,74 @@ const AdminDashboard = ({ onLogout }) => {
                                   >
                                     Add
                                   </button>
-                                </div>
+                                </div> */}
                               </div>
                               <h4>Addons</h4>
                               <div className="form-group">
-                                <label>Select Addons</label>
+                                {/* <label>Select Addons</label> */}
                                 <div className="checkbox-group">
                                   {(() => {
-                                    const predefinedAddons = [
-                                      { name: "Veggies", price: 1 },
-                                      { name: "Meat", price: 2 },
-                                    ];
                                     const allAddonsMap = new Map();
-
                                     // Add predefined addons to the map
-                                    predefinedAddons.forEach(addon => allAddonsMap.set(addon.name, addon));
+                                    addons.forEach((addon) =>
+                                      allAddonsMap.set(addon.name, addon)
+                                    );
 
                                     // Add existing item addons to the map, normalizing their names
-                                    (editingItemData?.addons || []).forEach(addon => {
-                                      const normalizedName = addon.name.replace(/^Add\s/, '').trim();
-                                      if (!allAddonsMap.has(normalizedName)) {
-                                        allAddonsMap.set(normalizedName, { ...addon, name: normalizedName });
+                                    (editingItemData?.addons || []).forEach(
+                                      (addon) => {
+                                        const normalizedName = addon.name
+                                          .replace(/^Add\s/, "")
+                                          .trim();
+                                        if (!allAddonsMap.has(normalizedName)) {
+                                          allAddonsMap.set(normalizedName, {
+                                            ...addon,
+                                            name: normalizedName,
+                                          });
+                                        }
                                       }
-                                    });
+                                    );
 
-                                    return Array.from(allAddonsMap.values()).map((addon) => (
-                                      <label key={addon.name} className="checkbox-label">
+                                    return Array.from(
+                                      allAddonsMap.values()
+                                    ).map((addon) => (
+                                      <label
+                                        key={addon.name}
+                                        className="checkbox-label"
+                                      >
                                         <input
                                           type="checkbox"
+                                          style={{ marginRight: "10px" }}
                                           value={addon.name}
-                                          checked={editingItemData?.addons?.some(selectedAddon => selectedAddon.name.replace(/^Add\s/, '').trim() === addon.name) || false}
+                                          checked={
+                                            editingItemData?.addons?.some(
+                                              (selectedAddon) =>
+                                                selectedAddon.name
+                                                  .replace(/^Add\s/, "")
+                                                  .trim() === addon.name
+                                            ) || false
+                                          }
                                           onChange={(e) => {
                                             const { checked, value } = e.target;
                                             setEditingItemData((prev) => {
                                               const newAddons = checked
-                                                ? [...(prev.addons || []), { name: value, price: addon.price }]
-                                                : (prev.addons || []).filter((selectedAddon) => selectedAddon.name.replace(/^Add\s/, '').trim() !== value);
-                                              return { ...prev, addons: newAddons };
+                                                ? [
+                                                    ...(prev.addons || []),
+                                                    {
+                                                      name: value,
+                                                      price: addon.price,
+                                                    },
+                                                  ]
+                                                : (prev.addons || []).filter(
+                                                    (selectedAddon) =>
+                                                      selectedAddon.name
+                                                        .replace(/^Add\s/, "")
+                                                        .trim() !== value
+                                                  );
+                                              return {
+                                                ...prev,
+                                                addons: newAddons,
+                                              };
                                             });
                                           }}
                                         />
@@ -723,7 +793,14 @@ const AdminDashboard = ({ onLogout }) => {
                                     ));
                                   })()}
                                 </div>
-                                <div className="input-group" style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+                                {/* <div
+                                  className="input-group"
+                                  style={{
+                                    marginTop: "10px",
+                                    display: "flex",
+                                    gap: "10px",
+                                  }}
+                                >
                                   <input
                                     type="text"
                                     placeholder="Add new addon name..."
@@ -741,18 +818,28 @@ const AdminDashboard = ({ onLogout }) => {
                                   />
                                   <button
                                     onClick={() => {
-                                      const nameInput = document.getElementById('editNewAddonNameInput');
-                                      const priceInput = document.getElementById('editNewAddonPriceInput');
+                                      const nameInput = document.getElementById(
+                                        "editNewAddonNameInput"
+                                      );
+                                      const priceInput =
+                                        document.getElementById(
+                                          "editNewAddonPriceInput"
+                                        );
                                       const name = nameInput.value.trim();
-                                      const price = parseFloat(priceInput.value);
+                                      const price = parseFloat(
+                                        priceInput.value
+                                      );
 
-                                      if (name !== '' && !isNaN(price)) {
+                                      if (name !== "" && !isNaN(price)) {
                                         setEditingItemData((prev) => ({
                                           ...prev,
-                                          addons: [...(prev.addons || []), { name, price }],
+                                          addons: [
+                                            ...(prev.addons || []),
+                                            { name, price },
+                                          ],
                                         }));
-                                        nameInput.value = '';
-                                        priceInput.value = '';
+                                        nameInput.value = "";
+                                        priceInput.value = "";
                                       }
                                     }}
                                     className="btn-secondary"
@@ -760,7 +847,7 @@ const AdminDashboard = ({ onLogout }) => {
                                   >
                                     Add
                                   </button>
-                                </div>
+                                </div> */}
                               </div>
 
                               <div className="edit-actions">
@@ -793,32 +880,40 @@ const AdminDashboard = ({ onLogout }) => {
                             <div className="item-display">
                               <h5>{item.name}</h5>
                               <div className="price-info">
-                                <span className="new-price">
-                                  ${item.price}
-                                </span>
+                                <span className="new-price">${item.price}</span>
                               </div>
-                              
+
                               {/* Display Addons and Spice Levels */}
-                              {(item.addons && item.addons.length > 0) || (item.spicelevel && item.spicelevel.length > 0) ? (
+                              {(item.addons && item.addons.length > 0) ||
+                              (item.spicelevel &&
+                                item.spicelevel.length > 0) ? (
                                 <div className="addons-display">
                                   {item.addons && item.addons.length > 0 && (
                                     <>
                                       <strong>Addons:</strong>
                                       <div className="addons-list-display">
                                         {item.addons.map((addon, index) => (
-                                          <div key={index} className="addon-display">
-                                            {addon.name.replace(/^Add\s/, '').trim()} - ${addon.price}
+                                          <div
+                                            key={index}
+                                            className="addon-display"
+                                          >
+                                            {addon.name
+                                              .replace(/^Add\s/, "")
+                                              .trim()}{" "}
+                                            - ${addon.price}
                                           </div>
                                         ))}
                                       </div>
                                     </>
                                   )}
 
-                                  {item.spicelevel && item.spicelevel.length > 0 && (
-                                    <div className="spice-levels-display">
-                                      <strong>Spice Levels:</strong> {item.spicelevel.join(", ")}
-                                    </div>
-                                  )}
+                                  {item.spicelevel &&
+                                    item.spicelevel.length > 0 && (
+                                      <div className="spice-levels-display">
+                                        <strong>Spice Levels:</strong>{" "}
+                                        {item.spicelevel.join(", ")}
+                                      </div>
+                                    )}
                                 </div>
                               ) : null}
 
@@ -830,10 +925,14 @@ const AdminDashboard = ({ onLogout }) => {
                                     setEditingItemData({
                                       ...item,
                                       spicelevel: [...(item.spicelevel || [])],
-                                      addons: (item.addons || []).map(addon => ({
-                                        ...addon,
-                                        name: addon.name.replace(/^Add\s/, '').trim()
-                                      }))
+                                      addons: (item.addons || []).map(
+                                        (addon) => ({
+                                          ...addon,
+                                          name: addon.name
+                                            .replace(/^Add\s/, "")
+                                            .trim(),
+                                        })
+                                      ),
                                     });
                                   }}
                                   className="btn-edit"
@@ -896,12 +995,19 @@ const AdminDashboard = ({ onLogout }) => {
                   </div>
 
                   <div className="form-group">
-                    <label>Spice Levels</label>
+                    <h4>Spice Levels</h4>
+
                     <div className="checkbox-group">
-                      {[...new Set([...["Mild", "Medium", "Hot", "Very Mild", "Indian Hot"], ...(newMenuItem.spicelevel || [])])].map((level) => (
+                      {[
+                        ...new Set([
+                          ...spiceLevels,
+                          ...(newMenuItem.spicelevel || []),
+                        ]),
+                      ].map((level) => (
                         <label key={level} className="checkbox-label">
                           <input
                             type="checkbox"
+                            style={{ marginRight: "10px" }}
                             value={level}
                             checked={newMenuItem.spicelevel.includes(level)}
                             onChange={(e) => {
@@ -918,7 +1024,14 @@ const AdminDashboard = ({ onLogout }) => {
                         </label>
                       ))}
                     </div>
-                    <div className="input-group" style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+                    {/* <div
+                      className="input-group"
+                      style={{
+                        marginTop: "10px",
+                        display: "flex",
+                        gap: "10px",
+                      }}
+                    >
                       <input
                         type="text"
                         placeholder="Add new spice level..."
@@ -928,14 +1041,15 @@ const AdminDashboard = ({ onLogout }) => {
                       />
                       <button
                         onClick={() => {
-                          const input = document.getElementById('newSpiceLevelInput');
+                          const input =
+                            document.getElementById("newSpiceLevelInput");
                           const value = input.value.trim();
-                          if (value !== '') {
+                          if (value !== "") {
                             setNewMenuItem((prev) => ({
                               ...prev,
                               spicelevel: [...prev.spicelevel, value],
                             }));
-                            input.value = '';
+                            input.value = "";
                           }
                         }}
                         className="btn-secondary"
@@ -943,55 +1057,84 @@ const AdminDashboard = ({ onLogout }) => {
                       >
                         Add
                       </button>
-                    </div>
+                    </div> */}
                   </div>
                   <h4>Addons</h4>
                   <div className="form-group">
-                    <label>Select Addons</label>
-                                <div className="checkbox-group">
-                                  {(() => {
-                                    const predefinedAddons = [
-                                      { name: "Veggies", price: 1 },
-                                      { name: "Meat", price: 2 },
-                                    ];
-                                    const allAddonsMap = new Map();
+                    {/* <label>Select Addons</label> */}
+                    <div className="checkbox-group">
+                      {(() => {
+                        const allAddonsMap = new Map();
 
-                                    // Add predefined addons to the map
-                                    predefinedAddons.forEach(addon => allAddonsMap.set(addon.name, addon));
+                        // Add predefined addons to the map
+                        addons.forEach((addon) =>
+                          allAddonsMap.set(addon.name, addon)
+                        );
 
-                                    // Add existing newMenuItem addons to the map, normalizing their names
-                                    (newMenuItem.addons || []).forEach(addon => {
-                                      const normalizedName = addon.name.replace(/^Add\s/, '').trim();
-                                      if (!allAddonsMap.has(normalizedName)) {
-                                        allAddonsMap.set(normalizedName, { ...addon, name: normalizedName });
-                                      }
+                        // Add existing newMenuItem addons to the map, normalizing their names
+                        (newMenuItem.addons || []).forEach((addon) => {
+                          const normalizedName = addon.name
+                            .replace(/^Add\s/, "")
+                            .trim();
+                          if (!allAddonsMap.has(normalizedName)) {
+                            allAddonsMap.set(normalizedName, {
+                              ...addon,
+                              name: normalizedName,
+                            });
+                          }
+                        });
+
+                        return Array.from(allAddonsMap.values()).map(
+                          (addon) => {
+                            const isChecked = newMenuItem.addons.some(
+                              (selectedAddon) =>
+                                selectedAddon.name
+                                  .replace(/^Add\s/, "")
+                                  .trim() === addon.name
+                            );
+                            return (
+                              <label
+                                key={addon.name}
+                                className="checkbox-label"
+                              >
+                                <input
+                                  type="checkbox"
+                                  value={addon.name}
+                                  style={{ marginRight: "10px" }}
+                                  checked={isChecked}
+                                  onChange={(e) => {
+                                    const { checked, value } = e.target;
+                                    setNewMenuItem((prev) => {
+                                      const newAddons = checked
+                                        ? [
+                                            ...prev.addons,
+                                            { name: value, price: addon.price },
+                                          ]
+                                        : prev.addons.filter(
+                                            (selectedAddon) =>
+                                              selectedAddon.name
+                                                .replace(/^Add\s/, "")
+                                                .trim() !== value
+                                          );
+                                      return { ...prev, addons: newAddons };
                                     });
-
-                                    return Array.from(allAddonsMap.values()).map((addon) => {
-                                      const isChecked = newMenuItem.addons.some(selectedAddon => selectedAddon.name.replace(/^Add\s/, '').trim() === addon.name);
-                                      return (
-                                        <label key={addon.name} className="checkbox-label">
-                                          <input
-                                            type="checkbox"
-                                            value={addon.name}
-                                            checked={isChecked}
-                                            onChange={(e) => {
-                                              const { checked, value } = e.target;
-                                              setNewMenuItem((prev) => {
-                                                const newAddons = checked
-                                                  ? [...prev.addons, { name: value, price: addon.price }]
-                                                  : prev.addons.filter((selectedAddon) => selectedAddon.name.replace(/^Add\s/, '').trim() !== value);
-                                                return { ...prev, addons: newAddons };
-                                              });
-                                            }}
-                                          />
-                                          {addon.name} (${addon.price})
-                                        </label>
-                                      );
-                                    });
-                                  })()}
-                                </div>
-                    <div className="input-group" style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+                                  }}
+                                />
+                                {addon.name} (${addon.price})
+                              </label>
+                            );
+                          }
+                        );
+                      })()}
+                    </div>
+                    {/* <div
+                      className="input-group"
+                      style={{
+                        marginTop: "10px",
+                        display: "flex",
+                        gap: "10px",
+                      }}
+                    >
                       <input
                         type="text"
                         placeholder="Add new addon name..."
@@ -1009,18 +1152,20 @@ const AdminDashboard = ({ onLogout }) => {
                       />
                       <button
                         onClick={() => {
-                          const nameInput = document.getElementById('newAddonNameInput');
-                          const priceInput = document.getElementById('newAddonPriceInput');
+                          const nameInput =
+                            document.getElementById("newAddonNameInput");
+                          const priceInput =
+                            document.getElementById("newAddonPriceInput");
                           const name = nameInput.value.trim();
                           const price = parseFloat(priceInput.value);
 
-                          if (name !== '' && !isNaN(price)) {
+                          if (name !== "" && !isNaN(price)) {
                             setNewMenuItem((prev) => ({
                               ...prev,
                               addons: [...prev.addons, { name, price }],
                             }));
-                            nameInput.value = '';
-                            priceInput.value = '';
+                            nameInput.value = "";
+                            priceInput.value = "";
                           }
                         }}
                         className="btn-secondary"
@@ -1028,7 +1173,7 @@ const AdminDashboard = ({ onLogout }) => {
                       >
                         Add
                       </button>
-                    </div>
+                    </div> */}
                   </div>
 
                   <div className="form-group">
@@ -1218,7 +1363,12 @@ const AdminDashboard = ({ onLogout }) => {
                             <div className="addons">
                               Addons:{" "}
                               {item.addons
-                                .map((a) => `${a.name.replace(/^Add\s/, '').trim()} (+${a.price})`)
+                                .map(
+                                  (a) =>
+                                    `${a.name.replace(/^Add\s/, "").trim()} (+${
+                                      a.price
+                                    })`
+                                )
                                 .join(", ")}
                             </div>
                           )}
@@ -1258,7 +1408,15 @@ const AdminDashboard = ({ onLogout }) => {
                       )}
                       {item.addons && item.addons.length > 0 && (
                         <div className="addons">
-                          Addons: {item.addons.map(a => `${a.name.replace(/^Add\s/, '').trim()} (${a.price})`).join(", ")}
+                          Addons:{" "}
+                          {item.addons
+                            .map(
+                              (a) =>
+                                `${a.name.replace(/^Add\s/, "").trim()} (${
+                                  a.price
+                                })`
+                            )
+                            .join(", ")}
                         </div>
                       )}
                     </div>
@@ -1297,7 +1455,12 @@ const AdminDashboard = ({ onLogout }) => {
                               <div className="addons">
                                 Addons:{" "}
                                 {item.addons
-                                  .map((a) => `${a.name.replace(/^Add\s/, '').trim()} (+${a.price})`)
+                                  .map(
+                                    (a) =>
+                                      `${a.name
+                                        .replace(/^Add\s/, "")
+                                        .trim()} (+${a.price})`
+                                  )
                                   .join(", ")}
                               </div>
                             )}
@@ -1541,11 +1704,13 @@ const AdminDashboard = ({ onLogout }) => {
                     borderRadius: "4px",
                   }}
                 >
-                  {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100].map((percentage) => (
-                    <option key={percentage} value={percentage}>
-                      {percentage}%
-                    </option>
-                  ))}
+                  {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100].map(
+                    (percentage) => (
+                      <option key={percentage} value={percentage}>
+                        {percentage}%
+                      </option>
+                    )
+                  )}
                 </select>
               </div>
 
@@ -1651,7 +1816,12 @@ const AdminDashboard = ({ onLogout }) => {
                           <small>
                             Addons:{" "}
                             {item.addons
-                              .map((a) => `${a.name.replace(/^Add\s/, '').trim()} (+${a.price})`)
+                              .map(
+                                (a) =>
+                                  `${a.name.replace(/^Add\s/, "").trim()} (+${
+                                    a.price
+                                  })`
+                              )
                               .join(", ")}
                           </small>
                         </>
@@ -1945,10 +2115,6 @@ const AdminDashboard = ({ onLogout }) => {
 
         {activeTab === "registrations" && (
           <div className="section-card">
-            <div className="section-header">
-              <h2 className="section-title">Event Registrations</h2>
-            </div>
-
             <div className="table-container">
               <table className="data-table">
                 <thead>
@@ -1996,10 +2162,6 @@ const AdminDashboard = ({ onLogout }) => {
 
         {activeTab === "orders" && (
           <div className="section-card">
-            <div className="section-header">
-              <h2 className="section-title">Order Management</h2>
-            </div>
-
             <div className="subsection-header">
               <h3>Dine-In</h3>
             </div>
@@ -2020,7 +2182,7 @@ const AdminDashboard = ({ onLogout }) => {
             <div className="subsection-header">
               <h3>Pending Orders (Pickup or Delivery)</h3>
             </div>
-            
+
             <div className="table-container">
               <table className="data-table">
                 <thead>
@@ -2114,17 +2276,7 @@ const AdminDashboard = ({ onLogout }) => {
 
         {activeTab === "menu" && (
           <div className="section-card">
-            <div
-              className="section-header"
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <h2 className="section-title">Menu Management</h2>
-            </div>
-            <div
+            {/* <div
               className="section-header"
               style={{
                 display: "flex",
@@ -2141,43 +2293,29 @@ const AdminDashboard = ({ onLogout }) => {
               >
                 Update Menu
               </button>
-            </div>
+            </div> */}
 
-            <div className="table-container">
-              <div className="category-list">
-                {menuData.items.length > 0 ? (
-                  menuData.items.map((category, index) => (
-                    <div
-                      key={category._id || index}
-                      className="category-card"
+            <div className="category-grid">
+              {menuData?.items?.length > 0 ? (
+                menuData.items.map((category, index) => (
+                  <div key={category._id || index} className="category-card">
+                    <h3>{category.title}</h3>
+                    <p>Items: {category.items?.length || 0}</p>
+                    <button
+                      className="btn-primary"
+                      onClick={() => {
+                        setSelectedSection(category);
+                        setModalType("manage-items");
+                        setShowModal(true);
+                      }}
                     >
-                      <h3>{category.title}</h3>
-                      <p>Items: {category.items?.length || 0}</p>
-                      <button
-                        className="btn-primary"
-                        onClick={() => {
-                          setSelectedSection(category);
-                          setModalType("manage-items");
-                          setShowModal(true);
-                        }}
-                        style={{
-                          marginTop: "10px",
-                          padding: "8px 16px",
-                          backgroundColor: "#007bff",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer"
-                        }}
-                      >
-                        Manage Items
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  <p className="empty-state">No menu categories found. Please add categories via the backend or a tool like MongoDB Compass.</p>
-                )}
-              </div>
+                      Manage Items
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p>No categories found.</p>
+              )}
             </div>
 
             {renderPagination(menuData, (page) =>
@@ -2196,8 +2334,6 @@ const AdminDashboard = ({ onLogout }) => {
                 alignItems: "center",
               }}
             >
-              <h2 className="section-title">Settings</h2>
-
               <div className="table-container" style={{ padding: "2rem" }}>
                 <OrderTypeRadios />
               </div>
@@ -2215,22 +2351,11 @@ const AdminDashboard = ({ onLogout }) => {
 
         {activeTab === "reports" && (
           <div className="section-card">
-            <div
-              className="section-header"
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <h2 className="section-title">Reports</h2>
-            </div>
-
             <div className="table-container">
               <OrdersTable />
             </div>
 
-        {renderPagination(menuData, (page) =>
+            {renderPagination(menuData, (page) =>
               fetchMenuData(page, searchMenuQuery)
             )}
           </div>
@@ -2238,9 +2363,6 @@ const AdminDashboard = ({ onLogout }) => {
 
         {activeTab === "kitchen" && (
           <div className="section-card">
-            <div className="section-header">
-              <h2 className="section-title">Kitchen Orders (Dine-In)</h2>
-            </div>
             <KitchenOrdersTable />
           </div>
         )}
@@ -2285,15 +2407,20 @@ const KitchenOrdersTable = () => {
   const fetchKitchenOrdersData = useCallback(async () => {
     try {
       setError("");
-      const response = await fetch(`/order/kitchen?page=${page}&limit=${limit}`, {
-        headers: {
-          Authorization: authToken,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `/order/kitchen?page=${page}&limit=${limit}`,
+        {
+          headers: {
+            Authorization: authToken,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || `Server error (${response.status})`);
+        throw new Error(
+          errorData.message || `Server error (${response.status})`
+        );
       }
       const data = await response.json();
       setKitchenOrders({
@@ -2325,7 +2452,9 @@ const KitchenOrdersTable = () => {
       });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || `Server error (${response.status})`);
+        throw new Error(
+          errorData.message || `Server error (${response.status})`
+        );
       }
       setSuccess("Order marked as sent to kitchen!");
       setTimeout(() => setSuccess(""), 3000);
@@ -2367,7 +2496,10 @@ const KitchenOrdersTable = () => {
                         {item.addons && item.addons.length > 0 && (
                           <span>
                             {" "}
-                            + {item.addons.map((a) => a.name.replace(/^Add\s/, '').trim()).join(", ")}
+                            +{" "}
+                            {item.addons
+                              .map((a) => a.name.replace(/^Add\s/, "").trim())
+                              .join(", ")}
                           </span>
                         )}
                       </li>
@@ -2381,9 +2513,13 @@ const KitchenOrdersTable = () => {
                 <td style={tableCellStyle}>
                   <button
                     onClick={() => handlePrintOrder(order._id)}
-                    style={{ ...buttonStyle, backgroundColor: "#28a745", color: "white" }}
+                    style={{
+                      ...buttonStyle,
+                      backgroundColor: "#28a745",
+                      color: "white",
+                    }}
                   >
-                    Print & Send
+                    Print to Kitchen
                   </button>
                 </td>
               </tr>
@@ -2410,7 +2546,9 @@ const KitchenOrdersTable = () => {
           Page {page} of {kitchenOrders.totalPages}
         </span>
         <button
-          onClick={() => setPage((p) => Math.min(p + 1, kitchenOrders.totalPages))}
+          onClick={() =>
+            setPage((p) => Math.min(p + 1, kitchenOrders.totalPages))
+          }
           disabled={page === kitchenOrders.totalPages}
           style={buttonStyle}
         >

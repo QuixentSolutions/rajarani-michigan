@@ -1724,3 +1724,66 @@ button:focus-visible,
   border-radius: 4px;
   cursor: pointer;
 }
+
+.category-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 16px;
+  margin: 12px;
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.category-card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.category-card p {
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.btn-primary {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+
+.category-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.category-card {
+  flex: 0 0 250px; /* fixed width cards */
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 16px;
+}
+
+.checkbox-label{
+  
+}

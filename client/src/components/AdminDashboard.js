@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import "./AdminDashboard.css";
-import { JsonEditor } from "json-edit-react";
 
 const AdminDashboard = ({ onLogout }) => {
   const [authToken] = useState("Basic " + btoa("admin:password123"));
@@ -10,6 +9,12 @@ const AdminDashboard = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState("registrations");
   const [isLoading, setIsLoading] = useState(true);
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
+
+  const spiceLevels = ["Mild", "Medium", "Hot", "Very Mild", "Indian Hot"];
+  const addons = [
+    { name: "Veggies", price: 1 },
+    { name: "Meat", price: 2 },
+  ];
 
   const [lastOnlineOrderNo, setLastOnlineOrderNo] = useState(0);
 
@@ -23,6 +28,11 @@ const AdminDashboard = ({ onLogout }) => {
     totalPages: 1,
     currentPage: 1,
   });
+  const [kitchenOrders, setKitchenOrders] = useState({
+    items: [],
+    totalPages: 1,
+    currentPage: 1,
+  });
 
   const [menuData, setMenuData] = useState({
     items: [],
@@ -30,17 +40,13 @@ const AdminDashboard = ({ onLogout }) => {
     currentPage: 1,
   });
 
-  const [data, setData] = useState(menuData);
-
   const [selected, setSelected] = useState({
     dinein: null,
     pickup: null,
     delivery: null,
   });
 
-  // ========== NEW STATE FOR TABLE STATUSES (ADDED) ==========
   const [tableStatuses, setTableStatuses] = useState([]);
-  // ========== NEW STATE FOR PICKUP/DELIVERY (ADDED) ==========
   const [pickupOrders, setPickupOrders] = useState([]);
   const [deliveryOrders, setDeliveryOrders] = useState([]);
 
@@ -55,13 +61,14 @@ const AdminDashboard = ({ onLogout }) => {
   const [searchMenuQuery, setSearchMenuQuery] = useState("");
 
   const [tableNo, setTableNo] = useState("");
-
   const [billDetails, setBillDetails] = useState(null);
 
+  // Simplified menu item state without addons and spice levels CRUD
   const [newMenuItem, setNewMenuItem] = useState({
     name: "",
-    newPrice: "",
-    oldPrice: "",
+    price: "",
+    spicelevel: [],
+    addons: [],
   });
 
   const [tips, setTips] = useState(0);
@@ -158,46 +165,36 @@ const AdminDashboard = ({ onLogout }) => {
             searchQuery ? `&search=${searchQuery}` : ""
           }`;
           const data = await fetchData(url, authToken);
-
-          // const playSound = () => {
-          //   const audio = new Audio("/neworder.mp3"); // put your sound file in public folder
-          //   audio.play();
-          // };
-          // if (type === "order") {
-          //   const localLastOrderNo = data.filter(
-          //     (order) => order.orderType !== "dinein"
-          //   )[0]?.orderNumber;
-          //   console.log(localLastOrderNo);
-          //   if (lastOnlineOrderNo !== localLastOrderNo) {
-          //     playSound();
-          //   }
-          //   setLastOnlineOrderNo(localLastOrderNo);
-          // }
+          let result; // Declare result here
 
           if (data && typeof data === "object") {
             if (Array.isArray(data)) {
-              setter({ items: data, totalPages: 1, currentPage: 1 });
+              result = { items: data, totalPages: 1, currentPage: 1 };
             } else if (type === "menu/all" && data.sections) {
-              setter({
+              result = {
                 items: data.sections || [],
                 totalPages: data.totalPages || 1,
                 currentPage: data.currentPage || page,
-              });
+              };
             } else if (data.items || data.data) {
-              setter({
+              result = {
                 items: data.items || data.data || [],
                 totalPages: data.totalPages || 1,
                 currentPage: data.currentPage || page,
-              });
+              };
             } else {
-              setter({ items: [], totalPages: 1, currentPage: 1 });
+              result = { items: [], totalPages: 1, currentPage: 1 };
             }
           } else {
-            setter({ items: [], totalPages: 1, currentPage: 1 });
+            result = { items: [], totalPages: 1, currentPage: 1 };
           }
+          setter(result); // Set the state
+          return result; // Return the structured data
         } catch (err) {
           setError(`Failed to load ${type}: ${err.message}`);
-          setter({ items: [], totalPages: 1, currentPage: 1 });
+          const errorResult = { items: [], totalPages: 1, currentPage: 1 };
+          setter(errorResult); // Set state to empty on error
+          return errorResult; // Return empty data on error
         }
       },
     [authToken, fetchData]
@@ -206,6 +203,10 @@ const AdminDashboard = ({ onLogout }) => {
   const fetchRegistrations = createFetchFunction(setRegistrations, "register");
   const fetchOrders = createFetchFunction(setOrders, "order");
   const fetchMenuData = createFetchFunction(setMenuData, "menu/all");
+  const fetchKitchenOrders = createFetchFunction(
+    setKitchenOrders,
+    "order/kitchen"
+  );
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -215,21 +216,30 @@ const AdminDashboard = ({ onLogout }) => {
     return () => clearInterval(intervalId);
   }, []);
 
+  // Simplified addMenuItem function without addons and spice levels CRUD
   const addMenuItem = async () => {
-    if (!selectedSection || !newMenuItem.name || !newMenuItem.newPrice) {
+    if (!selectedSection || !newMenuItem.name || !newMenuItem.price) {
       setError("Please fill in all required fields");
       return;
     }
 
     try {
-      const url = `/api/admin/menu/${selectedSection._id}/items`;
+      const url = `http://localhost:5001/menu/category/${selectedSection._id}/item`;
       const response = await fetch(url, {
         method: "POST",
         headers: {
           Authorization: authToken,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(newMenuItem),
+        body: JSON.stringify({
+          name: newMenuItem.name,
+          price: parseFloat(newMenuItem.price),
+          spicelevel: newMenuItem.spicelevel,
+          addons: newMenuItem.addons.map((addon) => ({
+            ...addon,
+            name: addon.name.replace(/^Add\s/, "").trim(), // Remove "Add " prefix
+          })),
+        }),
       });
 
       if (!response.ok) {
@@ -241,13 +251,18 @@ const AdminDashboard = ({ onLogout }) => {
 
       const result = await response.json();
       setSuccess("Menu item added successfully!");
-      setNewMenuItem({ name: "", newPrice: "", oldPrice: "" });
+      setNewMenuItem({ name: "", price: "", spicelevel: [], addons: [] });
 
-      if (result.section) {
-        setSelectedSection(result.section);
+      const latestMenuData = await fetchMenuData(); // Fetch and get the latest data
+      if (latestMenuData && latestMenuData.items) {
+        setMenuData(latestMenuData); // Update the main menu data state
+        const updatedSection = latestMenuData.items.find(
+          (section) => section._id === selectedSection._id
+        );
+        if (updatedSection) {
+          setSelectedSection(updatedSection); // Update selected section from the new menu data
+        }
       }
-
-      await fetchMenuData();
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(
@@ -256,6 +271,7 @@ const AdminDashboard = ({ onLogout }) => {
     }
   };
 
+  // Simplified updateMenuItem function
   const updateMenuItem = async (itemToUpdate, updatedFields) => {
     try {
       if (!itemToUpdate || !itemToUpdate._id) {
@@ -266,14 +282,19 @@ const AdminDashboard = ({ onLogout }) => {
         throw new Error("No section selected");
       }
 
-      const url = `/api/admin/menu/${selectedSection._id}/items/${itemToUpdate._id}`;
+      const url = `http://localhost:5001/menu/category/${selectedSection._id}/item/${itemToUpdate._id}`;
       const response = await fetch(url, {
         method: "PUT",
         headers: {
           Authorization: authToken,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updatedFields),
+        body: JSON.stringify({
+          name: updatedFields.name,
+          price: parseFloat(updatedFields.price),
+          spicelevel: updatedFields.spicelevel,
+          addons: updatedFields.addons,
+        }),
       });
 
       if (!response.ok) {
@@ -288,16 +309,20 @@ const AdminDashboard = ({ onLogout }) => {
         throw new Error(errorMessage);
       }
 
-      const result = await response.json();
       setSuccess("Menu item updated successfully!");
       setEditingMenuItem(null);
       setEditingItemData(null);
 
-      if (result.section) {
-        setSelectedSection(result.section);
+      const latestMenuData = await fetchMenuData(); // Fetch and get the latest data
+      if (latestMenuData && latestMenuData.items) {
+        setMenuData(latestMenuData); // Update the main menu data state
+        const updatedSection = latestMenuData.items.find(
+          (section) => section._id === selectedSection._id
+        );
+        if (updatedSection) {
+          setSelectedSection(updatedSection); // Update selected section from the new menu data
+        }
       }
-
-      await fetchMenuData();
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(`Failed to update menu item: ${err.message}`);
@@ -314,7 +339,7 @@ const AdminDashboard = ({ onLogout }) => {
         throw new Error("No section selected");
       }
 
-      const url = `/api/admin/menu/${selectedSection._id}/items/${itemId}`;
+      const url = `http://localhost:5001/menu/category/${selectedSection._id}/item/${itemId}`;
       const response = await fetch(url, {
         method: "DELETE",
         headers: {
@@ -335,26 +360,30 @@ const AdminDashboard = ({ onLogout }) => {
         throw new Error(errorMessage);
       }
 
-      const result = await response.json();
       setSuccess("Menu item deleted successfully!");
 
-      if (result.section) {
-        setSelectedSection(result.section);
+      const latestMenuData = await fetchMenuData(); // Fetch and get the latest data
+      if (latestMenuData && latestMenuData.items) {
+        const updatedSection = latestMenuData.items.find(
+          (section) => section._id === selectedSection._id
+        );
+        if (updatedSection) {
+          setSelectedSection(updatedSection);
+        }
       }
-
-      await fetchMenuData();
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(`Failed to delete menu item: ${err.message}`);
     }
   };
 
+  // Remove all addon and spice level management functions
+
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       setError("");
 
-      // ========== FAKE TABLE DATA FOR UI DEVELOPMENT (ADDED) ==========
       const fakeTableData = [
         { tableNumber: "T1", status: "Available" },
         { tableNumber: "T2", status: "Available" },
@@ -373,6 +402,7 @@ const AdminDashboard = ({ onLogout }) => {
         await fetchRegistrations();
         await fetchOrders();
         await fetchMenuData();
+        await fetchKitchenOrders();
 
         setSuccess("Dashboard loaded successfully!");
         setTimeout(() => setSuccess(""), 3000);
@@ -435,9 +465,10 @@ const AdminDashboard = ({ onLogout }) => {
       setBillDetails(result);
       setIsSuccessPopupOpen(true);
     } catch (err) {
-      console.error("Error loading order:", err);
+      // console.error("Error loading order:", err);
     }
   };
+
   const LoadingSpinner = () => (
     <div className="loading-container">
       <div className="spinner"></div>
@@ -454,13 +485,13 @@ const AdminDashboard = ({ onLogout }) => {
   const handleSaveMenu = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/menu`, {
+      const response = await fetch(`http://localhost:5001/menu`, {
         method: "POST",
         headers: {
           Authorization: authToken,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data: data.items }),
+        body: JSON.stringify({ data: menuData.items }),
       });
 
       if (!response.ok) {
@@ -473,8 +504,10 @@ const AdminDashboard = ({ onLogout }) => {
       }
       await fetchMenuData();
       setIsLoading(false);
+      setSuccess("Menu updated successfully!");
+      setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      console.error("Error loading order:", err);
+      setError(`Failed to save menu: ${err.message}`);
     }
   };
 
@@ -540,7 +573,6 @@ const AdminDashboard = ({ onLogout }) => {
     if (!showModal) return null;
 
     const type = modalType?.replace("view-", "");
-
     let modalTitle;
 
     if (modalType === "manage-items") {
@@ -569,66 +601,8 @@ const AdminDashboard = ({ onLogout }) => {
           <div className="modal-body">
             {modalType === "manage-items" && selectedSection && (
               <div className="items-management">
-                <div className="add-item-section">
-                  <h4>Add New Item</h4>
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label>Item Name *</label>
-                      <input
-                        type="text"
-                        placeholder="Enter item name..."
-                        value={newMenuItem.name}
-                        onChange={(e) =>
-                          setNewMenuItem({
-                            ...newMenuItem,
-                            name: e.target.value,
-                          })
-                        }
-                        className="form-input"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>New Price *</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        value={newMenuItem.newPrice}
-                        onChange={(e) =>
-                          setNewMenuItem({
-                            ...newMenuItem,
-                            newPrice: e.target.value,
-                          })
-                        }
-                        className="form-input"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Old Price</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        value={newMenuItem.oldPrice}
-                        onChange={(e) =>
-                          setNewMenuItem({
-                            ...newMenuItem,
-                            oldPrice: e.target.value,
-                          })
-                        }
-                        className="form-input"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <button onClick={addMenuItem} className="btn-primary">
-                        Add Item
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="existing-items-section">
-                  <h4>Existing Items ({selectedSection.items?.length || 0})</h4>
+                  <h4>Total Items ({selectedSection.items?.length || 0})</h4>
                   <div className="items-grid">
                     {selectedSection.items?.map((item, index) => {
                       const itemKey = item._id || `item-${item.name}-${index}`;
@@ -653,36 +627,237 @@ const AdminDashboard = ({ onLogout }) => {
                               <input
                                 type="number"
                                 step="0.01"
-                                value={editingItemData?.newPrice || ""}
+                                value={editingItemData?.price || ""}
                                 onChange={(e) => {
                                   setEditingItemData({
                                     ...editingItemData,
-                                    newPrice: e.target.value,
+                                    price: e.target.value,
                                   });
                                 }}
                                 className="form-input"
-                                placeholder="New price"
+                                placeholder="Price"
                               />
-                              <input
-                                type="number"
-                                step="0.01"
-                                value={editingItemData?.oldPrice || ""}
-                                onChange={(e) => {
-                                  setEditingItemData({
-                                    ...editingItemData,
-                                    oldPrice: e.target.value,
-                                  });
-                                }}
-                                className="form-input"
-                                placeholder="Old price (optional)"
-                              />
+
+                              {/* Spice Levels in edit mode */}
+                              <div className="form-group">
+                                <h4>Spice Levels</h4>
+                                <div className="checkbox-group">
+                                  {[
+                                    ...new Set([
+                                      ...spiceLevels,
+                                      ...(editingItemData?.spicelevel || []),
+                                    ]),
+                                  ].map((level) => (
+                                    <label
+                                      key={level}
+                                      className="checkbox-label"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        style={{ marginRight: "10px" }}
+                                        value={level}
+                                        checked={
+                                          editingItemData?.spicelevel?.includes(
+                                            level
+                                          ) || false
+                                        }
+                                        onChange={(e) => {
+                                          const { checked, value } = e.target;
+                                          setEditingItemData((prev) => ({
+                                            ...prev,
+                                            spicelevel: checked
+                                              ? [
+                                                  ...(prev.spicelevel || []),
+                                                  value,
+                                                ]
+                                              : (prev.spicelevel || []).filter(
+                                                  (l) => l !== value
+                                                ),
+                                          }));
+                                        }}
+                                      />
+                                      {level}
+                                    </label>
+                                  ))}
+                                </div>
+                                {/* <div
+                                  className="input-group"
+                                  style={{
+                                    marginTop: "10px",
+                                    display: "flex",
+                                    gap: "10px",
+                                  }}
+                                >
+                                  <input
+                                    type="text"
+                                    placeholder="Add new spice level..."
+                                    id="editSpiceLevelInput"
+                                    className="form-input"
+                                    style={{ flex: 2 }}
+                                  />
+                                  <button
+                                    onClick={() => {
+                                      const input = document.getElementById(
+                                        "editSpiceLevelInput"
+                                      );
+                                      const value = input.value.trim();
+                                      if (value !== "") {
+                                        setEditingItemData((prev) => ({
+                                          ...prev,
+                                          spicelevel: [
+                                            ...(prev.spicelevel || []),
+                                            value,
+                                          ],
+                                        }));
+                                        input.value = "";
+                                      }
+                                    }}
+                                    className="btn-secondary"
+                                    style={{ flex: 0.5 }}
+                                  >
+                                    Add
+                                  </button>
+                                </div> */}
+                              </div>
+                              <h4>Addons</h4>
+                              <div className="form-group">
+                                {/* <label>Select Addons</label> */}
+                                <div className="checkbox-group">
+                                  {(() => {
+                                    const allAddonsMap = new Map();
+                                    // Add predefined addons to the map
+                                    addons.forEach((addon) =>
+                                      allAddonsMap.set(addon.name, addon)
+                                    );
+
+                                    // Add existing item addons to the map, normalizing their names
+                                    (editingItemData?.addons || []).forEach(
+                                      (addon) => {
+                                        const normalizedName = addon.name
+                                          .replace(/^Add\s/, "")
+                                          .trim();
+                                        if (!allAddonsMap.has(normalizedName)) {
+                                          allAddonsMap.set(normalizedName, {
+                                            ...addon,
+                                            name: normalizedName,
+                                          });
+                                        }
+                                      }
+                                    );
+
+                                    return Array.from(
+                                      allAddonsMap.values()
+                                    ).map((addon) => (
+                                      <label
+                                        key={addon.name}
+                                        className="checkbox-label"
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          style={{ marginRight: "10px" }}
+                                          value={addon.name}
+                                          checked={
+                                            editingItemData?.addons?.some(
+                                              (selectedAddon) =>
+                                                selectedAddon.name
+                                                  .replace(/^Add\s/, "")
+                                                  .trim() === addon.name
+                                            ) || false
+                                          }
+                                          onChange={(e) => {
+                                            const { checked, value } = e.target;
+                                            setEditingItemData((prev) => {
+                                              const newAddons = checked
+                                                ? [
+                                                    ...(prev.addons || []),
+                                                    {
+                                                      name: value,
+                                                      price: addon.price,
+                                                    },
+                                                  ]
+                                                : (prev.addons || []).filter(
+                                                    (selectedAddon) =>
+                                                      selectedAddon.name
+                                                        .replace(/^Add\s/, "")
+                                                        .trim() !== value
+                                                  );
+                                              return {
+                                                ...prev,
+                                                addons: newAddons,
+                                              };
+                                            });
+                                          }}
+                                        />
+                                        {addon.name} (${addon.price})
+                                      </label>
+                                    ));
+                                  })()}
+                                </div>
+                                {/* <div
+                                  className="input-group"
+                                  style={{
+                                    marginTop: "10px",
+                                    display: "flex",
+                                    gap: "10px",
+                                  }}
+                                >
+                                  <input
+                                    type="text"
+                                    placeholder="Add new addon name..."
+                                    id="editNewAddonNameInput"
+                                    className="form-input"
+                                    style={{ flex: 2 }}
+                                  />
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="Price"
+                                    id="editNewAddonPriceInput"
+                                    className="form-input"
+                                    style={{ flex: 1 }}
+                                  />
+                                  <button
+                                    onClick={() => {
+                                      const nameInput = document.getElementById(
+                                        "editNewAddonNameInput"
+                                      );
+                                      const priceInput =
+                                        document.getElementById(
+                                          "editNewAddonPriceInput"
+                                        );
+                                      const name = nameInput.value.trim();
+                                      const price = parseFloat(
+                                        priceInput.value
+                                      );
+
+                                      if (name !== "" && !isNaN(price)) {
+                                        setEditingItemData((prev) => ({
+                                          ...prev,
+                                          addons: [
+                                            ...(prev.addons || []),
+                                            { name, price },
+                                          ],
+                                        }));
+                                        nameInput.value = "";
+                                        priceInput.value = "";
+                                      }
+                                    }}
+                                    className="btn-secondary"
+                                    style={{ flex: 0.5 }}
+                                  >
+                                    Add
+                                  </button>
+                                </div> */}
+                              </div>
+
                               <div className="edit-actions">
                                 <button
                                   onClick={() => {
                                     updateMenuItem(editingItemData, {
                                       name: editingItemData.name,
-                                      newPrice: editingItemData.newPrice,
-                                      oldPrice: editingItemData.oldPrice,
+                                      price: editingItemData.price,
+                                      spicelevel: editingItemData.spicelevel,
+                                      addons: editingItemData.addons,
                                     });
                                   }}
                                   className="btn-success"
@@ -705,20 +880,60 @@ const AdminDashboard = ({ onLogout }) => {
                             <div className="item-display">
                               <h5>{item.name}</h5>
                               <div className="price-info">
-                                <span className="new-price">
-                                  ${item.newPrice}
-                                </span>
-                                {item.oldPrice && (
-                                  <span className="old-price">
-                                    ${item.oldPrice}
-                                  </span>
-                                )}
+                                <span className="new-price">${item.price}</span>
                               </div>
+
+                              {/* Display Addons and Spice Levels */}
+                              {(item.addons && item.addons.length > 0) ||
+                              (item.spicelevel &&
+                                item.spicelevel.length > 0) ? (
+                                <div className="addons-display">
+                                  {item.addons && item.addons.length > 0 && (
+                                    <>
+                                      <strong>Addons:</strong>
+                                      <div className="addons-list-display">
+                                        {item.addons.map((addon, index) => (
+                                          <div
+                                            key={index}
+                                            className="addon-display"
+                                          >
+                                            {addon.name
+                                              .replace(/^Add\s/, "")
+                                              .trim()}{" "}
+                                            - ${addon.price}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </>
+                                  )}
+
+                                  {item.spicelevel &&
+                                    item.spicelevel.length > 0 && (
+                                      <div className="spice-levels-display">
+                                        <strong>Spice Levels:</strong>{" "}
+                                        {item.spicelevel.join(", ")}
+                                      </div>
+                                    )}
+                                </div>
+                              ) : null}
+
                               <div className="item-actions">
                                 <button
                                   onClick={() => {
                                     setEditingMenuItem(item._id);
-                                    setEditingItemData({ ...item });
+                                    // Deep clone the item to ensure all properties are copied correctly
+                                    setEditingItemData({
+                                      ...item,
+                                      spicelevel: [...(item.spicelevel || [])],
+                                      addons: (item.addons || []).map(
+                                        (addon) => ({
+                                          ...addon,
+                                          name: addon.name
+                                            .replace(/^Add\s/, "")
+                                            .trim(),
+                                        })
+                                      ),
+                                    });
                                   }}
                                   className="btn-edit"
                                   disabled={!hasValidId}
@@ -740,6 +955,231 @@ const AdminDashboard = ({ onLogout }) => {
                         </div>
                       );
                     })}
+                  </div>
+                </div>
+
+                <div className="add-item-section">
+                  <h4>Add New Item</h4>
+                  <div className="form-grid">
+                    <div className="form-group">
+                      <label>Item Name *</label>
+                      <input
+                        type="text"
+                        placeholder="Enter item name..."
+                        value={newMenuItem.name}
+                        onChange={(e) =>
+                          setNewMenuItem({
+                            ...newMenuItem,
+                            name: e.target.value,
+                          })
+                        }
+                        className="form-input"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Price *</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={newMenuItem.price}
+                        onChange={(e) =>
+                          setNewMenuItem({
+                            ...newMenuItem,
+                            price: e.target.value,
+                          })
+                        }
+                        className="form-input"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <h4>Spice Levels</h4>
+
+                    <div className="checkbox-group">
+                      {[
+                        ...new Set([
+                          ...spiceLevels,
+                          ...(newMenuItem.spicelevel || []),
+                        ]),
+                      ].map((level) => (
+                        <label key={level} className="checkbox-label">
+                          <input
+                            type="checkbox"
+                            style={{ marginRight: "10px" }}
+                            value={level}
+                            checked={newMenuItem.spicelevel.includes(level)}
+                            onChange={(e) => {
+                              const { checked, value } = e.target;
+                              setNewMenuItem((prev) => ({
+                                ...prev,
+                                spicelevel: checked
+                                  ? [...prev.spicelevel, value]
+                                  : prev.spicelevel.filter((l) => l !== value),
+                              }));
+                            }}
+                          />
+                          {level}
+                        </label>
+                      ))}
+                    </div>
+                    {/* <div
+                      className="input-group"
+                      style={{
+                        marginTop: "10px",
+                        display: "flex",
+                        gap: "10px",
+                      }}
+                    >
+                      <input
+                        type="text"
+                        placeholder="Add new spice level..."
+                        id="newSpiceLevelInput"
+                        className="form-input"
+                        style={{ flex: 2 }}
+                      />
+                      <button
+                        onClick={() => {
+                          const input =
+                            document.getElementById("newSpiceLevelInput");
+                          const value = input.value.trim();
+                          if (value !== "") {
+                            setNewMenuItem((prev) => ({
+                              ...prev,
+                              spicelevel: [...prev.spicelevel, value],
+                            }));
+                            input.value = "";
+                          }
+                        }}
+                        className="btn-secondary"
+                        style={{ flex: 0.5 }}
+                      >
+                        Add
+                      </button>
+                    </div> */}
+                  </div>
+                  <h4>Addons</h4>
+                  <div className="form-group">
+                    {/* <label>Select Addons</label> */}
+                    <div className="checkbox-group">
+                      {(() => {
+                        const allAddonsMap = new Map();
+
+                        // Add predefined addons to the map
+                        addons.forEach((addon) =>
+                          allAddonsMap.set(addon.name, addon)
+                        );
+
+                        // Add existing newMenuItem addons to the map, normalizing their names
+                        (newMenuItem.addons || []).forEach((addon) => {
+                          const normalizedName = addon.name
+                            .replace(/^Add\s/, "")
+                            .trim();
+                          if (!allAddonsMap.has(normalizedName)) {
+                            allAddonsMap.set(normalizedName, {
+                              ...addon,
+                              name: normalizedName,
+                            });
+                          }
+                        });
+
+                        return Array.from(allAddonsMap.values()).map(
+                          (addon) => {
+                            const isChecked = newMenuItem.addons.some(
+                              (selectedAddon) =>
+                                selectedAddon.name
+                                  .replace(/^Add\s/, "")
+                                  .trim() === addon.name
+                            );
+                            return (
+                              <label
+                                key={addon.name}
+                                className="checkbox-label"
+                              >
+                                <input
+                                  type="checkbox"
+                                  value={addon.name}
+                                  style={{ marginRight: "10px" }}
+                                  checked={isChecked}
+                                  onChange={(e) => {
+                                    const { checked, value } = e.target;
+                                    setNewMenuItem((prev) => {
+                                      const newAddons = checked
+                                        ? [
+                                            ...prev.addons,
+                                            { name: value, price: addon.price },
+                                          ]
+                                        : prev.addons.filter(
+                                            (selectedAddon) =>
+                                              selectedAddon.name
+                                                .replace(/^Add\s/, "")
+                                                .trim() !== value
+                                          );
+                                      return { ...prev, addons: newAddons };
+                                    });
+                                  }}
+                                />
+                                {addon.name} (${addon.price})
+                              </label>
+                            );
+                          }
+                        );
+                      })()}
+                    </div>
+                    {/* <div
+                      className="input-group"
+                      style={{
+                        marginTop: "10px",
+                        display: "flex",
+                        gap: "10px",
+                      }}
+                    >
+                      <input
+                        type="text"
+                        placeholder="Add new addon name..."
+                        id="newAddonNameInput"
+                        className="form-input"
+                        style={{ flex: 2 }}
+                      />
+                      <input
+                        type="number"
+                        step="0.01"
+                        placeholder="Price"
+                        id="newAddonPriceInput"
+                        className="form-input"
+                        style={{ flex: 1 }}
+                      />
+                      <button
+                        onClick={() => {
+                          const nameInput =
+                            document.getElementById("newAddonNameInput");
+                          const priceInput =
+                            document.getElementById("newAddonPriceInput");
+                          const name = nameInput.value.trim();
+                          const price = parseFloat(priceInput.value);
+
+                          if (name !== "" && !isNaN(price)) {
+                            setNewMenuItem((prev) => ({
+                              ...prev,
+                              addons: [...prev.addons, { name, price }],
+                            }));
+                            nameInput.value = "";
+                            priceInput.value = "";
+                          }
+                        }}
+                        className="btn-secondary"
+                        style={{ flex: 0.5 }}
+                      >
+                        Add
+                      </button>
+                    </div> */}
+                  </div>
+
+                  <div className="form-group">
+                    <button onClick={addMenuItem} className="btn-primary">
+                      Add Item
+                    </button>
                   </div>
                 </div>
               </div>
@@ -876,7 +1316,6 @@ const AdminDashboard = ({ onLogout }) => {
                     </tbody>
                   </table>
 
-                  {/* Centered Button */}
                   <div style={{ textAlign: "center", marginTop: "20px" }}>
                     <button
                       onClick={() =>
@@ -924,7 +1363,12 @@ const AdminDashboard = ({ onLogout }) => {
                             <div className="addons">
                               Addons:{" "}
                               {item.addons
-                                .map((a) => `${a.name} (+$${a.price})`)
+                                .map(
+                                  (a) =>
+                                    `${a.name.replace(/^Add\s/, "").trim()} (+${
+                                      a.price
+                                    })`
+                                )
                                 .join(", ")}
                             </div>
                           )}
@@ -948,7 +1392,6 @@ const AdminDashboard = ({ onLogout }) => {
                 <p>
                   <strong>Color:</strong> {selectedItem.color}
                 </p>
-
                 <p>
                   <strong>Created:</strong>{" "}
                   {new Date(selectedItem.createdAt).toLocaleString()}
@@ -958,6 +1401,24 @@ const AdminDashboard = ({ onLogout }) => {
                   {selectedItem.items?.map((item, index) => (
                     <div key={index} className="menu-item">
                       {item.name} - ${item.price}
+                      {item.spicelevel && item.spicelevel.length > 0 && (
+                        <div className="spice-levels">
+                          Spice Levels: {item.spicelevel.join(", ")}
+                        </div>
+                      )}
+                      {item.addons && item.addons.length > 0 && (
+                        <div className="addons">
+                          Addons:{" "}
+                          {item.addons
+                            .map(
+                              (a) =>
+                                `${a.name.replace(/^Add\s/, "").trim()} (${
+                                  a.price
+                                })`
+                            )
+                            .join(", ")}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -967,7 +1428,6 @@ const AdminDashboard = ({ onLogout }) => {
             {modalType === "view-order-report-details" && selectedItem && (
               <div className="view-details">
                 <h4>Order Details</h4>
-
                 <div className="order-items">
                   <table className="order-table">
                     <thead>
@@ -995,7 +1455,12 @@ const AdminDashboard = ({ onLogout }) => {
                               <div className="addons">
                                 Addons:{" "}
                                 {item.addons
-                                  .map((a) => `${a.name} (+$${a.price})`)
+                                  .map(
+                                    (a) =>
+                                      `${a.name
+                                        .replace(/^Add\s/, "")
+                                        .trim()} (+${a.price})`
+                                  )
                                   .join(", ")}
                               </div>
                             )}
@@ -1007,12 +1472,6 @@ const AdminDashboard = ({ onLogout }) => {
                       ))}
                     </tbody>
                   </table>
-
-                  {/* {selectedItem?.map((item, index) => (
-                    <div key={index} className="order-item">
-                      {item.name} - Qty: {item.quantity} - ${item.price}
-                    </div>
-                  ))} */}
                 </div>
               </div>
             )}
@@ -1030,14 +1489,12 @@ const AdminDashboard = ({ onLogout }) => {
     let userConfirmed = window.confirm("Sure to settle ?");
 
     if (!userConfirmed) {
-      // User clicked "OK", proceed with deletion
       return;
     }
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // First, save order to database
       const dbResponse = await fetch("/order/settle", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -1061,7 +1518,7 @@ const AdminDashboard = ({ onLogout }) => {
       setBillDetails(null);
       alert("Order settled successfully!");
     } catch (err) {
-      console.error("Order process error:", err);
+      // console.error("Order process error:", err);
       alert(
         `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`
       );
@@ -1081,7 +1538,6 @@ const AdminDashboard = ({ onLogout }) => {
     setIsLoading(true);
 
     try {
-      // First, save order to database
       const dbResponse = await fetch("/order/accept", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -1097,22 +1553,21 @@ const AdminDashboard = ({ onLogout }) => {
       }
       await fetchOrders();
     } catch (err) {
-      console.error("Order process error:", err);
+      // console.error("Order process error:", err);
     } finally {
       setIsLoading(false);
     }
   };
+
   const handleSettleOnlineorders = async (orderNumber) => {
     let userConfirmed = window.confirm("Sure to settle ?");
 
     if (!userConfirmed) {
-      // User clicked "OK", proceed with deletion
       return;
     }
     setIsLoading(true);
 
     try {
-      // First, save order to database
       const dbResponse = await fetch("/order/settle", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -1135,7 +1590,7 @@ const AdminDashboard = ({ onLogout }) => {
       await fetchOrders();
       alert("Order settled successfully!");
     } catch (err) {
-      console.error("Order process error:", err);
+      // console.error("Order process error:", err);
       alert(
         `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`
       );
@@ -1249,11 +1704,13 @@ const AdminDashboard = ({ onLogout }) => {
                     borderRadius: "4px",
                   }}
                 >
-                  {[5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100].map((_, i) => (
-                    <option key={i} value={i}>
-                      {i}
-                    </option>
-                  ))}
+                  {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100].map(
+                    (percentage) => (
+                      <option key={percentage} value={percentage}>
+                        {percentage}%
+                      </option>
+                    )
+                  )}
                 </select>
               </div>
 
@@ -1359,7 +1816,12 @@ const AdminDashboard = ({ onLogout }) => {
                           <small>
                             Addons:{" "}
                             {item.addons
-                              .map((a) => `${a.name} (+$${a.price})`)
+                              .map(
+                                (a) =>
+                                  `${a.name.replace(/^Add\s/, "").trim()} (+${
+                                    a.price
+                                  })`
+                              )
                               .join(", ")}
                           </small>
                         </>
@@ -1437,7 +1899,6 @@ const AdminDashboard = ({ onLogout }) => {
     let userConfirmed = window.confirm("Are you sure to make changes ?");
 
     if (!userConfirmed) {
-      // User clicked "OK", proceed with deletion
       return;
     }
 
@@ -1470,7 +1931,7 @@ const AdminDashboard = ({ onLogout }) => {
     const [orderReports, setOrderReports] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const limit = 10; // items per page
+    const limit = 10;
 
     const tableHeaderStyle = {
       border: "1px solid #000",
@@ -1537,7 +1998,7 @@ const AdminDashboard = ({ onLogout }) => {
                     }}
                   >
                     {order.payment.status}
-                  </td>{" "}
+                  </td>
                   <td style={tableCellStyle}>{order.orderType}</td>
                   <td style={tableCellStyle}>{order.customer.name}</td>
                   <td style={tableCellStyle}>
@@ -1558,7 +2019,7 @@ const AdminDashboard = ({ onLogout }) => {
               ))
             ) : (
               <tr>
-                <td colSpan="2" style={tableCellStyle}>
+                <td colSpan="11" style={tableCellStyle}>
                   No orders found
                 </td>
               </tr>
@@ -1566,7 +2027,6 @@ const AdminDashboard = ({ onLogout }) => {
           </tbody>
         </table>
 
-        {/* Pagination */}
         <div style={{ marginTop: "10px", textAlign: "center" }}>
           <button
             onClick={() => setPage((p) => Math.max(p - 1, 1))}
@@ -1645,14 +2105,16 @@ const AdminDashboard = ({ onLogout }) => {
           >
             Reports
           </button>
+          <button
+            className={`tab-btn ${activeTab === "kitchen" ? "active" : ""}`}
+            onClick={() => setActiveTab("kitchen")}
+          >
+            Kitchen Orders
+          </button>
         </div>
 
         {activeTab === "registrations" && (
           <div className="section-card">
-            <div className="section-header">
-              <h2 className="section-title">Event Registrations</h2>
-            </div>
-
             <div className="table-container">
               <table className="data-table">
                 <thead>
@@ -1700,11 +2162,6 @@ const AdminDashboard = ({ onLogout }) => {
 
         {activeTab === "orders" && (
           <div className="section-card">
-            <div className="section-header">
-              <h2 className="section-title">Order Management</h2>
-            </div>
-
-            {/* ========== DATA-DRIVEN TABLE DISPLAY (MODIFIED) ========== */}
             <div className="subsection-header">
               <h3>Dine-In</h3>
             </div>
@@ -1725,7 +2182,7 @@ const AdminDashboard = ({ onLogout }) => {
             <div className="subsection-header">
               <h3>Pending Orders (Pickup or Delivery)</h3>
             </div>
-            {/* ======================================================== */}
+
             <div className="table-container">
               <table className="data-table">
                 <thead>
@@ -1819,17 +2276,7 @@ const AdminDashboard = ({ onLogout }) => {
 
         {activeTab === "menu" && (
           <div className="section-card">
-            <div
-              className="section-header"
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <h2 className="section-title">Menu Management</h2>
-            </div>
-            <div
+            {/* <div
               className="section-header"
               style={{
                 display: "flex",
@@ -1846,67 +2293,29 @@ const AdminDashboard = ({ onLogout }) => {
               >
                 Update Menu
               </button>
-            </div>
+            </div> */}
 
-            <div className="table-container">
-              <JsonEditor data={menuData} setData={setData} />
-              {/* <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Section Title</th>
-                    <th>Color</th>
-                    <th>Number of Items</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {menuData.items.length > 0 ? (
-                    menuData.items.map((section, index) => (
-                      <tr key={section._id || section.id || index}>
-                        <td>
-                          <strong>
-                            {section.title ||
-                              section.name ||
-                              `Section ${index + 1}`}
-                          </strong>
-                        </td>
-                        <td>
-                          <div className="color-display">
-                            <div
-                              className="color-circle"
-                              style={{
-                                backgroundColor: section.color || "#FFA500",
-                              }}
-                            ></div>
-                            <span>{section.color || "#FFA500"}</span>
-                          </div>
-                        </td>
-                        <td>
-                          <strong>
-                            {section.itemCount || section.items?.length || 0}
-                          </strong>
-                        </td>
-                        <td>
-                          <div style={{ display: "flex", gap: "10px" }}>
-                            <button
-                              className="view-btn"
-                              onClick={() => handleView(section, "menu")}
-                            >
-                              View
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="4" className="empty-state">
-                        No menu sections found
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>{" "} */}
+            <div className="category-grid">
+              {menuData?.items?.length > 0 ? (
+                menuData.items.map((category, index) => (
+                  <div key={category._id || index} className="category-card">
+                    <h3>{category.title}</h3>
+                    <p>Items: {category.items?.length || 0}</p>
+                    <button
+                      className="btn-primary"
+                      onClick={() => {
+                        setSelectedSection(category);
+                        setModalType("manage-items");
+                        setShowModal(true);
+                      }}
+                    >
+                      Manage Items
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p>No categories found.</p>
+              )}
             </div>
 
             {renderPagination(menuData, (page) =>
@@ -1925,8 +2334,6 @@ const AdminDashboard = ({ onLogout }) => {
                 alignItems: "center",
               }}
             >
-              <h2 className="section-title">Settings</h2>
-
               <div className="table-container" style={{ padding: "2rem" }}>
                 <OrderTypeRadios />
               </div>
@@ -1944,17 +2351,6 @@ const AdminDashboard = ({ onLogout }) => {
 
         {activeTab === "reports" && (
           <div className="section-card">
-            <div
-              className="section-header"
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <h2 className="section-title">Reports</h2>
-            </div>
-
             <div className="table-container">
               <OrdersTable />
             </div>
@@ -1965,9 +2361,201 @@ const AdminDashboard = ({ onLogout }) => {
           </div>
         )}
 
+        {activeTab === "kitchen" && (
+          <div className="section-card">
+            <KitchenOrdersTable />
+          </div>
+        )}
+
         {renderModal()}
       </div>
     </>
+  );
+};
+
+const KitchenOrdersTable = () => {
+  const [kitchenOrders, setKitchenOrders] = useState({
+    items: [],
+    totalPages: 1,
+    currentPage: 1,
+  });
+  const [page, setPage] = useState(1);
+  const limit = 10;
+  const [authToken] = useState("Basic " + btoa("admin:password123"));
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const tableHeaderStyle = {
+    border: "1px solid #000",
+    padding: "8px",
+    backgroundColor: "#f0f0f0",
+  };
+
+  const tableCellStyle = {
+    border: "1px solid #000",
+    padding: "8px",
+    textAlign: "center",
+  };
+
+  const buttonStyle = {
+    padding: "5px 10px",
+    margin: "0 5px",
+    border: "1px solid #000",
+    cursor: "pointer",
+  };
+
+  const fetchKitchenOrdersData = useCallback(async () => {
+    try {
+      setError("");
+      const response = await fetch(
+        `/order/kitchen?page=${page}&limit=${limit}`,
+        {
+          headers: {
+            Authorization: authToken,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `Server error (${response.status})`
+        );
+      }
+      const data = await response.json();
+      setKitchenOrders({
+        items: data.results,
+        totalPages: data.totalPages,
+        currentPage: page,
+      });
+    } catch (err) {
+      setError(`Failed to load kitchen orders: ${err.message}`);
+      setKitchenOrders({ items: [], totalPages: 1, currentPage: 1 });
+    }
+  }, [page, authToken]);
+
+  useEffect(() => {
+    fetchKitchenOrdersData();
+  }, [fetchKitchenOrdersData]);
+
+  const handlePrintOrder = async (orderId) => {
+    if (!window.confirm("Mark this order as sent to kitchen and print?")) {
+      return;
+    }
+    try {
+      const response = await fetch(`/order/kitchen/${orderId}/send`, {
+        method: "PUT",
+        headers: {
+          Authorization: authToken,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `Server error (${response.status})`
+        );
+      }
+      setSuccess("Order marked as sent to kitchen!");
+      setTimeout(() => setSuccess(""), 3000);
+      fetchKitchenOrdersData(); // Refresh the list
+      // Implement actual print functionality here if needed
+      alert("Order sent to kitchen and marked as printed!");
+    } catch (err) {
+      setError(`Failed to mark order as sent: ${err.message}`);
+    }
+  };
+
+  return (
+    <div style={{ padding: "20px" }}>
+      {error && <div className="alert alert-error">{error}</div>}
+      {success && <div className="alert alert-success">{success}</div>}
+      <table style={{ borderCollapse: "collapse", width: "100%" }}>
+        <thead>
+          <tr>
+            <th style={tableHeaderStyle}>Order Number</th>
+            <th style={tableHeaderStyle}>Table Number</th>
+            <th style={tableHeaderStyle}>Items</th>
+            <th style={tableHeaderStyle}>Total Amount</th>
+            <th style={tableHeaderStyle}>Order Date</th>
+            <th style={tableHeaderStyle}>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {kitchenOrders.items.length > 0 ? (
+            kitchenOrders.items.map((order) => (
+              <tr key={order._id}>
+                <td style={tableCellStyle}>{order.orderNumber}</td>
+                <td style={tableCellStyle}>{order.tableNumber}</td>
+                <td style={tableCellStyle}>
+                  <ul>
+                    {order.items.map((item, index) => (
+                      <li key={index}>
+                        {item.name} x {item.quantity}
+                        {item.spiceLevel && ` (${item.spiceLevel})`}
+                        {item.addons && item.addons.length > 0 && (
+                          <span>
+                            {" "}
+                            +{" "}
+                            {item.addons
+                              .map((a) => a.name.replace(/^Add\s/, "").trim())
+                              .join(", ")}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+                <td style={tableCellStyle}>${order.totalAmount.toFixed(2)}</td>
+                <td style={tableCellStyle}>
+                  {new Date(order.createdAt).toLocaleString()}
+                </td>
+                <td style={tableCellStyle}>
+                  <button
+                    onClick={() => handlePrintOrder(order._id)}
+                    style={{
+                      ...buttonStyle,
+                      backgroundColor: "#28a745",
+                      color: "white",
+                    }}
+                  >
+                    Print to Kitchen
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="6" style={tableCellStyle}>
+                No pending dine-in orders for kitchen.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+
+      <div style={{ marginTop: "10px", textAlign: "center" }}>
+        <button
+          onClick={() => setPage((p) => Math.max(p - 1, 1))}
+          disabled={page === 1}
+          style={buttonStyle}
+        >
+          Prev
+        </button>
+        <span style={{ margin: "0 10px" }}>
+          Page {page} of {kitchenOrders.totalPages}
+        </span>
+        <button
+          onClick={() =>
+            setPage((p) => Math.min(p + 1, kitchenOrders.totalPages))
+          }
+          disabled={page === kitchenOrders.totalPages}
+          style={buttonStyle}
+        >
+          Next
+        </button>
+      </div>
+    </div>
   );
 };
 

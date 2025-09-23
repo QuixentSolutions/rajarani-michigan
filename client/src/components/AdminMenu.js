@@ -2,6 +2,11 @@ import React, { useState, useCallback } from "react";
 import "./AdminMenu.css"; // Import the new CSS file
 
 const spiceLevels = ["Mild", "Medium", "Hot", "Very Mild", "Indian Hot"];
+const predefinedAddons = [
+  { name: "Veggies", price: 1 },
+  { name: "Meat", price: 2 },
+];
+
 const AdminMenu = ({
   menuData,
   handleSaveMenu,
@@ -328,10 +333,6 @@ const AdminMenu = ({
                                 <label>Select Addons</label>
                                 <div className="checkbox-group">
                                   {(() => {
-                                    const predefinedAddons = [
-                                      { name: "Veggies", price: 1 },
-                                      { name: "Meat", price: 2 },
-                                    ];
                                     const allAddonsMap = new Map();
 
                                     predefinedAddons.forEach((addon) =>

@@ -6,7 +6,7 @@ function BestDelivered() {
   const imageUrls = Array.from(
     { length: 10 },
     (_, i) =>
-      `https://rajarani-michigan.s3.us-east-2.amazonaws.com/best-delivered/${
+      `https://rajarani-canton.s3.us-east-2.amazonaws.com/best-delivered/${
         i + 1
       }.jpeg`
   );

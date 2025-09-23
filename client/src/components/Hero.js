@@ -9,16 +9,14 @@ function Hero() {
   const galleryImages = Array.from(
     { length: 10 },
     (_, i) =>
-      `https://rajarani-michigan.s3.us-east-2.amazonaws.com/gallery/${
-        i + 1
-      }.png`
+      `https://rajarani-canton.s3.us-east-2.amazonaws.com/gallery/${i + 1}.png`
   );
   //   const tryExtensions = [".png", ".jpg", ".jpeg", ".webp"];
 
   //   const galleryImages = Array.from({ length: 10 }, (_, i) =>
   //   tryExtensions.map(
   //     (ext) =>
-  //       `https://rajarani-michigan.s3.us-east-2.amazonaws.com/gallery/${i + 1}${ext}`
+  //       `https://rajarani-canton.s3.us-east-2.amazonaws.com/gallery/${i + 1}${ext}`
   //   )
   // ).flat();
 
@@ -51,10 +49,10 @@ function Hero() {
       <div className="container">
         <div className="hero-content">
           <div className="header-container-div">
-          <h1>
-            Experience the <span>Taste</span> of the South
-          </h1>
-          <img src="/halal_food.png" alt="Halal" />
+            <h1>
+              Experience the <span>Taste</span> of the South
+            </h1>
+            <img src="/halal_food.png" alt="Halal" />
           </div>
           <p
             style={{

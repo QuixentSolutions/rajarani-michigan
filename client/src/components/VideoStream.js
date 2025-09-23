@@ -2,8 +2,10 @@ import { useState } from "react";
 
 function VideoStream() {
   const [validVideos, setValidVideos] = useState([]);
-  const potentialVideos = Array.from({ length: 10 }, (_, i) =>
-    `https://rajarani-michigan.s3.us-east-2.amazonaws.com/video/${i + 1}.MP4`
+  const potentialVideos = Array.from(
+    { length: 10 },
+    (_, i) =>
+      `https://rajarani-canton.s3.us-east-2.amazonaws.com/video/${i + 1}.MP4`
   );
 
   const [loadedCount, setLoadedCount] = useState(0);

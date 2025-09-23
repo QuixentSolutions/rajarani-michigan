@@ -132,36 +132,36 @@ function Header() {
     e.preventDefault();
 
     // Validate mobile number for non-dine-in orders
-    const mobileRegex = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}$/;
-    if (
-      orderMode !== "dinein" &&
-      (!mobileNumber || !mobileRegex.test(mobileNumber.trim()))
-    ) {
-      setMobileError("Please enter a valid mobile number.");
-      setIsLoading(false);
-      setIsPopupOpen(true);
-      return;
-    }
-    setMobileError("");
+    // const mobileRegex = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}$/;
+    // if (
+    //   orderMode !== "dinein" &&
+    //   (!mobileNumber || !mobileRegex.test(mobileNumber.trim()))
+    // ) {
+    //   setMobileError("Please enter a valid mobile number.");
+    //   setIsLoading(false);
+    //   setIsPopupOpen(true);
+    //   return;
+    // }
+    // setMobileError("");
 
-    // Validate email (CRITICAL - this must happen first)
+    // // Validate email (CRITICAL - this must happen first)
 
-    if (orderMode !== "dinein") {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!email || !emailRegex.test(email.trim())) {
-        setEmailError("Please enter a valid email address.");
-        setIsLoading(false);
-        setIsPopupOpen(true);
-        return;
-      }
+    // if (orderMode !== "dinein") {
+    //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    //   if (!email || !emailRegex.test(email.trim())) {
+    //     setEmailError("Please enter a valid email address.");
+    //     setIsLoading(false);
+    //     setIsPopupOpen(true);
+    //     return;
+    //   }
 
-      if (!name || name.trim().length < 2) {
-        setNameError("Name cannot be empty");
-        setIsLoading(false);
-        setIsPopupOpen(true);
-        return;
-      }
-    }
+    //   if (!name || name.trim().length < 2) {
+    //     setNameError("Name cannot be empty");
+    //     setIsLoading(false);
+    //     setIsPopupOpen(true);
+    //     return;
+    //   }
+    // }
     setEmailError("");
 
     // Validate address for delivery

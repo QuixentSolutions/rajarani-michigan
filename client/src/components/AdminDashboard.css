@@ -7,7 +7,8 @@
 
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: url('/public/bg-2.jpeg') no-repeat center center fixed;
+  background-color: #2a2a2a; /* Solid dark background for testing */
+  /* background: url('/public/bg-2.jpeg') no-repeat center center fixed; */ /* Temporarily removed background image */
   background-size: cover;
   min-height: 100vh;
   line-height: 1.6;
@@ -16,7 +17,8 @@ body {
 
 .admin-dashboard {
   min-height: 100vh;
-  background: url('/public/bg-2.jpeg') no-repeat center center fixed;
+  background-color: #2a2a2a; /* Solid dark background for testing */
+  /* background: url('/public/bg-2.jpeg') no-repeat center center fixed; */ /* Temporarily removed background image */
   background-size: cover;
   padding: clamp(10px, 2vw, 20px);
 }
@@ -111,6 +113,14 @@ body {
   backdrop-filter: blur(10px);
   font-size: clamp(12px, 1.5vw, 14px);
   word-wrap: break-word;
+  position: fixed; /* Make it fixed so it stays in view */
+  top: 20px; /* Position from the top */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Adjust for exact centering */
+  z-index: 3000; /* Ensure it's above other elements, including modals */
+  width: 90%; /* Take up most of the width */
+  max-width: 500px; /* Max width for larger screens */
+  text-align: center; /* Center the text */
 }
 
 .alert-error {
@@ -228,13 +238,14 @@ body {
 
 /* Enhanced section cards with backdrop blur */
 .section-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: white; /* Changed to opaque white */
   border-radius: clamp(15px, 2vw, 20px);
   padding: clamp(20px, 3vw, 30px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
+  /* box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); */ /* Removed box-shadow */
+  /* backdrop-filter: blur(10px); */ /* Removed backdrop-filter */
   margin-bottom: 20px;
   color: #333;
+  overflow: hidden; /* Added overflow: hidden */
 }
 
 .section-header {
@@ -813,6 +824,7 @@ body {
   background: linear-gradient(135deg, #f8f9fa, #e9ecef);
   padding: clamp(20px, 3vw, 25px);
   border-radius: 15px;
+  margin-top: 30px; /* Added space on top */
   margin-bottom: clamp(25px, 4vw, 30px);
   border: 2px solid #FFA500;
 }
@@ -844,7 +856,7 @@ body {
   border: 2px solid #e0e0e0;
   border-radius: 15px;
   padding: clamp(15px, 3vw, 20px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); */ /* Removed box-shadow */
   transition: all 0.3s ease;
 }
 
@@ -1723,63 +1735,4 @@ button:focus-visible,
   padding: 10px 20px;
   border-radius: 4px;
   cursor: pointer;
-}
-
-.category-card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  padding: 16px;
-  margin: 12px;
-  width: 250px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.category-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-}
-
-.category-card h3 {
-  font-size: 1.25rem;
-  margin-bottom: 8px;
-  color: #333;
-}
-
-.category-card p {
-  color: #666;
-  margin-bottom: 12px;
-}
-
-.btn-primary {
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-}
-
-
-.category-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.category-card {
-  flex: 0 0 250px; /* fixed width cards */
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  padding: 16px;
 }

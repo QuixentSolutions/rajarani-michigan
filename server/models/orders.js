@@ -22,10 +22,7 @@ const orderSchema = new mongoose.Schema({
       quantity: Number,
       price: Number,
       basePrice: Number,
-      spiceLevel: {
-        type: String,
-        enum: ["Medium", "Very Mild", "Hot", "Indian Hot", "Mild"],
-      },
+      spiceLevel: String, // Removed enum constraint
       addons: [
         {
           name: String,
@@ -60,7 +57,8 @@ const orderSchema = new mongoose.Schema({
     default: "pending",
   },
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },  
+  sentToKitchen: { type: Number, enum: [0, 1], default: 0 },
 });
 
 module.exports = mongoose.model("Order", orderSchema);

@@ -13,6 +13,7 @@ const settingsRoutes = require("./routes/settings");
 const app = express();
 app.use(cors());
 app.use(express.json());
+// app.use(bodyParser.json());
 
 // API routes first
 app.use("/health", healthRoutes);

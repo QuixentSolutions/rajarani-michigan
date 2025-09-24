@@ -3,15 +3,22 @@ const mongoose = require("mongoose");
 const menuSchema = new mongoose.Schema({
   title: { type: String, required: true },
   color: String,
+  days: [String],
   items: [
     {
       name: String,
-      price: String,
+      price: Number,
+      spicelevel: [String],
+      addons: [
+        {
+          name: String,
+          price: Number,
+        },
+      ],
     },
   ],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  sentToKitchen: { type: Number, enum: [0, 1], default: 0 },
 });
 
-module.exports = mongoose.model("menus", menuSchema);
+module.exports = mongoose.model("Menu", menuSchema);

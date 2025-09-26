@@ -1,218 +1,263 @@
 db.menus.insert([
   {
-  "title": "Weekend Specials",
-  "color": "#FFA500",
-  "days": [ "Friday","Saturday", "Sunday"],
-  "items": [
-  {
-    "name": "Cut Mirchi",
-    "price": "8.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Mushroom Manchurian",
-    "price": "14.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Chilli Mushroom",
-    "price": "14.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Raja Rani Special Chicken Wings",
-    "price": "15.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Nethili Fish Fry",
-    "price": "16.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Lamb Chops",
-    "price": "19.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Squid Pepper Fry W Kushka",
-    "price": "16.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Vaniyambadi Chicken Briyani",
-    "price": "16.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  },
-  {
-    "name": "Bhai Style Mutton Briyani",
-    "price": "18.99",
-    "addons": [
-      {
-        "name": "Add Veggies",
-        "price": "1.00"
-      },
-      {
-        "name": "Add Meat",
-        "price": "2.00"
-      }
-    ],
-    "spicelevel": [
-      "Medium",
-      "Very Mild",
-      "Hot",
-      "Indian Hot",
-      "Mild"
-    ]
-  } 
-    ]
-  },
-  {
-    "title": "People Choice",
+    "_id": "68d382edc05455211ec1d1eb",
+    "title": "Weekend Specials",
     "color": "#FFA500",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d1ec",
+        "name": "Cut Mirchi",
+        "price": "8.99",
+        "addons": [
+          {
+            "_id": "68d382edc05455211ec1d1ed",
+            "name": "Add Veggies",
+            "price": "1.00"
+          },
+          {
+            "_id": "68d382edc05455211ec1d1ee",
+            "name": "Add Meat",
+            "price": "2.00"
+          }
+        ],
+        "spicelevel": [
+          "Medium",
+          "Very Mild",
+          "Hot",
+          "Indian Hot",
+          "Mild"
+        ]
+      },
+      {
+        "_id": "68d382edc05455211ec1d1ef",
+        "name": "Mushroom Manchurian",
+        "price": "14.99",
+        "addons": [
+          {
+            "_id": "68d382edc05455211ec1d1f0",
+            "name": "Add Veggies",
+            "price": "1.00"
+          },
+          {
+            "_id": "68d382edc05455211ec1d1f1",
+            "name": "Add Meat",
+            "price": "2.00"
+          }
+        ],
+        "spicelevel": [
+          "Medium",
+          "Very Mild",
+          "Hot",
+          "Indian Hot",
+          "Mild"
+        ]
+      },
+      {
+        "_id": "68d382edc05455211ec1d1f2",
+        "name": "Chilli Mushroom",
+        "price": "14.99",
+        "addons": [
+          {
+            "_id": "68d382edc05455211ec1d1f3",
+            "name": "Add Veggies",
+            "price": "1.00"
+          },
+          {
+            "_id": "68d382edc05455211ec1d1f4",
+            "name": "Add Meat",
+            "price": "2.00"
+          }
+        ],
+        "spicelevel": [
+          "Medium",
+          "Very Mild",
+          "Hot",
+          "Indian Hot",
+          "Mild"
+        ]
+      },
+      {
+        "_id": "68d382edc05455211ec1d1f5",
+        "name": "Raja Rani Special Chicken Wings",
+        "price": "15.99",
+        "addons": [
+          {
+            "_id": "68d382edc05455211ec1d1f6",
+            "name": "Add Veggies",
+            "price": "1.00"
+          },
+          {
+            "_id": "68d382edc05455211ec1d1f7",
+            "name": "Add Meat",
+            "price": "2.00"
+          }
+        ],
+        "spicelevel": [
+          "Medium",
+          "Very Mild",
+          "Hot",
+          "Indian Hot",
+          "Mild"
+        ]
+      },
+      {
+        "_id": "68d382edc05455211ec1d1f8",
+        "name": "Nethili Fish Fry",
+        "price": "16.99",
+        "addons": [
+          {
+            "_id": "68d382edc05455211ec1d1f9",
+            "name": "Add Veggies",
+            "price": "1.00"
+          },
+          {
+            "_id": "68d382edc05455211ec1d1fa",
+            "name": "Add Meat",
+            "price": "2.00"
+          }
+        ],
+        "spicelevel": [
+          "Medium",
+          "Very Mild",
+          "Hot",
+          "Indian Hot",
+          "Mild"
+        ]
+      },
+      {
+        "_id": "68d382edc05455211ec1d1fb",
+        "name": "Lamb Chops",
+        "price": "19.99",
+        "addons": [
+          {
+            "_id": "68d382edc05455211ec1d1fc",
+            "name": "Add Veggies",
+            "price": "1.00"
+          },
+          {
+            "_id": "68d382edc05455211ec1d1fd",
+            "name": "Add Meat",
+            "price": "2.00"
+          }
+        ],
+        "spicelevel": [
+          "Medium",
+          "Very Mild",
+          "Hot",
+          "Indian Hot",
+          "Mild"
+        ]
+      },
+      {
+        "_id": "68d382edc05455211ec1d1fe",
+        "name": "Squid Pepper Fry W Kushka",
+        "price": "16.99",
+        "addons": [
+          {
+            "_id": "68d382edc05455211ec1d1ff",
+            "name": "Add Veggies",
+            "price": "1.00"
+          },
+          {
+            "_id": "68d382edc05455211ec1d200",
+            "name": "Add Meat",
+            "price": "2.00"
+          }
+        ],
+        "spicelevel": [
+          "Medium",
+          "Very Mild",
+          "Hot",
+          "Indian Hot",
+          "Mild"
+        ]
+      },
+      {
+        "_id": "68d382edc05455211ec1d201",
+        "name": "Vaniyambadi Chicken Briyani",
+        "price": "16.99",
+        "addons": [
+          {
+            "_id": "68d382edc05455211ec1d202",
+            "name": "Add Veggies",
+            "price": "1.00"
+          },
+          {
+            "_id": "68d382edc05455211ec1d203",
+            "name": "Add Meat",
+            "price": "2.00"
+          }
+        ],
+        "spicelevel": [
+          "Medium",
+          "Very Mild",
+          "Hot",
+          "Indian Hot",
+          "Mild"
+        ]
+      },
+      {
+        "_id": "68d382edc05455211ec1d204",
+        "name": "Bhai Style Mutton Briyani",
+        "price": "18.99",
+        "addons": [
+          {
+            "_id": "68d382edc05455211ec1d205",
+            "name": "Add Veggies",
+            "price": "1.00"
+          },
+          {
+            "_id": "68d382edc05455211ec1d206",
+            "name": "Add Meat",
+            "price": "2.00"
+          }
+        ],
+        "spicelevel": [
+          "Medium",
+          "Very Mild",
+          "Hot",
+          "Indian Hot",
+          "Mild"
+        ]
+      }
+    ]
+  },
+  {
+    "_id": "68d382edc05455211ec1d207",
+    "title": "People Choice",
+    "color": "#FFA500",
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "items": [
+      {
+        "_id": "68d382edc05455211ec1d208",
         "name": "Veg Samosa",
         "price": "5.99"
       },
       {
+        "_id": "68d382edc05455211ec1d209",
         "name": "Butter Chicken",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d20a",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d20b",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -226,14 +271,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d20c",
         "name": "Chicken vindaloo",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d20d",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d20e",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -247,14 +295,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d20f",
         "name": "Paneer Butter Masala",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d210",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d211",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -268,14 +319,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d212",
         "name": "Palak Paneer",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d213",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d214",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -291,19 +345,31 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d215",
     "title": "Raja Rani Hand Crafted Menu",
     "color": "#FFA500",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d216",
         "name": "Broccoli 65",
         "price": "14.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d217",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d218",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -317,14 +383,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d219",
         "name": "Parotta Veg Salna",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d21a",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d21b",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -338,14 +407,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d21c",
         "name": "Madurai Kari Dosa",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d21d",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d21e",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -359,14 +431,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d21f",
         "name": "Kizhi Parotta",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d220",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d221",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -380,14 +455,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d222",
         "name": "Parotta W Natu Kozhi Salna",
         "price": "19.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d223",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d224",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -401,14 +479,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d225",
         "name": "Idly W Natu Kozhi Salna",
         "price": "19.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d226",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d227",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -424,58 +505,87 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d228",
     "title": "Idly - Vada",
     "color": "#008000",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d229",
         "name": "Idly (3pcs)",
         "price": "9.99"
       },
       {
+        "_id": "68d382edc05455211ec1d22a",
         "name": "Ghee Podi Idly",
         "price": "9.99"
       },
       {
+        "_id": "68d382edc05455211ec1d22b",
         "name": "Idly (2pc) & Vada Combo (1)",
         "price": "8.99"
       },
       {
+        "_id": "68d382edc05455211ec1d22c",
         "name": "Thattu Idly (2pcs)",
         "price": "8.99"
       },
       {
+        "_id": "68d382edc05455211ec1d22d",
         "name": "Medu Vada (2 pcs)",
         "price": "5.99"
       },
       {
+        "_id": "68d382edc05455211ec1d22e",
         "name": "Curd Vada (2pcs)",
         "price": "8.99"
       },
       {
+        "_id": "68d382edc05455211ec1d22f",
         "name": "Pongal w Palli Chutney",
         "price": "9.99"
       }
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d230",
     "title": "Dosa Varieties",
     "color": "#FFA500",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d231",
         "name": "Plain Dosa",
         "price": "10.99"
       },
       {
+        "_id": "68d382edc05455211ec1d232",
         "name": "Andhra Kara Dosa",
         "price": "11.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d233",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d234",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -489,14 +599,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d235",
         "name": "Madurai Malli Dosa",
         "price": "12.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d236",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d237",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -510,14 +623,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d238",
         "name": "Madras Masala Dosa",
         "price": "11.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d239",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d23a",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -531,26 +647,32 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d23b",
         "name": "Onion Dosa",
         "price": "10.99"
       },
       {
+        "_id": "68d382edc05455211ec1d23c",
         "name": "Onion Uthappam",
         "price": "10.99"
       },
       {
+        "_id": "68d382edc05455211ec1d23d",
         "name": "Ghee Roast Dosa",
         "price": "12.99"
       },
       {
+        "_id": "68d382edc05455211ec1d23e",
         "name": "Egg Dosa",
         "price": "12.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d23f",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d240",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -564,14 +686,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d241",
         "name": "Dosa w Chicken Curry",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d242",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d243",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -585,14 +710,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d244",
         "name": "Mysore Masala Dosa",
         "price": "12.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d245",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d246",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -608,19 +736,31 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d247",
     "title": "Soups - Broth",
     "color": "#FFA500",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d248",
         "name": "Nattu Kozhi Chicken Soup",
         "price": "11.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d249",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d24a",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -634,14 +774,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d24b",
         "name": "Veg Hot & Sour Soup",
         "price": "6.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d24c",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d24d",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -655,14 +798,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d24e",
         "name": "Chicken Hot & Sour Soup",
         "price": "8.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d24f",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d250",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -676,14 +822,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d251",
         "name": "Sweet Corn Soup",
         "price": "7.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d252",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d253",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -699,46 +848,72 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d254",
     "title": "Chats",
     "color": "#008000",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d255",
         "name": "Aloo Tikki Chat",
         "price": "8.99"
       },
       {
+        "_id": "68d382edc05455211ec1d256",
         "name": "Kachori Chat",
         "price": "8.99"
       },
       {
+        "_id": "68d382edc05455211ec1d257",
         "name": "Samosa Chat",
         "price": "8.99"
       },
       {
+        "_id": "68d382edc05455211ec1d258",
         "name": "Pappdi Chat",
         "price": "8.99"
       },
       {
+        "_id": "68d382edc05455211ec1d259",
         "name": "RR Special Mixed Chat",
         "price": "10.99"
       }
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d25a",
     "title": "Street Side Specials",
     "color": "#FFA500",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d25b",
         "name": "Chole Bhature",
         "price": "13.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d25c",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d25d",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -752,14 +927,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d25e",
         "name": "Egg Kothu Parota",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d25f",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d260",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -773,14 +951,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d261",
         "name": "Veg Kothu Parotta",
         "price": "14.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d262",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d263",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -794,14 +975,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d264",
         "name": "Veg Fried Rice",
         "price": "14.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d265",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d266",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -815,14 +999,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d267",
         "name": "Egg Fried Rice",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d268",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d269",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -836,14 +1023,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d26a",
         "name": "Chicken Fried Rice",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d26b",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d26c",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -857,14 +1047,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d26d",
         "name": "Veg Hakka Noodles",
         "price": "14.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d26e",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d26f",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -878,14 +1071,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d270",
         "name": "Egg Hakka Noodles",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d271",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d272",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -899,14 +1095,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d273",
         "name": "Chicken Hakka Noodles",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d274",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d275",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -920,14 +1119,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d276",
         "name": "Chicken Kothu Parotta",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d277",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d278",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -943,27 +1145,41 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d279",
     "title": "Appetizer Veg",
     "color": "#008000",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d27a",
         "name": "Onion Pakoda",
         "price": "7.99"
       },
       {
+        "_id": "68d382edc05455211ec1d27b",
         "name": "Onion Samosa",
         "price": "6.99"
       },
       {
+        "_id": "68d382edc05455211ec1d27c",
         "name": "Gobi 65",
         "price": "13.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d27d",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d27e",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -977,14 +1193,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d27f",
         "name": "Gobi Manchurian",
         "price": "14.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d280",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d281",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -998,14 +1217,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d282",
         "name": "Paneer 65",
         "price": "14.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d283",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d284",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1019,14 +1241,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d285",
         "name": " Paneer Manchurian",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d286",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d287",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1040,14 +1265,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d288",
         "name": "Chilli Paneer",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d289",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d28a",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1061,14 +1289,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d28b",
         "name": "Chilli Baby Corn",
         "price": "14.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d28c",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d28d",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1082,14 +1313,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d28e",
         "name": " Baby Corn 65",
         "price": "14.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d28f",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d290",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1103,14 +1337,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d291",
         "name": "Baby Corn Manchurian",
         "price": "14.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d292",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d293",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1126,19 +1363,31 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d294",
     "title": "Appetizer Non Veg",
     "color": "#FF0000",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d295",
         "name": "Chicken 65",
         "price": "14.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d296",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d297",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1152,14 +1401,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d298",
         "name": "Chicken 555",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d299",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d29a",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1173,14 +1425,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d29b",
         "name": "Chilli Chicken",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d29c",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d29d",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1194,14 +1449,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d29e",
         "name": "Village Style Natu Kozhi Pepper Fry",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d29f",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2a0",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1215,14 +1473,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2a1",
         "name": "Village Style Pepper Chicken Fry",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2a2",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2a3",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1236,14 +1497,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2a4",
         "name": "Karampodi Chicken",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2a5",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2a6",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1257,14 +1521,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2a7",
         "name": "Chicken Lolly Pop (6 pcs)",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2a8",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2a9",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1278,14 +1545,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2aa",
         "name": "Goat Sukka",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2ab",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2ac",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1299,14 +1569,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2ad",
         "name": "Village Style Goat Pepper Fry",
         "price": "18.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2ae",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2af",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1320,14 +1593,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2b0",
         "name": "Fish Pakoda (8 pcs)",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2b1",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2b2",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1341,14 +1617,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2b3",
         "name": "Apollo Fish (Tilapia)",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2b4",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2b5",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1362,14 +1641,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2b6",
         "name": "Raja Rani Special Tawa Fish Fry (5 pcs)",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2b7",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2b8",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1383,14 +1665,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2b9",
         "name": "Shrimp 65",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2ba",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2bb",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1404,14 +1689,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2bc",
         "name": "Karampodi Shrimp",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2bd",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2be",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1425,14 +1713,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2bf",
         "name": "Chicken Majestic",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2c0",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2c1",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1446,14 +1737,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2c2",
         "name": "Shrimp Majestic",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2c3",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2c4",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1469,19 +1763,31 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d2c5",
     "title": "Tandoori",
     "color": "#FFA500",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d2c6",
         "name": "Paneer Tikka",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2c7",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2c8",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1495,14 +1801,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2c9",
         "name": "Chicken Tikka",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2ca",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2cb",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1516,14 +1825,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2cc",
         "name": "Tandoori Chicken Full (8 pcs)",
         "price": "19.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2cd",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2ce",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1537,14 +1849,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2cf",
         "name": "Tandoori Chicken Half (4 pcs)",
         "price": "11.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2d0",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2d1",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1558,14 +1873,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2d2",
         "name": "Tandoori Shrimp",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2d3",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2d4",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1579,14 +1897,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2d5",
         "name": "Tandoori Platter",
         "price": "19.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2d6",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2d7",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1600,14 +1921,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2d8",
         "name": "Tandoori Fish",
         "price": "20.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2d9",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2da",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1623,19 +1947,31 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d2db",
     "title": "Veg Entrée",
     "color": "#008000",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d2dc",
         "name": "Malai Kofta",
         "price": "14.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2dd",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2de",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1649,14 +1985,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2df",
         "name": "Paneer Butter Masala",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2e0",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2e1",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1670,14 +2009,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2e2",
         "name": "Palak Paneer",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2e3",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2e4",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1691,14 +2033,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2e5",
         "name": "Mutter Paneer",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2e6",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2e7",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1712,14 +2057,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2e8",
         "name": "Paneer Tikka Masala",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2e9",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2ea",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1733,14 +2081,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2eb",
         "name": "Kadai Paneer",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2ec",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2ed",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1754,14 +2105,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2ee",
         "name": "Shahi Paneer",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2ef",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2f0",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1775,14 +2129,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2f1",
         "name": "Paneer Chettinad",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2f2",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2f3",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1796,14 +2153,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2f4",
         "name": "Channa Masala",
         "price": "12.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2f5",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2f6",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1817,14 +2177,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2f7",
         "name": "Bhindi Masala",
         "price": "13.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2f8",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2f9",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1838,14 +2201,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2fa",
         "name": "Aloo Gobi",
         "price": "13.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2fb",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2fc",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1859,14 +2225,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d2fd",
         "name": "Mixed Vegetable Masala",
         "price": "13.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d2fe",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d2ff",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1880,14 +2249,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d300",
         "name": "Dal Tadka",
         "price": "12.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d301",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d302",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1901,14 +2273,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d303",
         "name": "Dal Makhani",
         "price": "13.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d304",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d305",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1922,14 +2297,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d306",
         "name": "Phool Makhana",
         "price": "14.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d307",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d308",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1943,14 +2321,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d309",
         "name": "Navrattan Kurma",
         "price": "14.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d30a",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d30b",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1966,19 +2347,31 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d30c",
     "title": "Non-Veg Entrée / Chicken",
     "color": "#FF0000",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d30d",
         "name": "Hyderabadi Chicken Curry",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d30e",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d30f",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -1992,14 +2385,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d310",
         "name": "Chicken Vindaloo",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d311",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d312",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2013,14 +2409,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d313",
         "name": "Kadai Chicken",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d314",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d315",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2034,14 +2433,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d316",
         "name": "Chicken Chettinad",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d317",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d318",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2055,14 +2457,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d319",
         "name": "Butter Chicken",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d31a",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d31b",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2076,14 +2481,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d31c",
         "name": "Chicken Tikka Masala",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d31d",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d31e",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2097,14 +2505,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d31f",
         "name": "Chicken Mughlai",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d320",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d321",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2118,14 +2529,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d322",
         "name": "Chicken Mandhakini",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d323",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d324",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2139,14 +2553,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d325",
         "name": "Gongura Chicken Curry (Chef's Special)",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d326",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d327",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2160,14 +2577,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d328",
         "name": "Nattukodi Chicken Curry (Chef's Special)",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d329",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d32a",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2183,19 +2603,31 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d32b",
     "title": "Non-Veg Entrée Goat",
     "color": "#FF0000",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d32c",
         "name": "Hyderabadi Goat Curry",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d32d",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d32e",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2209,14 +2641,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d32f",
         "name": "Goat Kurma",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d330",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d331",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2230,14 +2665,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d332",
         "name": "Goat Chettinad",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d333",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d334",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2251,14 +2689,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d335",
         "name": "Goat Rogan Josh",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d336",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d337",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2272,14 +2713,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d338",
         "name": "Kadai Ghosh",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d339",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d33a",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2295,19 +2739,31 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d33b",
     "title": "Non-Veg Entrée Lamb",
     "color": "#FF0000",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d33c",
         "name": "Hyderabadi Lamb Curry",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d33d",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d33e",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2321,14 +2777,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d33f",
         "name": "Lamb Kurma",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d340",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d341",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2342,14 +2801,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d342",
         "name": "Lamb Chettinad",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d343",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d344",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2363,14 +2825,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d345",
         "name": "Lamb Rogan Josh",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d346",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d347",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2386,19 +2851,31 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d348",
     "title": "Non-Veg Entrée / Seafood",
     "color": "#FF0000",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d349",
         "name": "Fish Curry",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d34a",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d34b",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2412,14 +2889,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d34c",
         "name": "Malabar Fish Curry",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d34d",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d34e",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2433,14 +2913,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d34f",
         "name": "Shrimp Tikka Masala",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d350",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d351",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2454,14 +2937,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d352",
         "name": "Shrimp Masala",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d353",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d354",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2477,19 +2963,31 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d355",
     "title": "Biryani",
     "color": "#FFA500",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d356",
         "name": "Vegetable Dum Biryani",
         "price": "14.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d357",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d358",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2503,14 +3001,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d359",
         "name": "Paneer Dum Biryani",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d35a",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d35b",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2524,14 +3025,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d35c",
         "name": "Egg Dum Biryani",
         "price": "14.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d35d",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d35e",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2545,14 +3049,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d35f",
         "name": "Chicken Dum Biryani",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d360",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d361",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2566,14 +3073,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d362",
         "name": "Boneless Chicken 65 Dum Biryani",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d363",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d364",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2587,14 +3097,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d365",
         "name": "Goat Dum Biryani",
         "price": "18.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d366",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d367",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2608,14 +3121,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d368",
         "name": "Shrimp Biryani",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d369",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d36a",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2629,14 +3145,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d36b",
         "name": "Fish Biryani",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d36c",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d36d",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2650,14 +3169,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d36e",
         "name": "Lamb Biryani",
         "price": "18.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d36f",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d370",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2673,19 +3195,31 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d371",
     "title": "Special Biryani",
     "color": "#FFA500",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d372",
         "name": "Gongura Veg Biryani",
         "price": "15.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d373",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d374",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2699,14 +3233,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d375",
         "name": "Gongura Paneer Biryani",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d376",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d377",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2720,14 +3257,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d378",
         "name": "Kodi Vepudu Biryani",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d379",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d37a",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2741,14 +3281,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d37b",
         "name": "Bezawada Chicken Fry Biryani",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d37c",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d37d",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2762,14 +3305,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d37e",
         "name": "Natu Kodi Fry Biryani",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d37f",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d380",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2783,14 +3329,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d381",
         "name": "Chicken Ghee Roast with Khuska (Jeeraga Samba)",
         "price": "17.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d382",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d383",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2804,14 +3353,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d384",
         "name": "Mutton Ghee Roast with Khuska (Jeeraga Samba)",
         "price": "19.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d385",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d386",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2825,14 +3377,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d387",
         "name": "Egg Ghee Roast with Khuska (Jeeraga Samba)",
         "price": "16.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d388",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d389",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2848,131 +3403,200 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d38a",
     "title": "Breads",
     "color": "#008000",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d38b",
         "name": "Tandoor Roti",
         "price": "1.99"
       },
       {
+        "_id": "68d382edc05455211ec1d38c",
         "name": "Plain Naan",
         "price": "1.99"
       },
       {
+        "_id": "68d382edc05455211ec1d38d",
         "name": "Butter Naan",
         "price": "2.49"
       },
       {
+        "_id": "68d382edc05455211ec1d38e",
         "name": "Garlic Naan",
         "price": "2.99"
       },
       {
+        "_id": "68d382edc05455211ec1d38f",
         "name": "Onion Kulcha",
         "price": "2.99"
       },
       {
+        "_id": "68d382edc05455211ec1d390",
         "name": "Cheese Naan",
         "price": "3.99"
       },
       {
+        "_id": "68d382edc05455211ec1d391",
         "name": "Chilli Cheese Naan",
         "price": "3.99"
       },
       {
+        "_id": "68d382edc05455211ec1d392",
         "name": "Bullet Naan",
         "price": "3.99"
       }
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d393",
     "title": "Kids Menu",
     "color": "#FFA500",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d394",
         "name": "Cone Cheese Dosa",
         "price": "9.99"
       },
       {
+        "_id": "68d382edc05455211ec1d395",
         "name": "French Fries",
         "price": "5.99"
       },
       {
+        "_id": "68d382edc05455211ec1d396",
         "name": "Chicken Nugget",
         "price": "6.99"
       },
       {
+        "_id": "68d382edc05455211ec1d397",
         "name": "Cheese Nugget",
         "price": "5.99"
       }
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d398",
     "title": "Desserts",
     "color": "#008000",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d399",
         "name": "Gulab Jamun",
         "price": "4.99"
       },
       {
+        "_id": "68d382edc05455211ec1d39a",
         "name": "Rasamalai",
         "price": "4.99"
       }
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d39b",
     "title": "Beverages",
     "color": "#008000",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d39c",
         "name": "Masala Chai",
         "price": "2.99"
       },
       {
+        "_id": "68d382edc05455211ec1d39d",
         "name": "Madras Coffee",
         "price": "3.99"
       },
       {
+        "_id": "68d382edc05455211ec1d39e",
         "name": "Soda",
         "price": "1.99"
       },
       {
+        "_id": "68d382edc05455211ec1d39f",
         "name": "Indian Soda",
         "price": "2.99"
       },
       {
+        "_id": "68d382edc05455211ec1d3a0",
         "name": "Mango Lassi",
         "price": "3.99"
       },
       {
+        "_id": "68d382edc05455211ec1d3a1",
         "name": "Bottle Water",
         "price": "0.49"
       },
       {
+        "_id": "68d382edc05455211ec1d3a2",
         "name": "Frooti (Mango Drink)",
         "price": "1.99"
       }
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d3a3",
     "title": "Lunch Platters",
     "color": "#FFA500",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d3a4",
         "name": "Vegetarian Lunch Platter",
         "price": "12.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d3a5",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d3a6",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -2986,14 +3610,17 @@ db.menus.insert([
         ]
       },
       {
+        "_id": "68d382edc05455211ec1d3a7",
         "name": "Non-Veg Lunch Platter",
         "price": "13.99",
         "addons": [
           {
+            "_id": "68d382edc05455211ec1d3a8",
             "name": "Add Veggies",
             "price": "1.00"
           },
           {
+            "_id": "68d382edc05455211ec1d3a9",
             "name": "Add Meat",
             "price": "2.00"
           }
@@ -3009,43 +3636,61 @@ db.menus.insert([
     ]
   },
   {
+    "_id": "68d382edc05455211ec1d3aa",
     "title": "Extras",
     "color": "#008000",
-    "days": [ "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"],
+    "days": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
     "items": [
       {
+        "_id": "68d382edc05455211ec1d3ab",
         "name": "Raitha (4oz)",
         "price": "0.99"
       },
       {
+        "_id": "68d382edc05455211ec1d3ac",
         "name": "Sweet Paan",
         "price": "2.99"
       },
       {
+        "_id": "68d382edc05455211ec1d3ad",
         "name": "Pickle",
         "price": "1.99"
       },
       {
+        "_id": "68d382edc05455211ec1d3ae",
         "name": "Raitha (8oz)",
         "price": "1.99"
       },
       {
+        "_id": "68d382edc05455211ec1d3af",
         "name": "Plain Rice Small",
         "price": "2.99"
       },
       {
+        "_id": "68d382edc05455211ec1d3b0",
         "name": "Plain Rice Large",
         "price": "4.99"
       },
       {
+        "_id": "68d382edc05455211ec1d3b1",
         "name": "Sambar",
         "price": "9.99"
       },
       {
+        "_id": "68d382edc05455211ec1d3b2",
         "name": "Onion and Lemon",
         "price": "0.99"
       },
       {
+        "_id": "68d382edc05455211ec1d3b3",
         "name": "Extra Sauce",
         "price": "0.99"
       }

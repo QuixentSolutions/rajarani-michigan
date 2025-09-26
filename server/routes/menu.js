@@ -20,7 +20,7 @@ router.post("/", async (req, res) => {
     res.status(201).json(result);
   } catch (err) {
     // console.error("Bulk update error:", err);
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -81,31 +81,6 @@ router.get("/day/:day", async (req, res) => {
   }
 });
 
-// Shortcut for today's menu
-router.get("/today", async (req, res) => {
-  try {
-    const daysOfWeek = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
-    const today = daysOfWeek[new Date().getDay()];
-
-    const menu = await Menu.find({ days: today });
-    const result = {
-      message: "Today's menu sections retrieved successfully",
-      sections: menu,
-    };
-    res.json(result);
-  } catch (err) {
-    // console.error("Get today's menu error:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
 
 // Add item to category
 router.post("/category/:categoryId/item", async (req, res) => {
@@ -120,12 +95,7 @@ router.post("/category/:categoryId/item", async (req, res) => {
       });
     }
 
-    // Ensure categoryId is valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-      return res.status(400).json({
-        error: "Invalid category ID format",
-      });
-    }
+    // Category ID is manually managed as a String, no ObjectId validation needed.
 
     const updatedCategory = await Menu.findByIdAndUpdate(
       categoryId,
@@ -150,7 +120,7 @@ router.post("/category/:categoryId/item", async (req, res) => {
     res.status(201).json(updatedCategory);
   } catch (err) {
     // console.error("Add item error:", err);
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -160,13 +130,7 @@ router.put("/category/:categoryId/item/:itemId", async (req, res) => {
     const { categoryId, itemId } = req.params;
     const { name, price, spicelevel, addons } = req.body;
 
-    // Validate ObjectIds
-    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-      return res.status(400).json({ error: "Invalid category ID format" });
-    }
-    if (!mongoose.Types.ObjectId.isValid(itemId)) {
-      return res.status(400).json({ error: "Invalid item ID format" });
-    }
+    // Category and Item IDs are manually managed as Strings, no ObjectId validation needed.
 
     // Validate required fields
     if (!name || price === undefined || price === null) {
@@ -209,13 +173,7 @@ router.delete("/category/:categoryId/item/:itemId", async (req, res) => {
   try {
     const { categoryId, itemId } = req.params;
 
-    // Validate ObjectIds
-    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-      return res.status(400).json({ error: "Invalid category ID format" });
-    }
-    if (!mongoose.Types.ObjectId.isValid(itemId)) {
-      return res.status(400).json({ error: "Invalid item ID format" });
-    }
+    // Category and Item IDs are manually managed as Strings, no ObjectId validation needed.
 
     const category = await Menu.findById(categoryId);
     if (!category) {

@@ -15,9 +15,8 @@ function Menu() {
   const [pendingAction, setPendingAction] = useState(null);
   const [selectedSpice, setSelectedSpice] = useState("");
   const [selectedAddons, setSelectedAddons] = useState([]);
-  const [refereshMenu, setRefreshMenu] = useState(0);
 
-  const handleQuantityChange = (
+  const handleQuantityChange = async (
     itemName,
     change,
     price,
@@ -25,23 +24,26 @@ function Menu() {
     spicelevel,
     addons
   ) => {
-    setRefreshMenu(new Date());
-    // If spicelevel or addons exist, open popup for user choice
-    if (change === 1 && (spicelevel?.length || addons?.length)) {
-      setPendingAction({
-        itemName,
-        change,
-        price,
-        basePrice,
-        spicelevel,
-        addons,
-      });
-      setSelectedSpice(""); // force user to pick
-      setSelectedAddons([]);
-      setShowPopup(true);
-      return;
+    setMenuSections([]);
+    const result = await fetchMenu();
+    if (result) {
+      // If spicelevel or addons exist, open popup for user choice
+      if (change === 1 && (spicelevel?.length || addons?.length)) {
+        setPendingAction({
+          itemName,
+          change,
+          price,
+          basePrice,
+          spicelevel,
+          addons,
+        });
+        setSelectedSpice(""); // force user to pick
+        setSelectedAddons([]);
+        setShowPopup(true);
+        return;
+      }
+      proceedWithUpdate({ itemName, change, price, basePrice });
     }
-    proceedWithUpdate({ itemName, change, price, basePrice });
   };
   const proceedWithUpdate = ({
     itemName,
@@ -83,24 +85,26 @@ function Menu() {
     }
   };
 
-  useEffect(() => {
-    const fetchMenu = async () => {
-      try {
-        const response = await fetch(`/menu`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        // Correctly extract the 'sections' array from the API response
-        setMenuSections(data.sections || []);
-      } catch (error) {
-        console.error("Failed to fetch menu data:", error);
-        setMenuSections([]); // Set to empty array on error
+  const fetchMenu = async () => {
+    try {
+      const response = await fetch(`/menu`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
+      const data = await response.json();
+      // Correctly extract the 'sections' array from the API response
+      setMenuSections(data.sections || []);
+      return true;
+    } catch (error) {
+      console.error("Failed to fetch menu data:", error);
+      setMenuSections([]); // Set to empty array on error
+      return false;
+    }
+  };
 
+  useEffect(() => {
     fetchMenu();
-  }, [refereshMenu]);
+  }, []);
 
   const toggleAddon = (addon) => {
     setSelectedAddons(

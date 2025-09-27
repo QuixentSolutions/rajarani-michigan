@@ -1,33 +1,29 @@
-#!/bin/bash
+#!/bin/bas:qw
+#h
+set -e
 
-# Go to your project root
-cd /home/ubuntu/rajarani/rajarani-michigan || exit
-
-echo "🔴 Stopping all PM2 processes..."
-pm2 stop all
-pm2 delete all
+echo "🚀 Stopping all PM2 processes..."
+pm2 stop all || true
+pm2 delete all || true
 
 echo "📥 Pulling latest code from Git..."
-git pull origin main
+cd /home/ubuntu/rajarani/rajarani-michigan
+git pull
 
-# --- Backend Setup ---
-echo "⚙️ Installing backend dependencies..."
-cd server || exit
+echo "🛠 Installing backend dependencies..."
+cd server
+npm install
+echo "▶️ Starting backend with PM2..."
+pm2 start npm --name server -- run start
+
+echo "🛠 Installing frontend dependencies..."
+cd ../client
 npm install
 
-# --- Frontend Setup ---
-echo "⚙️ Installing frontend dependencies and building React app..."
-cd ../client || exit
-npm install
+echo "🏗 Building frontend... (this may take a few minutes)"
 npm run build
 
-# --- Back to server ---
-cd ../server || exit
+echo "▶️ Starting frontend with PM2..."
+pm2 start npm --name client -- run start
 
-# Start server (Express serves API + React build)
-pm2 start index.js --name server
-
-# Save PM2 processes
-pm2 save
-
-echo "✅ Deployment completed! Express is serving both API + React build."
+echo "✅ Deployment complete!"

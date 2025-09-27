@@ -207,6 +207,113 @@ router.get("/all", async (req, res) => {
   }
 });
 
+router.post("/payment", async (req, res) => {
+  try {
+    // 1️⃣ Extract data from request
+    const { opaqueData, amount, orderId } = req.body;
+
+    if (!opaqueData || !opaqueData.dataValue || !opaqueData.dataDescriptor) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid opaqueData" });
+    }
+
+    // 2️⃣ Load and trim credentials
+    const API_LOGIN_ID = process.env.AUTHORIZE_API_LOGIN_ID?.trim();
+    const TRANSACTION_KEY = process.env.AUTHORIZE_TRANSACTION_KEY?.trim();
+
+    if (!API_LOGIN_ID || !TRANSACTION_KEY) {
+      return res
+        .status(500)
+        .json({ success: false, error: "Server missing API credentials" });
+    }
+
+    const payload = {
+      createTransactionRequest: {
+        merchantAuthentication: {
+          name: API_LOGIN_ID,
+          transactionKey: TRANSACTION_KEY,
+        },
+        refId: orderId,
+        transactionRequest: {
+          transactionType: "authCaptureTransaction",
+          amount: amount,
+          payment: {
+            opaqueData: {
+              dataDescriptor: "COMMON.ACCEPT.INAPP.PAYMENT",
+              dataValue: opaqueData.dataValue,
+            },
+          },
+          order: {
+            invoiceNumber: orderId,
+            description: "New online order placed",
+          },
+        },
+      },
+    };
+
+    axios
+      .post("https://api.authorize.net/xml/v1/request.api", payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then(async (response) => {
+        if (
+          response &&
+          response.data.transactionResponse &&
+          response.data.transactionResponse?.responseCode === "1" &&
+          response.data.messages?.resultCode === "Ok"
+        ) {
+          const filter = { orderNumber: orderId };
+          const update = {
+            $set: {
+              status: "completed",
+              updatedAt: new Date(),
+              payment: {
+                method: "online",
+                status: "paid",
+                transactionId: response.transactionResponse.transId,
+              },
+            },
+          };
+          await Order.updateOne(filter, update);
+          return res.json({
+            code: 200,
+            status: "success",
+            transactionId: response.transactionResponse.transId,
+            authCode: response.transactionResponse.authCode,
+            message: response.transactionResponse.messages[0].description,
+          });
+        } else {
+          // Payment failed or declined
+          const errorMessage =
+            (response.data.transactionResponse &&
+              response.data.transactionResponse.errors?.[0]?.errorText) ||
+            response.data.messages.message?.[0]?.text ||
+            "Transaction failed";
+
+          return res.json({
+            code: 500,
+            status: "failed",
+            message: errorMessage,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error(
+          "Transaction error:",
+          error.response ? error.response.data : error.message
+        );
+      });
+  } catch (err) {
+    console.error("Payment error:", err);
+    return res
+      .status(500)
+      .json({ success: false, error: "Internal server error" });
+  }
+});
+
 router.get("/kitchen", async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;

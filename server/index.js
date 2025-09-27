@@ -12,8 +12,26 @@ const settingsRoutes = require("./routes/settings");
 
 const app = express();
 app.use(cors());
+<<<<<<< HEAD
 app.use(express.json());
 // app.use(bodyParser.json());
+=======
+app.use(bodyParser.json());
+
+// Serve React build
+app.use(express.static(path.join(__dirname, "../client/build")));
+
+// Fallback for React Router
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
+});
+
+// Connect to MongoDB
+mongoose.connect("mongodb://127.0.0.1:27017/rajarani", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+>>>>>>> 24571dd (code committed)
 
 // API routes first
 app.use("/health", healthRoutes);

@@ -1,5 +1,5 @@
 # --- Build Stage ---
-FROM node:20 AS builder
+FROM node:latest AS builder
 WORKDIR /app
 
 # Copy root package.json (optional, if you have one)
@@ -18,7 +18,7 @@ WORKDIR /app/server
 RUN npm install
 
 # --- Runtime Stage ---
-FROM node:20
+FROM node:latest
 WORKDIR /app
 
 # Copy server code

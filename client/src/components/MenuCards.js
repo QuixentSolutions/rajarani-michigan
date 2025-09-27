@@ -3,6 +3,7 @@ import { FaPlus, FaMinus, FaCheck, FaCheckCircle } from "react-icons/fa";
 import { updateQuantity, rehydrateCart } from "../cartSlice";
 import { useState, useEffect } from "react";
 import "./MenuCards.css";
+import { serverURl } from "../utils/server";
 
 function Menu() {
   const dispatch = useDispatch();
@@ -87,7 +88,7 @@ function Menu() {
 
   const fetchMenu = async () => {
     try {
-      const response = await fetch(`http://server:5001/menu`);
+      const response = await fetch(`/menu`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

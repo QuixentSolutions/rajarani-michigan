@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  # mongo:
+  #   image: mongo:6
+  #   container_name: rajarani-mongo
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - mongo_data:/data/db
+  #   restart: always
+
+  
+
+  server:
+    build: .
+    container_name: rajarani-server
+    ports:
+      - "80:5001"
+    environment:
+      - NODE_ENV=production
+      - PORT=5001
+      - MONGO_URI=mongodb://host.docker.internal:27017/rajarani
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+
+volumes:
+  mongo_data:

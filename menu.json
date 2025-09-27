@@ -1,9 +1,5 @@
-db.menus.insert([
+db.menus.insertMany([
   {
-<<<<<<< HEAD
-    "_id": "68d382edc05455211ec1d1eb",
-    "title": "Weekend Specials",
-=======
   "title": "Weekend Specials",
   "color": "#FFA500",
   "days": [ "Friday","Saturday", "Sunday"],
@@ -201,7 +197,6 @@ db.menus.insert([
   },
   {
     "title": "People Choice",
->>>>>>> 7c24635 (code committed)
     "color": "#FFA500",
     "days": [
       "Friday",
@@ -428,7 +423,7 @@ db.menus.insert([
     ]
   },
   {
-    "_id": "68d382edc05455211ec1d207",
+    "_id": "68d382edc05455211ec10d207",
     "title": "People Choice",
     "color": "#FFA500",
     "days": [

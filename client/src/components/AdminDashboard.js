@@ -1,16 +1,16 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import "./AdminDashboard.css";
-import KitchenOrdersTable from './KitchenOrdersTable'; 
-import SuccessPopup from './SuccessPopup'; 
-import OrdersTable from './OrdersTable'; 
-import LoadingSpinner from './LoadingSpinner'; 
-import OrderTypeRadios from './OrderTypeRadios'; 
-import AdminRegistrations from './AdminRegistrations'; 
-import AdminOrders from './AdminOrders'; 
-import AdminMenu from './AdminMenu'; 
-import AdminSettings from './AdminSettings'; 
-import AdminReports from './AdminReports'; 
+import KitchenOrdersTable from "./KitchenOrdersTable";
+import SuccessPopup from "./SuccessPopup";
+import OrdersTable from "./OrdersTable";
+import LoadingSpinner from "./LoadingSpinner";
+import OrderTypeRadios from "./OrderTypeRadios";
+import AdminRegistrations from "./AdminRegistrations";
+import AdminOrders from "./AdminOrders";
+import AdminMenu from "./AdminMenu";
+import AdminSettings from "./AdminSettings";
+import AdminReports from "./AdminReports";
 
 const AdminDashboard = ({ onLogout }) => {
   const [authToken] = useState("Basic " + btoa("admin:password123"));
@@ -195,7 +195,10 @@ const AdminDashboard = ({ onLogout }) => {
   const fetchRegistrations = createFetchFunction(setRegistrations, "register");
   const fetchOrders = createFetchFunction(setOrders, "order");
   const fetchMenuData = createFetchFunction(setMenuData, "menu/all");
-  const fetchKitchenOrders = createFetchFunction(setKitchenOrders, "order/kitchen");
+  const fetchKitchenOrders = createFetchFunction(
+    setKitchenOrders,
+    "order/kitchen"
+  );
 
   useEffect(() => {
     const loadData = async () => {
@@ -287,8 +290,6 @@ const AdminDashboard = ({ onLogout }) => {
       // console.error("Error loading order:", err);
     }
   };
-  
-
 
   const handleView = (item, type) => {
     setSelectedItem(item);
@@ -299,7 +300,7 @@ const AdminDashboard = ({ onLogout }) => {
   const handleSaveMenu = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:5001/menu`, {
+      const response = await fetch(`/menu`, {
         method: "POST",
         headers: {
           Authorization: authToken,
@@ -407,7 +408,6 @@ const AdminDashboard = ({ onLogout }) => {
           </div>
 
           <div className="modal-body">
-
             {modalType === "view-registrations" && selectedItem && (
               <div className="view-details">
                 <h4>Registration Details</h4>
@@ -586,7 +586,12 @@ const AdminDashboard = ({ onLogout }) => {
                             <div className="addons">
                               Addons:{" "}
                               {item.addons
-                                .map((a) => `${a.name.replace(/^Add\s/, '').trim()} (+${a.price})`)
+                                .map(
+                                  (a) =>
+                                    `${a.name.replace(/^Add\s/, "").trim()} (+${
+                                      a.price
+                                    })`
+                                )
                                 .join(", ")}
                             </div>
                           )}
@@ -626,7 +631,15 @@ const AdminDashboard = ({ onLogout }) => {
                       )}
                       {item.addons && item.addons.length > 0 && (
                         <div className="addons">
-                          Addons: {item.addons.map(a => `${a.name.replace(/^Add\s/, '').trim()} (${a.price})`).join(", ")}
+                          Addons:{" "}
+                          {item.addons
+                            .map(
+                              (a) =>
+                                `${a.name.replace(/^Add\s/, "").trim()} (${
+                                  a.price
+                                })`
+                            )
+                            .join(", ")}
                         </div>
                       )}
                     </div>
@@ -665,7 +678,12 @@ const AdminDashboard = ({ onLogout }) => {
                               <div className="addons">
                                 Addons:{" "}
                                 {item.addons
-                                  .map((a) => `${a.name.replace(/^Add\s/, '').trim()} (+${a.price})`)
+                                  .map(
+                                    (a) =>
+                                      `${a.name
+                                        .replace(/^Add\s/, "")
+                                        .trim()} (+${a.price})`
+                                  )
                                   .join(", ")}
                               </div>
                             )}
@@ -752,10 +770,12 @@ const AdminDashboard = ({ onLogout }) => {
       });
 
       const dbData = await dbResponse.json();
-
-      if (!dbResponse.ok) {
-        throw new Error(dbData.message || "Failed to save order.");
+      if (dbData.error) {
+        alert(dbData.error);
+        return;
       }
+      setSuccess("Pickup order sent to kitchen!");
+      setTimeout(() => setSuccess(""), 3000);
       await fetchOrders();
     } catch (err) {
       // console.error("Order process error:", err);
@@ -804,12 +824,9 @@ const AdminDashboard = ({ onLogout }) => {
     }
   };
 
-
   const handleChange = (key, value) => {
     setSelected((prev) => ({ ...prev, [key]: value }));
   };
-
-
 
   const saveSettings = async () => {
     let userConfirmed = window.confirm("Are you sure to make changes ?");
@@ -843,8 +860,6 @@ const AdminDashboard = ({ onLogout }) => {
     }
   };
 
-
-
   const viewOrderDetils = async (items) => {
     setSelectedItem(items);
     setModalType(`view-order-report-details`);
@@ -853,7 +868,20 @@ const AdminDashboard = ({ onLogout }) => {
 
   return (
     <>
-      {isSuccessPopupOpen && <SuccessPopup isSuccessPopupOpen={isSuccessPopupOpen} setIsSuccessPopupOpen={setIsSuccessPopupOpen} billDetails={billDetails} tableNo={tableNo} tips={tips} setTips={setTips} tipsPercentage={tipsPercentage} setTipsPercentage={setTipsPercentage} handleSettle={handleSettle} tipsPercentageUpdate={tipsPercentageUpdate} />}
+      {isSuccessPopupOpen && (
+        <SuccessPopup
+          isSuccessPopupOpen={isSuccessPopupOpen}
+          setIsSuccessPopupOpen={setIsSuccessPopupOpen}
+          billDetails={billDetails}
+          tableNo={tableNo}
+          tips={tips}
+          setTips={setTips}
+          tipsPercentage={tipsPercentage}
+          setTipsPercentage={setTipsPercentage}
+          handleSettle={handleSettle}
+          tipsPercentageUpdate={tipsPercentageUpdate}
+        />
+      )}
       <div className="admin-dashboard">
         <div className="dashboard-header">
           <h1>Raja Rani Admin Dashboard</h1>
@@ -964,7 +992,11 @@ const AdminDashboard = ({ onLogout }) => {
         {activeTab === "kitchen" && (
           <div className="section-card">
             {/* The title is now rendered inside KitchenOrdersTable component */}
-            <KitchenOrdersTable authToken={authToken} setError={setError} setSuccess={setSuccess} />
+            <KitchenOrdersTable
+              authToken={authToken}
+              setError={setError}
+              setSuccess={setSuccess}
+            />
           </div>
         )}
 

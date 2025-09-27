@@ -8,6 +8,7 @@ const orderRoutes = require("./routes/orders");
 const menuRoutes = require("./routes/menu");
 const registerRoutes = require("./routes/register");
 const settingsRoutes = require("./routes/settings");
+const printerRoutes = require("./routes/printer");
 
 const app = express();
 app.use(cors());
@@ -25,6 +26,7 @@ app.use("/menu", menuRoutes);
 app.use("/order", orderRoutes);
 app.use("/register", registerRoutes);
 app.use("/settings", settingsRoutes);
+app.use("/printer", printerRoutes);
 
 // Serve React build
 app.use(express.static(path.join(__dirname, "../client/build")));

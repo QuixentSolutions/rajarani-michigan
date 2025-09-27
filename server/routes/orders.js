@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../models/orders");
+const Printer = require("../models/printer");
 const emailjs = require("@emailjs/nodejs");
+const ThermalPrinter = require("node-thermal-printer").printer;
+const PrinterTypes = require("node-thermal-printer").types;
+
 function buildEmailHTML(items) {
   const rows = items
     .map(({ name, quantity, basePrice, price, spiceLevel, addons }) => {
@@ -176,16 +180,19 @@ router.put("/settle", async (req, res) => {
 
 router.put("/accept", async (req, res) => {
   try {
-    req.body.updatedAt = new Date();
     const filter = {
       orderNumber: req.body.orderNumber,
     };
+    const order = await Order.findOne(filter);
+    const print = await printOrder(order);
+    if (!print)
+      return res.status(500).json({ error: "Unable to connect to printer" });
+    req.body.updatedAt = new Date();
     const update = {
       $set: {
         status: "accepted",
       },
     };
-
     const result = await Order.updateOne(filter, update);
     if (!result) return res.status(404).json({ error: "Order not found" });
     res.json(result);
@@ -336,20 +343,120 @@ router.get("/kitchen", async (req, res) => {
   }
 });
 
-router.put("/kitchen/:id/send", async (req, res) => {
+router.put("/kitchen/:id", async (req, res) => {
   try {
-    const order = await Order.findByIdAndUpdate(
+    const result = await Order.findByIdAndUpdate(
       req.params.id,
       { sentToKitchen: 1, updatedAt: new Date() },
       { new: true }
     );
-    if (!order) {
+    const print = await printOrder(result);
+    if (!print)
+      return res.status(500).json({ error: "Unable to connect to printer" });
+    if (!result) {
       return res.status(404).json({ error: "Order not found" });
     }
-    res.json(order);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
+async function printOrder(order) {
+  const printerConfig = await Printer.findOne().sort({ createdAt: -1 });
+
+  let printer = new ThermalPrinter({
+    type: PrinterTypes.EPSON, // Change to STAR if your printer is STAR type
+    interface: printerConfig.printerIp, // or "printer:USB001" depending on setup
+    characterSet: "SLOVENIA",
+    removeSpecialCharacters: false,
+    lineCharacter: "-",
+  });
+
+  let isConnected = await printer.isPrinterConnected();
+  if (!isConnected) return false;
+  console.log("Printer connected:", isConnected);
+
+  // ---- HEADER ----
+  printer.alignCenter();
+  printer.setTextDoubleHeight();
+  printer.println("RAJARANI");
+  printer.setTextNormal();
+  printer.println("Order Receipt");
+  printer.drawLine();
+
+  // ---- ORDER INFO ----
+  printer.alignLeft();
+  printer.println(`Order No: ${order.orderNumber}`);
+  printer.println(`Order Type: ${order.orderType}`);
+  if (order.orderType === "dinein") {
+    printer.println(`Table: ${order.tableNumber}`);
+  } else if (order.orderType === "pickup") {
+    printer.println(`Delivery Mode: Pickup`);
+  } else {
+    printer.println(`Delivery To: ${order.deliveryAddress}`);
+  }
+  printer.println(`Customer: ${order.customer.name}`);
+  printer.println(`Phone: ${order.customer.phone || "-"}`);
+  printer.drawLine();
+
+  // ---- ITEMS ----
+  printer.alignLeft();
+  printer.bold(true);
+  printer.tableCustom([
+    { text: "Item", align: "LEFT", width: 0.5 },
+    { text: "Qty", align: "CENTER", width: 0.2 },
+    { text: "Price", align: "RIGHT", width: 0.3 },
+  ]);
+  printer.bold(false);
+  printer.drawLine();
+
+  order.items.forEach((item) => {
+    printer.tableCustom([
+      { text: item.name, align: "LEFT", width: 0.5 },
+      { text: item.quantity.toString(), align: "CENTER", width: 0.2 },
+      { text: `$${item.price.toFixed(2)}`, align: "RIGHT", width: 0.3 },
+    ]);
+    if (item.spiceLevel || (item.addons && item.addons.length)) {
+      printer.println(`   Spice: ${item.spiceLevel || "-"}`);
+      if (item.addons?.length) {
+        printer.println(`   Addons: ${item.addons.join(", ")}`);
+      }
+    }
+  });
+
+  printer.drawLine();
+
+  // ---- TOTALS ----
+  printer.tableCustom([
+    { text: "Sub Total", align: "LEFT", width: 0.7 },
+    { text: `$${order.subTotal.toFixed(2)}`, align: "RIGHT", width: 0.3 },
+  ]);
+  printer.tableCustom([
+    { text: "Tax", align: "LEFT", width: 0.7 },
+    { text: `$${order.salesTax.toFixed(2)}`, align: "RIGHT", width: 0.3 },
+  ]);
+  printer.bold(true);
+  printer.tableCustom([
+    { text: "TOTAL", align: "LEFT", width: 0.7 },
+    { text: `$${order.totalAmount.toFixed(2)}`, align: "RIGHT", width: 0.3 },
+  ]);
+  printer.bold(false);
+
+  printer.drawLine();
+
+  // ---- FOOTER ----
+  printer.alignCenter();
+  printer.cut();
+
+  try {
+    await printer.execute();
+    console.log("Print done!");
+    return true;
+  } catch (err) {
+    console.error("Print failed:", err);
+    return false;
+  }
+}
 
 module.exports = router;

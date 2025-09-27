@@ -824,7 +824,6 @@ const AdminMenu = ({
             Refresh Menu
           </button>
         </div>
-
         <div className="menu-categories-grid">
           {menuData.items.length > 0 ? (
             menuData.items.map((category, index) => (
@@ -832,6 +831,9 @@ const AdminMenu = ({
                 <h3 className="category-title">{category.title}</h3>
                 <p className="category-item-count">
                   Items: {category.items?.length || 0}
+                </p>
+                <p className="category-item-count">
+                  Days: {category.days.join(", ")}
                 </p>
                 <button
                   className="manage-items-btn"

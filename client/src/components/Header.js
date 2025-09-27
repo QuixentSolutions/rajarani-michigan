@@ -323,6 +323,15 @@ function Header() {
     const [expYear, setExpYear] = useState("");
     const [cvv, setCvv] = useState("");
 
+    async function fetchWithTimeout(url, options, timeout = 30000) {
+      return Promise.race([
+        fetch(url, options).then((res) => res.json()),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Request timed out")), timeout)
+        ),
+      ]);
+    }
+
     const sendPayment = async (e) => {
       e.preventDefault();
 
@@ -385,23 +394,31 @@ function Header() {
         });
       });
 
-      const dbResponse = await fetch("/order/payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          opaqueData: response.opaqueData,
-          amount: onlinePaymentAmount,
-          orderId: successOrderId,
-        }),
-      });
+      try {
+        const result = await fetchWithTimeout(
+          "/order/payment",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              opaqueData: response.opaqueData,
+              amount: onlinePaymentAmount,
+              orderId: successOrderId,
+            }),
+          },
+          30000
+        );
 
-      const result = await dbResponse.json();
-      if (result.code === 200) {
+        if (result.code === 200) {
+          setIsLoading(false);
+          alert("Payment successful!");
+        } else {
+          setIsLoading(false);
+          alert("Payment failed!");
+        }
+      } catch (error) {
         setIsLoading(false);
-        alert("Payment successful!");
-      } else {
-        setIsLoading(false);
-        alert("Payment failure, Please pay at counter!");
+        alert(error.message);
       }
     };
 

@@ -2,8 +2,11 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
+<<<<<<< HEAD
 require("dotenv").config();
 
+=======
+>>>>>>> 3367c48 (code committed)
 const healthRoutes = require("./routes/health");
 const orderRoutes = require("./routes/orders");
 const menuRoutes = require("./routes/menu");

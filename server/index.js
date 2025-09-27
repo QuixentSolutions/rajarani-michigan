@@ -2,11 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
-<<<<<<< HEAD
-require("dotenv").config();
-
-=======
->>>>>>> 3367c48 (code committed)
+const bodyParser = require("body-parser");
 const healthRoutes = require("./routes/health");
 const orderRoutes = require("./routes/orders");
 const menuRoutes = require("./routes/menu");
@@ -15,10 +11,6 @@ const settingsRoutes = require("./routes/settings");
 
 const app = express();
 app.use(cors());
-<<<<<<< HEAD
-app.use(express.json());
-// app.use(bodyParser.json());
-=======
 app.use(bodyParser.json());
 
 // Serve React build
@@ -34,7 +26,6 @@ mongoose.connect("mongodb://127.0.0.1:27017/rajarani", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
->>>>>>> 24571dd (code committed)
 
 // API routes first
 app.use("/health", healthRoutes);

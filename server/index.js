@@ -11,6 +11,14 @@ const settingsRoutes = require("./routes/settings");
 const printerRoutes = require("./routes/printer");
 
 const app = express();
+
+app.use((req, res, next) => {
+  res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
+  next();
+});
+
 app.use(cors());
 app.use(bodyParser.json());
 

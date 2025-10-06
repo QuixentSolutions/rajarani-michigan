@@ -7,7 +7,7 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
     currentPage: 1,
   });
   const [page, setPage] = useState(1);
-  const [printer, setPrinter] = useState("");
+  const [printerIp, setPrinterIp] = useState("");
 
   const limit = 10;
 
@@ -57,22 +57,25 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
         );
       }
       const data = await response.json();
-      setPrinter(data.printerIp);
+      setPrinterIp(data.printerIp);
     } catch (err) {
-      setError(`Failed to load kitchen orders: ${err.message}`);
-      setPrinter("");
+      setPrinterIp("");
     }
   }, [authToken, setError]);
 
   const savePrinterData = useCallback(async () => {
     try {
+      if (!printerIp) {
+        alert("Please enter a valid printer address");
+        return;
+      }
       const response = await fetch(`/printer`, {
         method: "POST",
         headers: {
           Authorization: authToken,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ printerIp: printer }),
+        body: JSON.stringify({ printerIp }),
       });
 
       if (!response.ok) {
@@ -88,7 +91,7 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
     } catch (err) {
       setError(`Failed to save menu: ${err.message}`);
     }
-  }, []);
+  }, [printerIp]);
 
   useEffect(() => {
     fetchKitchenOrdersData();
@@ -135,7 +138,7 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
         <h2 className="section-title">Kitchen Orders (Dine-In)</h2>
         <input
           className="printer-details"
-          value={printer}
+          value={printerIp}
           style={{
             padding: "16px 12px",
             textAlign: "center",
@@ -145,7 +148,7 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
             borderRight: "1px solid #cbd5e1",
             minWidth: "120px",
           }}
-          onChange={(e) => setPrinter(e.target.value)}
+          onChange={(e) => setPrinterIp(e.target.value)}
           placeholder="Printer Address"
           type="text"
         />

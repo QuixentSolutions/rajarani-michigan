@@ -8,7 +8,7 @@ router.post("/", async (req, res) => {
     const savedPrinter = await printer.save();
     res.status(201).json(savedPrinter);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 

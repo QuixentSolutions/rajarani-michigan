@@ -105,7 +105,7 @@ router.post("/", async (req, res) => {
 
     res.status(201).json(savedOrder);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -128,7 +128,7 @@ router.get("/table/:tableno", async (req, res) => {
       tableNumber: req.params.tableno,
       status: "pending",
     });
-    if (!order) return res.status(404).json({ error: "Order not found" });
+    if (!order) return res.status(500).json({ error: "Order not found" });
 
     const combined = order.reduce(
       (acc, order) => {
@@ -171,10 +171,10 @@ router.put("/settle", async (req, res) => {
     };
 
     const result = await Order.updateMany(filter, update);
-    if (!result) return res.status(404).json({ error: "Order not found" });
+    if (!result) return res.status(500).json({ error: "Order not found" });
     res.json(result);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -194,10 +194,10 @@ router.put("/accept", async (req, res) => {
       },
     };
     const result = await Order.updateOne(filter, update);
-    if (!result) return res.status(404).json({ error: "Order not found" });
+    if (!result) return res.status(500).json({ error: "Order not found" });
     res.json(result);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 router.get("/all", async (req, res) => {
@@ -221,7 +221,7 @@ router.post("/payment", async (req, res) => {
 
     if (!opaqueData || !opaqueData.dataValue || !opaqueData.dataDescriptor) {
       return res
-        .status(400)
+        .status(500)
         .json({ success: false, error: "Invalid opaqueData" });
     }
 
@@ -354,7 +354,7 @@ router.put("/kitchen/:id", async (req, res) => {
     if (!print)
       return res.status(500).json({ error: "Unable to connect to printer" });
     if (!result) {
-      return res.status(404).json({ error: "Order not found" });
+      return res.status(500).json({ error: "Order not found" });
     }
     res.json(result);
   } catch (err) {

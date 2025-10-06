@@ -5,7 +5,7 @@ router.get("/", async (req, res) => {
   try {
     res.status(201).json({ status: "OK" });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 

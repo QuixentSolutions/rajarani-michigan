@@ -81,7 +81,6 @@ router.get("/day/:day", async (req, res) => {
   }
 });
 
-
 // Add item to category
 router.post("/category/:categoryId/item", async (req, res) => {
   try {
@@ -90,7 +89,7 @@ router.post("/category/:categoryId/item", async (req, res) => {
 
     // Validate required fields
     if (!name || price === undefined || price === null) {
-      return res.status(400).json({
+      return res.status(500).json({
         error: "Name and price are required fields",
       });
     }
@@ -113,7 +112,7 @@ router.post("/category/:categoryId/item", async (req, res) => {
     );
 
     if (!updatedCategory) {
-      return res.status(404).json({ message: "Category not found" });
+      return res.status(500).json({ message: "Category not found" });
     }
 
     // console.log("Added item successfully to category:", updatedCategory.title);
@@ -134,7 +133,7 @@ router.put("/category/:categoryId/item/:itemId", async (req, res) => {
 
     // Validate required fields
     if (!name || price === undefined || price === null) {
-      return res.status(400).json({
+      return res.status(500).json({
         error: "Name and price are required fields",
       });
     }
@@ -142,14 +141,14 @@ router.put("/category/:categoryId/item/:itemId", async (req, res) => {
     const category = await Menu.findById(categoryId);
     if (!category) {
       // console.log("Category not found for PUT.");
-      return res.status(404).json({ message: "Category not found" });
+      return res.status(500).json({ message: "Category not found" });
     }
 
     const item = category.items.id(itemId);
     if (!item) {
       // console.log("Item not found within category for PUT.");
       // console.log("Available item IDs:", category.items.map(i => i._id.toString()));
-      return res.status(404).json({ message: "Item not found in category" });
+      return res.status(500).json({ message: "Item not found in category" });
     }
 
     // Update item properties
@@ -163,8 +162,8 @@ router.put("/category/:categoryId/item/:itemId", async (req, res) => {
     // console.log("Updated Category (PUT):", updatedCategory.title, "- Item:", item.name);
     res.json(updatedCategory);
   } catch (err) {
-    // console.error("Error in PUT /menu/category/:categoryId/item/:itemId:", err);
-    res.status(400).json({ error: err.message });
+    console.error("Error in PUT /menu/category/:categoryId/item/:itemId:", err);
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -178,7 +177,7 @@ router.delete("/category/:categoryId/item/:itemId", async (req, res) => {
     const category = await Menu.findById(categoryId);
     if (!category) {
       // console.log("Category not found for DELETE.");
-      return res.status(404).json({ message: "Category not found" });
+      return res.status(500).json({ message: "Category not found" });
     }
 
     // Check if item exists before deletion
@@ -186,7 +185,7 @@ router.delete("/category/:categoryId/item/:itemId", async (req, res) => {
     if (!itemExists) {
       // console.log("Item not found within category for DELETE.");
       // console.log("Available item IDs:", category.items.map(i => i._id.toString()));
-      return res.status(404).json({ message: "Item not found in category" });
+      return res.status(500).json({ message: "Item not found in category" });
     }
 
     // Remove the item

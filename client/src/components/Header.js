@@ -430,8 +430,19 @@ function Header() {
     return (
       <div className="payment-overlay">
         <div className="payment-card">
-          <h2>Order {successOrderId} created!</h2>
-          <strong style={{ color: "black" }}>
+          <h1>
+            <p style={{ color: "green", fontWeight: "bolder" }}>
+              Order confirmed
+            </p>
+          </h1>
+
+          <h2>
+            <p style={{ color: "green", fontWeight: "bolder" }}>
+              {successOrderId}
+            </p>
+          </h2>
+
+          <strong style={{ color: "red" }}>
             {" "}
             Your order will be ready in 25 minutes. You can pay now or when you
             collect.

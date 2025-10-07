@@ -11,14 +11,6 @@ function Hero() {
     (_, i) =>
       `https://rajarani-canton.s3.us-east-2.amazonaws.com/gallery/${i + 1}.png`
   );
-  //   const tryExtensions = [".png", ".jpg", ".jpeg", ".webp"];
-
-  //   const galleryImages = Array.from({ length: 10 }, (_, i) =>
-  //   tryExtensions.map(
-  //     (ext) =>
-  //       `https://rajarani-canton.s3.us-east-2.amazonaws.com/gallery/${i + 1}${ext}`
-  //   )
-  // ).flat();
 
   const handleImageError = (index) => {
     setValidImages((prev) => prev.filter((_, i) => i !== index));

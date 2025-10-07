@@ -173,10 +173,15 @@ function Header() {
     }
     setAddressError("");
 
-    let userConfirmed = window.confirm("Shall we finalize your order ?");
+    let userConfirmed = window.confirm(
+      orderMode === "dinein"
+        ? "Ready to finalize your order ?"
+        : "Ready to finalize your order? After placing it, you can pay by credit card or choose to pay at the counter."
+    );
 
     if (!userConfirmed) {
       // User clicked "OK", proceed with deletion
+      setIsLoading(false);
       return;
     }
 
@@ -425,18 +430,13 @@ function Header() {
     return (
       <div className="payment-overlay">
         <div className="payment-card">
-          <h2>Payment Details</h2>
+          <h2>Order {successOrderId} created!</h2>
           <strong style={{ color: "black" }}>
             {" "}
-            Order Created Successfully: {successOrderId}
+            Your order will be ready in 25 minutes. You can pay now or when you
+            collect.
           </strong>
           <br />
-          <br />
-          <p style={{ color: "black" }}>
-            Pay now or skip and settle at the counter
-          </p>
-          <br />
-          <hr />
           <br />
           <form onSubmit={sendPayment} className="payment-form">
             <input
@@ -481,7 +481,7 @@ function Header() {
               className="close-button"
               onClick={() => setIsPaymentPopupOpen(false)}
             >
-              Close
+              Pay at pickup
             </button>
           </form>
         </div>

@@ -88,7 +88,7 @@ function Menu() {
 
   const fetchMenu = async () => {
     try {
-      const response = await fetch(`/menu`);
+      const response = await fetch(`/api/menu`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

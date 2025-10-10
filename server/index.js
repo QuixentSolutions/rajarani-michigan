@@ -9,7 +9,6 @@ const menuRoutes = require("./routes/menu");
 const registerRoutes = require("./routes/register");
 const settingsRoutes = require("./routes/settings");
 const printerRoutes = require("./routes/printer");
-require("dotenv").config();
 
 const app = express();
 

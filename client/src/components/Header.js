@@ -173,11 +173,7 @@ function Header() {
     }
     setAddressError("");
 
-    let userConfirmed = window.confirm(
-      orderMode === "dinein"
-        ? "Ready to finalize your order ?"
-        : "Ready to finalize your order? After placing it, you can pay by credit card or choose to pay at the counter."
-    );
+    let userConfirmed = window.confirm("Ready to finalize your order ?");
 
     if (!userConfirmed) {
       // User clicked "OK", proceed with deletion
@@ -313,10 +309,24 @@ function Header() {
             ×
           </button>
           <h2 style={{ margin: "1rem" }}>Order Placed Successfully!</h2>
-          <p>
-            Your order has been placed and a confirmation email has been sent
-            with all the details. - <strong>{successOrderId}</strong>
-          </p>
+          <h3 style={{ margin: "1rem" }}>
+            <strong>{successOrderId}</strong>
+          </h3>
+          {orderMode === "dinein" && (
+            <p>
+              Your order has been placed successfully. Please wait while we
+              prepare it.
+            </p>
+          )}
+          {orderMode !== "dinein" && (
+            <p>
+              Your order has been placed successfully. Details have been sent to
+              your email. <br />
+              <p style={{ color: "red", fontWeight: "bolder" }}>
+                Preparation time: 25 minutes.
+              </p>
+            </p>
+          )}
         </div>
       </div>
     );
@@ -416,13 +426,16 @@ function Header() {
 
         if (result.code === 200) {
           setIsLoading(false);
-          alert("Payment successful!");
+          setIsPaymentPopupOpen(false);
+          setIsSuccessPopupOpen(true);
         } else {
           setIsLoading(false);
+          setIsPaymentPopupOpen(false);
           alert("Payment failed!");
         }
       } catch (error) {
         setIsLoading(false);
+        setIsPaymentPopupOpen(false);
         alert(error.message);
       }
     };
@@ -430,25 +443,18 @@ function Header() {
     return (
       <div className="payment-overlay">
         <div className="payment-card">
-          <h1>
-            <p style={{ color: "green", fontWeight: "bolder" }}>
-              Order confirmed
-            </p>
-          </h1>
-
           <h2>
-            <p style={{ color: "green", fontWeight: "bolder" }}>
+            <p style={{ color: "black", fontWeight: "bolder" }}>
               {successOrderId}
             </p>
           </h2>
 
-          <strong style={{ color: "red" }}>
-            {" "}
-            Your order will be ready in 25 minutes. You can pay now or when you
-            collect.
-          </strong>
-          <br />
-          <br />
+          <h2>
+            <p style={{ color: "red", fontWeight: "bolder" }}>
+              We'll confirm your order once payment is done.
+            </p>
+          </h2>
+
           <form onSubmit={sendPayment} className="payment-form">
             <input
               className="payment-input"
@@ -486,13 +492,6 @@ function Header() {
 
             <button type="submit" className="payment-button">
               Pay ${onlinePaymentAmount}
-            </button>
-            <button
-              type="submit"
-              className="close-button"
-              onClick={() => setIsPaymentPopupOpen(false)}
-            >
-              Pay at pickup
             </button>
           </form>
         </div>
@@ -1079,7 +1078,6 @@ function Header() {
                     </div>
                   )}
                   <input
-                    // type="text"
                     placeholder="Name"
                     value={name}
                     onChange={handleNameChange}

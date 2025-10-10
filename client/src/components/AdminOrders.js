@@ -8,11 +8,18 @@ const AdminOrders = ({
   showBill,
   handleAcceptedOnlineorders,
   handleView,
-  renderPagination
+  renderPagination,
 }) => {
   return (
     <div className="section-card">
-      <div className="section-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div
+        className="section-header"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <h2 className="section-title">Order Management</h2>
         <button
           onClick={() => fetchOrders(orders.currentPage, searchOrderQuery)}
@@ -23,7 +30,7 @@ const AdminOrders = ({
             color: "white",
             border: "none",
             borderRadius: "4px",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
         >
           Refresh Orders
@@ -69,7 +76,7 @@ const AdminOrders = ({
               orders.items.map((order) => (
                 <>
                   {order.orderType !== "dinein" &&
-                    order.status !== "completed" && (
+                    order.payment.status === "paid" && (
                       <tr key={order._id}>
                         <td>
                           <code>{order.orderNumber || "N/A"}</code>
@@ -87,9 +94,7 @@ const AdminOrders = ({
                         </td>
                         <td>{order.orderType.toUpperCase()}</td>
 
-                        <td>
-                          {new Date(order.createdAt).toLocaleString()}
-                        </td>
+                        <td>{new Date(order.createdAt).toLocaleString()}</td>
                         <td>
                           {order.status === "pending" && (
                             <button
@@ -99,9 +104,7 @@ const AdminOrders = ({
                                   "linear-gradient(135deg, green, blue)",
                               }}
                               onClick={() =>
-                                handleAcceptedOnlineorders(
-                                  order.orderNumber
-                                )
+                                handleAcceptedOnlineorders(order.orderNumber)
                               }
                             >
                               Accept
@@ -136,9 +139,7 @@ const AdminOrders = ({
         </table>
       </div>
 
-      {renderPagination(orders, (page) =>
-        fetchOrders(page, searchOrderQuery)
-      )}
+      {renderPagination(orders, (page) => fetchOrders(page, searchOrderQuery))}
     </div>
   );
 };

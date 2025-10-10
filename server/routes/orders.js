@@ -5,6 +5,7 @@ const Printer = require("../models/printer");
 const emailjs = require("@emailjs/nodejs");
 const ThermalPrinter = require("node-thermal-printer").printer;
 const PrinterTypes = require("node-thermal-printer").types;
+const axios = require("axios");
 
 function buildEmailHTML(items) {
   const rows = items
@@ -67,42 +68,6 @@ router.post("/", async (req, res) => {
   try {
     const order = new Order(req.body);
     const savedOrder = await order.save();
-
-    const emailHTML = buildEmailHTML(req.body.items);
-
-    if (!req.body.customer.email) {
-      console.log("No customer email provided, skipping email send.");
-      return res.status(201).json(savedOrder);
-    }
-    const templateParams = {
-      email: req.body.customer.email.trim(), // Changed from 'to_email' to 'email' to match your template
-      name: req.body.customer.name.trim(),
-      mobile_number: String(req.body.customer.phone),
-      order_mode: String(req.body.orderType),
-      order_id: String(req.body.orderNumber),
-      sub_total: req.body.subTotal.toFixed(2),
-      sales_tax: req.body.salesTax.toFixed(2),
-      total_amount: req.body.totalAmount.toFixed(2),
-      address: req.body.deliveryAddress ? req.body.deliveryAddress : "N/A",
-      order_details: emailHTML,
-    };
-
-    const serviceId = process.env.EMAILJS_SERVICE_ID;
-    const templateId = process.env.EMAILJS_ORDER_TEMPLATE_ID;
-    const publicKey = process.env.EMAILJS_PUBLIC_KEY;
-    const privateKey = process.env.EMAILJS_PRIVATE_KEY;
-    emailjs
-      .send(serviceId, templateId, templateParams, {
-        publicKey: publicKey,
-        privateKey: privateKey,
-      })
-      .then((response) => {
-        console.log("Email sent successfully!", response.status, response.text);
-      })
-      .catch((err) => {
-        console.error("Failed to send email:", err);
-      });
-
     res.status(201).json(savedOrder);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -275,7 +240,6 @@ router.post("/payment", async (req, res) => {
           const filter = { orderNumber: orderId };
           const update = {
             $set: {
-              status: "completed",
               updatedAt: new Date(),
               payment: {
                 method: "online",
@@ -284,14 +248,64 @@ router.post("/payment", async (req, res) => {
               },
             },
           };
-          await Order.updateOne(filter, update);
-          return res.json({
-            code: 200,
-            status: "success",
-            transactionId: response.transactionResponse.transId,
-            authCode: response.transactionResponse.authCode,
-            message: response.transactionResponse.messages[0].description,
+          const order = await Order.findOneAndUpdate(filter, update, {
+            returnDocument: "after",
           });
+
+          const emailHTML = buildEmailHTML(order.items);
+
+          if (!order.customer.email) {
+            console.log("No customer email provided, skipping email send.");
+            return res.json({
+              code: 200,
+              status: "success",
+              transactionId: response.transactionResponse.transId,
+              authCode: response.transactionResponse.authCode,
+              message: response.transactionResponse.messages[0].description,
+            });
+          }
+          const templateParams = {
+            email: order.customer.email.trim(), // Changed from 'to_email' to 'email' to match your template
+            name: order.customer.name.trim(),
+            mobile_number: String(order.customer.phone),
+            order_mode: String(order.orderType),
+            order_id: String(order.orderNumber),
+            sub_total: order.subTotal.toFixed(2),
+            sales_tax: order.salesTax.toFixed(2),
+            total_amount: order.totalAmount.toFixed(2),
+            address: order.deliveryAddress ? order.deliveryAddress : "N/A",
+            order_details: emailHTML,
+          };
+          const serviceId = process.env.EMAILJS_SERVICE_ID;
+          const templateId = process.env.EMAILJS_ORDER_TEMPLATE_ID;
+          const publicKey = process.env.EMAILJS_PUBLIC_KEY;
+          const privateKey = process.env.EMAILJS_PRIVATE_KEY;
+          try {
+            const response = await emailjs.send(
+              serviceId,
+              templateId,
+              templateParams,
+              {
+                publicKey,
+                privateKey,
+              }
+            );
+            console.log(
+              "Email sent successfully!",
+              response.status,
+              response.text
+            );
+          } catch (err) {
+            console.error("Email send failed:", err);
+          } finally {
+            return res.json({
+              code: 200,
+              status: "success",
+              transactionId: response.transactionResponse?.transId,
+              authCode: response.transactionResponse?.authCode,
+              message: response.transactionResponse?.messages?.[0]?.description,
+            });
+          }
         } else {
           // Payment failed or declined
           const errorMessage =

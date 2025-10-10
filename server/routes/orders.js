@@ -244,7 +244,7 @@ router.post("/payment", async (req, res) => {
               payment: {
                 method: "online",
                 status: "paid",
-                transactionId: response.transactionResponse.transId,
+                transactionId: response.data.transactionResponse.transId,
               },
             },
           };
@@ -259,9 +259,10 @@ router.post("/payment", async (req, res) => {
             return res.json({
               code: 200,
               status: "success",
-              transactionId: response.transactionResponse.transId,
-              authCode: response.transactionResponse.authCode,
-              message: response.transactionResponse.messages[0].description,
+              transactionId: response.data.transactionResponse.transId,
+              authCode: response.data.transactionResponse.authCode,
+              message:
+                response.data.transactionResponse.messages[0].description,
             });
           }
           const templateParams = {
@@ -301,9 +302,10 @@ router.post("/payment", async (req, res) => {
             return res.json({
               code: 200,
               status: "success",
-              transactionId: response.transactionResponse?.transId,
-              authCode: response.transactionResponse?.authCode,
-              message: response.transactionResponse?.messages?.[0]?.description,
+              transactionId: response.data.transactionResponse?.transId,
+              authCode: response.data.transactionResponse?.authCode,
+              message:
+                response.data.transactionResponse?.messages?.[0]?.description,
             });
           }
         } else {

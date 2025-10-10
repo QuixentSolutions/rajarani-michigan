@@ -27,3 +27,5 @@ echo "▶️ Starting frontend with PM2..."
 pm2 start npm --name client -- run start
 
 echo "✅ Deployment complete!"
+
+echo "lsof -i :5001 --> Pls kill the process manually if needed"

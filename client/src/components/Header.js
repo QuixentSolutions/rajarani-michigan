@@ -400,7 +400,6 @@ function Header() {
       // Wrap dispatchData in a Promise to use async/await
       const response = await new Promise((resolve, reject) => {
         window.Accept.dispatchData(secureData, (res) => {
-          console.log(res);
           if (res.messages.resultCode === "Error") {
             reject(res.messages.message[0].text);
           } else {

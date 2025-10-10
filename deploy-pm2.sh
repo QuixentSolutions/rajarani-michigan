@@ -25,16 +25,18 @@ echo "🛠 Installing backend dependencies..."
 cd "$BACKEND_DIR"
 npm ci
 
-# Optional: ensure backend serves frontend
-echo "🔧 Ensuring backend serves frontend..."
-if ! grep -q "express.static" server.js; then
-  echo "⚠️  Remember to add frontend static serving in server.js:"
-  echo "app.use(express.static(path.join(__dirname, '../client/build')));"
-  echo "app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../client/build', 'index.html')));"
+# Install serve globally if not installed
+if ! command -v serve &> /dev/null
+then
+    echo "📦 Installing 'serve' to serve frontend..."
+    npm install -g serve
 fi
 
 echo "▶️ Starting backend with PM2..."
 pm2 start npm --name server -- run start
+
+echo "▶️ Starting frontend on port 80 with PM2..."
+pm2 start serve --name client -- "$FRONTEND_DIR/build" -l 80
 
 echo "✅ Deployment complete!"
 pm2 status

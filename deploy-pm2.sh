@@ -11,15 +11,16 @@ cd /home/ubuntu/rajarani/rajarani-michigan
 git pull
 
 echo "🛠 Installing frontend dependencies..."
-cd ../client
+cd client
 npm install
 
 echo "🏗 Building frontend... (this may take a few minutes)"
 npm run build
 
 echo "🛠 Installing backend dependencies..."
-cd server
+cd ../server
 npm install
+
 echo "▶️ Starting backend with PM2..."
 pm2 start npm --name server -- run start
 

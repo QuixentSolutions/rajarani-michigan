@@ -1,31 +1,29 @@
-#!/bin/bash
+#!/bin/bas:qw
+#h
 set -e
 
-APP_DIR="/home/ubuntu/rajarani/rajarani-michigan"
-FRONTEND_DIR="$APP_DIR/client"
-BACKEND_DIR="$APP_DIR/server"
+echo "🚀 Stopping all PM2 processes..."
+pm2 stop all || true
+pm2 delete all || true
 
-echo "🚀 Stopping backend PM2 process..."
-pm2 stop server || true
-pm2 delete server || true
-
-echo "📥 Pulling latest code..."
-cd "$APP_DIR"
-git pull --rebase
-
-echo "🛠 Installing frontend dependencies..."
-cd "$FRONTEND_DIR"
-npm ci
-
-echo "🏗 Building frontend..."
-npm run build
+echo "📥 Pulling latest code from Git..."
+cd /home/ubuntu/rajarani/rajarani-michigan
+git pull
 
 echo "🛠 Installing backend dependencies..."
-cd "$BACKEND_DIR"
-npm ci
-
-echo "▶️ Starting backend on port 5001 with PM2..."
+cd server
+npm install
+echo "▶️ Starting backend with PM2..."
 pm2 start npm --name server -- run start
 
-echo "✅ Deployment complete! Frontend is served on port 80 via Nginx, backend on 5001."
-pm2 status
+echo "🛠 Installing frontend dependencies..."
+cd ../client
+npm install
+
+echo "🏗 Building frontend... (this may take a few minutes)"
+npm run build
+
+echo "▶️ Starting frontend with PM2..."
+pm2 start npm --name client -- run start
+
+echo "✅ Deployment complete!"

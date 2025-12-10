@@ -383,7 +383,7 @@ async function printOrder(order) {
 
   let printer = new ThermalPrinter({
     type: PrinterTypes.EPSON, // Change to STAR if your printer is STAR type
-    interface: printerConfig.printerIp, // or "printer:USB001" depending on setup
+    interface: `tcp://${printerConfig.printerIp}:9100`, // or "printer:USB001" depending on setup
     characterSet: "SLOVENIA",
     removeSpecialCharacters: false,
     lineCharacter: "-",

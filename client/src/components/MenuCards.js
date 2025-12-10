@@ -1,9 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
-import { FaPlus, FaMinus, FaCheck, FaCheckCircle } from "react-icons/fa";
+import { FaCartPlus } from "react-icons/fa";
 import { updateQuantity, rehydrateCart } from "../cartSlice";
 import { useState, useEffect } from "react";
 import "./MenuCards.css";
-import { serverURl } from "../utils/server";
 
 function Menu() {
   const dispatch = useDispatch();
@@ -272,7 +271,7 @@ function Menu() {
                           </span> */}
 
                           {/* {qty === 0 && ( */}
-                          <FaCheck
+                          <FaCartPlus
                             style={{
                               cursor: "pointer",
                               fontSize: "16px",

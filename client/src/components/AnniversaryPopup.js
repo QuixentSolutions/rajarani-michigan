@@ -50,7 +50,7 @@ function AnniversaryPopup() {
         </div>
 
         <div className="card-content">
-          <h3 className="title">3rd Anniversary Celebration!</h3>
+          <h3 className="title">Pongal Celebration!</h3>
         </div>
 
         <button onClick={scrollToRegistration} className="register-btn">

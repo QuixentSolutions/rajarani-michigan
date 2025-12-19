@@ -5,7 +5,7 @@ import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { clearCart, rehydrateCart } from "../cartSlice";
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
-// import AnniversaryPopup from "./AnniversaryPopup";
+import AnniversaryPopup from "./AnniversaryPopup";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import { View, Text, TouchableOpacity } from "react-native";
 
@@ -35,7 +35,7 @@ function Header() {
   // const totalItems = useSelector((state) => state.cart.totalItems);
   // const cartItems = useSelector((state) => state.cart.items);
 
-  // const totalItems = useSelector((state) => state.cart.totalItems);
+  const totalItems = useSelector((state) => state.cart.totalItems);
 
   const localStorageCartItems = useSelector((state) => state.cart.items);
   const [cartItems, setCartItems] = useState(localStorageCartItems);
@@ -197,7 +197,7 @@ function Header() {
       },
       orderType: String(orderMode),
       tableNumber: orderMode === "dinein" ? String(`T${tableNumber}`) : "0",
-      // address: orderMode === "delivery" ? String(address) : undefined,
+      address: orderMode === "delivery" ? String(address) : undefined,
       deliveryAddress: "NA",
       deliveryInstructions: "NA",
       items: Object.entries(cartItems).map(
@@ -759,7 +759,7 @@ function Header() {
             <div className="logo">
               <img className="header-logo" src="../logo.png" alt="logo" />
             </div>
-            {/* <AnniversaryPopup /> */}
+            { <AnniversaryPopup /> }
             <div className="social-icons">
               <SocialIcon
                 className="social-icon"
@@ -811,7 +811,7 @@ function Header() {
                   style={{ color: "#28A745" }}
                 />
               </a>
-              {/* <div
+              { <div
                 style={{
                   position: "relative",
                   display: "inline-block",
@@ -855,7 +855,7 @@ function Header() {
                     {totalItems}
                   </span>
                 )}
-              </div> */}
+              </div> }
             </div>
           </div>
         </div>

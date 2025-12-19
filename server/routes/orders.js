@@ -182,7 +182,7 @@ router.get("/all", async (req, res) => {
 router.post("/payment", async (req, res) => {
   try {
     // 1️⃣ Extract data from request
-    const { opaqueData, amount, orderId } = req.body;
+    const { opaqueData, amount, orderId, paymentFor, registrationData } = req.body;
 
     if (!opaqueData || !opaqueData.dataValue || !opaqueData.dataDescriptor) {
       return res
@@ -218,14 +218,14 @@ router.post("/payment", async (req, res) => {
           },
           order: {
             invoiceNumber: orderId,
-            description: "New online order placed",
+            description: paymentFor === "registration" ? "Registration payment" : "New online order placed",
           },
         },
       },
     };
 
     axios
-      .post("https://api.authorize.net/xml/v1/request.api", payload, {
+      .post("https://api.authorize.net/xml/v1/request.api", payload, {  // ← Changed to SANDBOX URL
         headers: {
           "Content-Type": "application/json",
         },
@@ -237,6 +237,21 @@ router.post("/payment", async (req, res) => {
           response.data.transactionResponse?.responseCode === "1" &&
           response.data.messages?.resultCode === "Ok"
         ) {
+          
+          // ✅ CHECK IF IT'S A REGISTRATION PAYMENT
+          if (paymentFor === "registration") {
+            console.log("Registration payment successful:", registrationData);
+            
+            return res.json({
+              code: 200,
+              status: "success",
+              transactionId: response.data.transactionResponse.transId,
+              authCode: response.data.transactionResponse.authCode,
+              message: "Registration payment successful",
+            });
+          }
+
+          // ✅ EXISTING ORDER PAYMENT LOGIC
           const filter = { orderNumber: orderId };
           const update = {
             $set: {
@@ -266,7 +281,7 @@ router.post("/payment", async (req, res) => {
             });
           }
           const templateParams = {
-            email: order.customer.email.trim(), // Changed from 'to_email' to 'email' to match your template
+            email: order.customer.email.trim(),
             name: order.customer.name.trim(),
             mobile_number: String(order.customer.phone),
             order_mode: String(order.orderType),
@@ -328,34 +343,17 @@ router.post("/payment", async (req, res) => {
           "Transaction error:",
           error.response ? error.response.data : error.message
         );
+        return res.json({
+          code: 500,
+          status: "failed",
+          message: error.response?.data?.message || error.message,
+        });
       });
   } catch (err) {
     console.error("Payment error:", err);
     return res
       .status(500)
       .json({ success: false, error: "Internal server error" });
-  }
-});
-
-router.get("/kitchen", async (req, res) => {
-  try {
-    const { page = 1, limit = 10 } = req.query;
-    const skip = (page - 1) * limit;
-
-    const filter = {
-      orderType: "dinein",
-      sentToKitchen: 0,
-    };
-
-    const totalCount = await Order.countDocuments(filter);
-    const orders = await Order.find(filter)
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
-
-    res.json({ results: orders, totalPages: Math.ceil(totalCount / limit) });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
   }
 });
 

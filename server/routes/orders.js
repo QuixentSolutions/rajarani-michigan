@@ -6,6 +6,9 @@ const emailjs = require("@emailjs/nodejs");
 const ThermalPrinter = require("node-thermal-printer").printer;
 const PrinterTypes = require("node-thermal-printer").types;
 const axios = require("axios");
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
+const path = require("path");
 
 function buildEmailHTML(items) {
   const rows = items
@@ -165,6 +168,7 @@ router.put("/accept", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 router.get("/all", async (req, res) => {
   try {
     const totalCount = await Order.countDocuments();
@@ -181,7 +185,6 @@ router.get("/all", async (req, res) => {
 
 router.post("/payment", async (req, res) => {
   try {
-    // 1️⃣ Extract data from request
     const { opaqueData, amount, orderId } = req.body;
 
     if (!opaqueData || !opaqueData.dataValue || !opaqueData.dataDescriptor) {
@@ -190,7 +193,6 @@ router.post("/payment", async (req, res) => {
         .json({ success: false, error: "Invalid opaqueData" });
     }
 
-    // 2️⃣ Load and trim credentials
     const API_LOGIN_ID = process.env.AUTHORIZE_API_LOGIN_ID?.trim();
     const TRANSACTION_KEY = process.env.AUTHORIZE_TRANSACTION_KEY?.trim();
 
@@ -255,7 +257,6 @@ router.post("/payment", async (req, res) => {
           const emailHTML = buildEmailHTML(order.items);
 
           if (!order.customer.email) {
-            console.log("No customer email provided, skipping email send.");
             return res.json({
               code: 200,
               status: "success",
@@ -266,7 +267,7 @@ router.post("/payment", async (req, res) => {
             });
           }
           const templateParams = {
-            email: order.customer.email.trim(), // Changed from 'to_email' to 'email' to match your template
+            email: order.customer.email.trim(),
             name: order.customer.name.trim(),
             mobile_number: String(order.customer.phone),
             order_mode: String(order.orderType),
@@ -282,7 +283,7 @@ router.post("/payment", async (req, res) => {
           const publicKey = process.env.EMAILJS_PUBLIC_KEY;
           const privateKey = process.env.EMAILJS_PRIVATE_KEY;
           try {
-            const response = await emailjs.send(
+            await emailjs.send(
               serviceId,
               templateId,
               templateParams,
@@ -291,13 +292,8 @@ router.post("/payment", async (req, res) => {
                 privateKey,
               }
             );
-            console.log(
-              "Email sent successfully!",
-              response.status,
-              response.text
-            );
           } catch (err) {
-            console.error("Email send failed:", err);
+            // Email send failed silently
           } finally {
             return res.json({
               code: 200,
@@ -309,7 +305,6 @@ router.post("/payment", async (req, res) => {
             });
           }
         } else {
-          // Payment failed or declined
           const errorMessage =
             (response.data.transactionResponse &&
               response.data.transactionResponse.errors?.[0]?.errorText) ||
@@ -324,13 +319,9 @@ router.post("/payment", async (req, res) => {
         }
       })
       .catch((error) => {
-        console.error(
-          "Transaction error:",
-          error.response ? error.response.data : error.message
-        );
+        // Transaction error handled silently
       });
   } catch (err) {
-    console.error("Payment error:", err);
     return res
       .status(500)
       .json({ success: false, error: "Internal server error" });
@@ -381,96 +372,150 @@ router.put("/kitchen/:id", async (req, res) => {
 async function printOrder(order) {
   const printerConfig = await Printer.findOne().sort({ createdAt: -1 });
 
-  let printer = new ThermalPrinter({
-    type: PrinterTypes.EPSON, // Change to STAR if your printer is STAR type
-    interface: `tcp://${printerConfig.printerIp}:9100`, // or "printer:USB001" depending on setup
-    characterSet: "SLOVENIA",
-    removeSpecialCharacters: false,
-    lineCharacter: "-",
+  const orderDate = new Date(order.createdAt);
+  const formattedDate = orderDate.toLocaleDateString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+  });
+  const formattedTime = orderDate.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
   });
 
-  let isConnected = await printer.isPrinterConnected();
-  if (!isConnected) return false;
-  console.log("Printer connected:", isConnected);
+  let receipt = "";
 
-  // ---- HEADER ----
-  printer.alignCenter();
-  printer.setTextDoubleHeight();
-  printer.println("RAJARANI");
-  printer.setTextNormal();
-  printer.println("Order Receipt");
-  printer.drawLine();
+  // === Header ===
+  receipt += "--------------------------------\n";
+  receipt += `Order Number : ${order.orderNumber}\n`;
+  receipt += `Order Date   : ${formattedDate}\n`;
+  receipt += `Order Time   : ${formattedTime}\n`;
+  receipt += `Order Type   : ${order.orderType}\n`;
 
-  // ---- ORDER INFO ----
-  printer.alignLeft();
-  printer.println(`Order No: ${order.orderNumber}`);
-  printer.println(`Order Type: ${order.orderType}`);
   if (order.orderType === "dinein") {
-    printer.println(`Table: ${order.tableNumber}`);
-  } else if (order.orderType === "pickup") {
-    printer.println(`Delivery Mode: Pickup`);
+    receipt += `Table No     : ${order.tableNumber}\n`;
   } else {
-    printer.println(`Delivery To: ${order.deliveryAddress}`);
+    receipt += `Name         : ${order.customer.name}\n`;
+    receipt += `Phone        : ${order.customer.phone || "-"}\n`;
   }
-  printer.println(`Customer: ${order.customer.name}`);
-  printer.println(`Phone: ${order.customer.phone || "-"}`);
-  printer.drawLine();
 
-  // ---- ITEMS ----
-  printer.alignLeft();
-  printer.bold(true);
-  printer.tableCustom([
-    { text: "Item", align: "LEFT", width: 0.5 },
-    { text: "Qty", align: "CENTER", width: 0.2 },
-    { text: "Price", align: "RIGHT", width: 0.3 },
-  ]);
-  printer.bold(false);
-  printer.drawLine();
+  receipt += "--------------------------------\n\n";
 
+  // === Items ===
   order.items.forEach((item) => {
-    printer.tableCustom([
-      { text: item.name, align: "LEFT", width: 0.5 },
-      { text: item.quantity.toString(), align: "CENTER", width: 0.2 },
-      { text: `$${item.price.toFixed(2)}`, align: "RIGHT", width: 0.3 },
-    ]);
-    if (item.spiceLevel || (item.addons && item.addons.length)) {
-      printer.println(`   Spice: ${item.spiceLevel || "-"}`);
-      if (item.addons?.length) {
-        printer.println(`   Addons: ${item.addons.join(", ")}`);
-      }
+    const itemName = item.name.split("_")[0];
+    receipt += `${item.quantity} X ${itemName}\n`;
+
+    if (item.spiceLevel) {
+      receipt += `    ${item.spiceLevel}\n`;
+    }
+
+    if (item.addons && item.addons.length > 0) {
+      item.addons.forEach((addon) => {
+        const addonName = typeof addon === "object" ? addon.name : addon;
+        receipt += `    ${addonName}\n`;
+      });
     }
   });
 
-  printer.drawLine();
+  receipt += "\n--------------------------------\n";
+  receipt += "Thank you!\n";
 
-  // ---- TOTALS ----
-  printer.tableCustom([
-    { text: "Sub Total", align: "LEFT", width: 0.7 },
-    { text: `$${order.subTotal.toFixed(2)}`, align: "RIGHT", width: 0.3 },
-  ]);
-  printer.tableCustom([
-    { text: "Tax", align: "LEFT", width: 0.7 },
-    { text: `$${order.salesTax.toFixed(2)}`, align: "RIGHT", width: 0.3 },
-  ]);
+  let printer = new ThermalPrinter({
+    type: PrinterTypes.STAR,
+    interface: `tcp://${printerConfig?.printerIp || "192.168.31.210"}`,
+  });
+
+  let isConnected = false;
+  try {
+    isConnected = await printer.isPrinterConnected();
+  } catch (err) {
+    // Printer not connected
+  }
+  
+  if (!isConnected) {
+    // ❌ Printer not connected - return false
+    console.error(`[ERROR] Printer not connected at ${printerConfig?.printerIp || "192.168.31.210"}`);
+    return false;
+  }
+
+  // Printer is connected - proceed with printing
   printer.bold(true);
-  printer.tableCustom([
-    { text: "TOTAL", align: "LEFT", width: 0.7 },
-    { text: `$${order.totalAmount.toFixed(2)}`, align: "RIGHT", width: 0.3 },
-  ]);
+  printer.println(receipt);
   printer.bold(false);
-
-  printer.drawLine();
-
-  // ---- FOOTER ----
-  printer.alignCenter();
   printer.cut();
 
   try {
     await printer.execute();
-    console.log("Print done!");
+    console.log(`[SUCCESS] Order ${order.orderNumber} printed to thermal printer`);
+    
+    // ✅ Generate PDF ONLY in development/test mode
+    if (process.env.NODE_ENV !== 'production') {
+      const receiptsDir = path.join(__dirname, "..", "receipts");
+      if (!fs.existsSync(receiptsDir)) {
+        fs.mkdirSync(receiptsDir, { recursive: true });
+      }
+      
+      const pdfPath = path.join(receiptsDir, `${order.orderNumber}.pdf`);
+      const doc = new PDFDocument({ 
+        size: [226.77, 600],
+        margin: 10 
+      });
+      const stream = fs.createWriteStream(pdfPath);
+      doc.pipe(stream);
+      
+      doc.font("Courier").fontSize(10);
+      
+      doc.text("--------------------------------", { align: "left" });
+      doc.text(`Order Number : ${order.orderNumber}`);
+      doc.text(`Order Date   : ${formattedDate}`);
+      doc.text(`Order Time   : ${formattedTime}`);
+      doc.text(`Order Type   : ${order.orderType}`);
+      
+      if (order.orderType === "dinein") {
+        doc.text(`Table No     : ${order.tableNumber}`);
+      } else {
+        doc.text(`Name         : ${order.customer.name}`);
+        doc.text(`Phone        : ${order.customer.phone || "-"}`);
+      }
+      
+      doc.text("--------------------------------");
+      doc.moveDown(0.3);
+      
+      order.items.forEach((item) => {
+        const itemName = item.name.split("_")[0];
+        
+        doc.font("Courier-Bold").fontSize(10);
+        doc.text(`${item.quantity} X ${itemName}`);
+        
+        doc.font("Courier").fontSize(8);
+        if (item.spiceLevel) {
+          doc.text(`    ${item.spiceLevel}`);
+        }
+        if (item.addons && item.addons.length > 0) {
+          item.addons.forEach((addon) => {
+            const addonName = typeof addon === "object" ? addon.name : addon;
+            doc.text(`    ${addonName}`);
+          });
+        }
+      });
+      
+      doc.font("Courier").fontSize(10);
+      doc.moveDown(0.3);
+      doc.text("--------------------------------");
+      doc.text("Thank you!", { align: "center" });
+      
+      doc.end();
+      
+      await new Promise((resolve) => stream.on('finish', resolve));
+      console.log(`[TEST MODE] PDF backup created: ${pdfPath}`);
+    }
+    
     return true;
   } catch (err) {
-    console.error("Print failed:", err);
+    console.error(`[ERROR] Failed to print order ${order.orderNumber}:`, err.message);
     return false;
   }
 }

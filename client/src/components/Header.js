@@ -30,7 +30,7 @@ function Header() {
 
   const [finalOrderAmount, setFinalOrderAmount] = useState(0);
 
-  const [deliveryModes, setDeliveryModes] = useState([]);
+  const [deliveryModes, setDeliveryModes] = useState();
 
   // const totalItems = useSelector((state) => state.cart.totalItems);
   // const cartItems = useSelector((state) => state.cart.items);
@@ -877,6 +877,7 @@ function Header() {
             <div
               style={{
                 backgroundColor: "#fff",
+                padding: "20px",
                 borderRadius: "8px",
                 textAlign: "center",
                 position: "relative",
@@ -884,22 +885,10 @@ function Header() {
                 width: "90vw",
                 maxWidth: "520px",
                 maxHeight: "85vh",
+                overflowY: "auto",
                 boxSizing: "border-box",
-                display: "flex",
-                flexDirection: "column",
-                overflow: "hidden",
               }}
             >
-              <div
-                style={{
-                  padding: "20px",
-                  paddingBottom: "10px",
-                  overflowY: "auto",
-                  flexGrow: 1,
-                  flexShrink: 1,
-                  minHeight: 0,
-                }}
-              >
               <h3
                 style={{
                   marginBottom: "15px",
@@ -1211,35 +1200,26 @@ function Header() {
                   )}
                 </>
               )}
-              </div>
-              <div
-                style={{
-                  padding: "15px 20px",
-                  borderTop: "1px solid #ccc",
-                  backgroundColor: "#fff",
-                  borderRadius: "0 0 8px 8px",
-                  flexShrink: 0,
-                  flexGrow: 0,
-                }}
-              >
+              {(deliveryModes.includes("dinein") ||
+                deliveryModes.includes("pickup") ||
+                deliveryModes.includes("delivery")) && (
                 <button
                   onClick={handleOrderNow}
                   disabled={isCartEmpty}
                   style={{
-                    backgroundColor: isCartEmpty ? "#aaa" : "#228B22",
+                    backgroundColor: isCartEmpty ? "#aaa" : "black",
                     color: "#fff",
                     border: "none",
-                    padding: "12px 24px",
+                    padding: "10px 20px",
                     borderRadius: "4px",
                     cursor: isCartEmpty ? "not-allowed" : "pointer",
-                    width: "100%",
-                    fontSize: "16px",
-                    fontWeight: "bold",
+                    marginRight: "10px",
+                    marginTop: "10px",
                   }}
                 >
                   {isCartEmpty ? `Add items to cart` : `Order Now`}
                 </button>
-              </div>
+              )}
               <button
                 onClick={() => setIsPopupOpen(false)}
                 style={{

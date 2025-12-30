@@ -425,7 +425,7 @@ async function printOrder(order) {
 
   let printer = new ThermalPrinter({
     type: PrinterTypes.STAR,
-    interface: `tcp://${printerConfig?.printerIp || "192.168.31.210"}`,
+    interface: `tcp://${printerConfig?.printerIp || "10.1.10.230"}`,
   });
 
   let isConnected = false;
@@ -437,7 +437,7 @@ async function printOrder(order) {
   
   if (!isConnected) {
     // ❌ Printer not connected - return false
-    console.error(`[ERROR] Printer not connected at ${printerConfig?.printerIp || "192.168.31.210"}`);
+    console.error(`[ERROR] Printer not connected at ${printerConfig?.printerIp || "10.1.10.230"}`);
     return false;
   }
 

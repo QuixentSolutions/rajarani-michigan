@@ -283,15 +283,10 @@ router.post("/payment", async (req, res) => {
           const publicKey = process.env.EMAILJS_PUBLIC_KEY;
           const privateKey = process.env.EMAILJS_PRIVATE_KEY;
           try {
-            await emailjs.send(
-              serviceId,
-              templateId,
-              templateParams,
-              {
-                publicKey,
-                privateKey,
-              }
-            );
+            await emailjs.send(serviceId, templateId, templateParams, {
+              publicKey,
+              privateKey,
+            });
           } catch (err) {
             // Email send failed silently
           } finally {
@@ -425,19 +420,23 @@ async function printOrder(order) {
 
   let printer = new ThermalPrinter({
     type: PrinterTypes.STAR,
-    interface: `tcp://${printerConfig?.printerIp || "10.1.10.230"}`,
+    interface: `tcp://${printerConfig?.printerIp}`,
   });
 
   let isConnected = false;
   try {
     isConnected = await printer.isPrinterConnected();
   } catch (err) {
-    // Printer not connected
+    console.error(
+      `[ERROR] Printer not connected at error block - ${printerConfig?.printerIp}`
+    );
   }
-  
+
   if (!isConnected) {
     // ❌ Printer not connected - return false
-    console.error(`[ERROR] Printer not connected at ${printerConfig?.printerIp || "10.1.10.230"}`);
+    console.error(
+      `[ERROR] Printer not connected at after success verification - ${printerConfig?.printerIp}`
+    );
     return false;
   }
 
@@ -449,47 +448,48 @@ async function printOrder(order) {
 
   try {
     await printer.execute();
-    console.log(`[SUCCESS] Order ${order.orderNumber} printed to thermal printer`);
-    
+    console.log(
+      `[SUCCESS] Order ${order.orderNumber} printed to thermal printer`
+    );
     // ✅ Generate PDF ONLY in development/test mode
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== "production") {
       const receiptsDir = path.join(__dirname, "..", "receipts");
       if (!fs.existsSync(receiptsDir)) {
         fs.mkdirSync(receiptsDir, { recursive: true });
       }
-      
+
       const pdfPath = path.join(receiptsDir, `${order.orderNumber}.pdf`);
-      const doc = new PDFDocument({ 
+      const doc = new PDFDocument({
         size: [226.77, 600],
-        margin: 10 
+        margin: 10,
       });
       const stream = fs.createWriteStream(pdfPath);
       doc.pipe(stream);
-      
+
       doc.font("Courier").fontSize(10);
-      
+
       doc.text("--------------------------------", { align: "left" });
       doc.text(`Order Number : ${order.orderNumber}`);
       doc.text(`Order Date   : ${formattedDate}`);
       doc.text(`Order Time   : ${formattedTime}`);
       doc.text(`Order Type   : ${order.orderType}`);
-      
+
       if (order.orderType === "dinein") {
         doc.text(`Table No     : ${order.tableNumber}`);
       } else {
         doc.text(`Name         : ${order.customer.name}`);
         doc.text(`Phone        : ${order.customer.phone || "-"}`);
       }
-      
+
       doc.text("--------------------------------");
       doc.moveDown(0.3);
-      
+
       order.items.forEach((item) => {
         const itemName = item.name.split("_")[0];
-        
+
         doc.font("Courier-Bold").fontSize(10);
         doc.text(`${item.quantity} X ${itemName}`);
-        
+
         doc.font("Courier").fontSize(8);
         if (item.spiceLevel) {
           doc.text(`    ${item.spiceLevel}`);
@@ -501,21 +501,22 @@ async function printOrder(order) {
           });
         }
       });
-      
+
       doc.font("Courier").fontSize(10);
       doc.moveDown(0.3);
       doc.text("--------------------------------");
       doc.text("Thank you!", { align: "center" });
-      
       doc.end();
-      
-      await new Promise((resolve) => stream.on('finish', resolve));
+      await new Promise((resolve) => stream.on("finish", resolve));
       console.log(`[TEST MODE] PDF backup created: ${pdfPath}`);
     }
-    
+
     return true;
   } catch (err) {
-    console.error(`[ERROR] Failed to print order ${order.orderNumber}:`, err.message);
+    console.error(
+      `[ERROR] Failed to print order ${order.orderNumber}:`,
+      err.message
+    );
     return false;
   }
 }

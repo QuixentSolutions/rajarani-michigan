@@ -423,22 +423,22 @@ async function printOrder(order) {
     interface: `tcp://${printerConfig?.printerIp}`,
   });
 
-  // let isConnected = false;
-  // try {
-  //   isConnected = await printer.isPrinterConnected();
-  // } catch (err) {
-  //   console.error(
-  //     `[ERROR] Printer not connected at error block - ${printerConfig?.printerIp}`
-  //   );
-  // }
+  let isConnected = false;
+  try {
+    isConnected = await printer.isPrinterConnected();
+  } catch (err) {
+    console.error(
+      `[ERROR] Printer not connected at error block - ${printerConfig?.printerIp}`
+    );
+  }
 
-  // if (!isConnected) {
-  //   // ❌ Printer not connected - return false
-  //   console.error(
-  //     `[ERROR] Printer not connected at after success verification - ${printerConfig?.printerIp}`
-  //   );
-  //   return false;
-  // }
+  if (!isConnected) {
+    // ❌ Printer not connected - return false
+    console.error(
+      `[ERROR] Printer not connected at after success verification - ${printerConfig?.printerIp}`
+    );
+    return false;
+  }
 
   // Printer is connected - proceed with printing
   printer.bold(true);

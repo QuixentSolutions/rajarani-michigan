@@ -3,7 +3,6 @@ import { FaCartPlus } from "react-icons/fa";
 import { updateQuantity, rehydrateCart } from "../cartSlice";
 import { useState, useEffect } from "react";
 import "./MenuCards.css";
-import { serverURl } from "../utils/server";
 
 function Menu() {
   const dispatch = useDispatch();

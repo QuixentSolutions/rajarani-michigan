@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import "./AdminDashboard.css";
 import KitchenOrdersTable from "./KitchenOrdersTable";
 import SuccessPopup from "./SuccessPopup";
@@ -69,15 +69,8 @@ const AdminDashboard = ({ onLogout }) => {
   const [tips, setTips] = useState(0);
   const [tipsPercentage, setTipsPercentage] = useState(0);
 
-  const handleLogout = () => {
-    if (window.confirm("Are you sure you want to logout?")) {
-      if (typeof onLogout === "function") {
-        onLogout();
-      } else {
-        window.location.href = "/admin";
-      }
-    }
-  };
+  // WebSocket connection for real-time order notifications
+  const wsRef = useRef(null);
 
   const fetchData = useCallback(
     async (url, token, retryCount = 0) => {
@@ -199,6 +192,74 @@ const AdminDashboard = ({ onLogout }) => {
     setKitchenOrders,
     "order/kitchen"
   );
+
+ useEffect(() => {
+  let ws;
+  let reconnectTimeout;
+
+  const connectWebSocket = () => {
+    ws = new WebSocket('ws://localhost:5001');
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      console.log('✅ WebSocket connected');
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'new_order') {
+          console.log('🔔 New order received:', data.order);
+
+          // Play notification sound
+          const audio = new Audio('/neworder.mp3');
+          audio.play().catch(err => console.log('Audio play failed:', err));
+
+          // Refresh orders if on orders tab
+          if (activeTab === 'orders') {
+            fetchOrders(orders.currentPage, searchOrderQuery);
+          }
+
+          // Show notification
+          setSuccess(`New ${data.order.orderType} order received: ${data.order.orderNumber}`);
+          setTimeout(() => setSuccess(""), 5000);
+        }
+      } catch (err) {
+        console.error('Error parsing WebSocket message:', err);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('❌ WebSocket disconnected. Reconnecting in 3s...');
+      reconnectTimeout = setTimeout(connectWebSocket, 3000);
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      ws.close();
+    };
+  };
+
+  connectWebSocket();
+
+  // Cleanup on unmount
+  return () => {
+    if (reconnectTimeout) clearTimeout(reconnectTimeout);
+    if (wsRef.current) {
+      wsRef.current.close();
+    }
+  };
+}, [activeTab, orders.currentPage, searchOrderQuery, fetchOrders]);
+
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to logout?")) {
+      if (typeof onLogout === "function") {
+        onLogout();
+      } else {
+        window.location.href = "/admin";
+      }
+    }
+  };
 
   useEffect(() => {
     const loadData = async () => {

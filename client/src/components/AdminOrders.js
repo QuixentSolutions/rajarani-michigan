@@ -9,6 +9,8 @@ const AdminOrders = ({
   handleAcceptedOnlineorders,
   handleView,
   renderPagination,
+  newOrderIds, // ⭐ Added for blinking orders
+  newTableNumbers, // ⭐ Added for blinking table boxes
 }) => {
   return (
     <div className="section-card">
@@ -21,20 +23,6 @@ const AdminOrders = ({
         }}
       >
         <h2 className="section-title">Order Management</h2>
-        <button
-          onClick={() => fetchOrders(orders.currentPage, searchOrderQuery)}
-          className="btn-primary"
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Refresh Orders
-        </button>
       </div>
 
       <div className="subsection-header">
@@ -44,7 +32,9 @@ const AdminOrders = ({
         {tableStatuses.map((table) => (
           <div
             key={table.tableNumber}
-            className={`table-status-box status-${table.status.toLowerCase()}`}
+            className={`table-status-box status-${table.status.toLowerCase()} ${
+              newTableNumbers && newTableNumbers.has(table.tableNumber) ? 'table-box-blink' : ''
+            }`}
             onClick={() => {
               showBill(table.tableNumber);
             }}
@@ -77,7 +67,10 @@ const AdminOrders = ({
                 <>
                   {order.orderType !== "dinein" &&
                     order.payment.status === "paid" && (
-                      <tr key={order._id}>
+                      <tr 
+                        key={order._id}
+                        className={newOrderIds && newOrderIds.has(order._id) ? 'new-order-blink' : ''}
+                      >
                         <td>
                           <code>{order.orderNumber || "N/A"}</code>
                         </td>

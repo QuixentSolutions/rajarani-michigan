@@ -256,7 +256,15 @@ const AdminDashboard = ({ onLogout }) => {
       }
     }
   };
+useEffect(() => {
+  const interval = setInterval(() => {
+    if (activeTab === 'orders') {
+      fetchOrders(orders.currentPage, searchOrderQuery);
+    }
+  }, 10000); // Poll every 10 seconds
 
+  return () => clearInterval(interval);
+}, [activeTab, fetchOrders, orders.currentPage, searchOrderQuery]);
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);

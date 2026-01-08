@@ -8,38 +8,63 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
   });
   const [page, setPage] = useState(1);
   const [printerIp, setPrinterIp] = useState("");
+  const [newKitchenOrderIds, setNewKitchenOrderIds] = useState(new Set());
 
   const limit = 10;
 
-  const fetchKitchenOrdersData = useCallback(async () => {
-    try {
-      setError("");
-      const response = await fetch(
-        `/order/kitchen?page=${page}&limit=${limit}`,
-        {
-          headers: {
-            Authorization: authToken,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message || `Server error (${response.status})`
-        );
+  const fetchKitchenOrdersData = useCallback(async (isPolling = false) => {
+  try {
+    setError("");
+    const response = await fetch(
+      `/order/kitchen?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: authToken,
+          "Content-Type": "application/json",
+        },
       }
-      const data = await response.json();
-      setKitchenOrders({
-        items: data.results,
-        totalPages: data.totalPages,
-        currentPage: page,
-      });
-    } catch (err) {
-      setError(`Failed to load kitchen orders: ${err.message}`);
-      setKitchenOrders({ items: [], totalPages: 1, currentPage: 1 });
+    );
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.message || `Server error (${response.status})`
+      );
     }
-  }, [page, authToken, setError]);
+    const data = await response.json();
+    
+    const newData = {
+      items: data.results,
+      totalPages: data.totalPages,
+      currentPage: page,
+    };
+    
+    // Handle new order detection for polling
+    if (isPolling && newData.items.length > 0) {
+      const existingIds = new Set(kitchenOrders.items.map(item => item._id));
+      const newIds = newData.items
+        .filter(item => !existingIds.has(item._id))
+        .map(item => item._id);
+      
+      if (newIds.length > 0) {
+        setNewKitchenOrderIds(prevSet => new Set([...prevSet, ...newIds]));
+        
+        // Remove blinking after 5 seconds (5 blinks × 1 second each)
+        setTimeout(() => {
+          setNewKitchenOrderIds(prevSet => {
+            const updated = new Set(prevSet);
+            newIds.forEach(id => updated.delete(id));
+            return updated;
+          });
+        }, 5000); // 5 seconds = 5 blinks
+      }
+    }
+    
+    setKitchenOrders(newData);
+  } catch (err) {
+    setError(`Failed to load kitchen orders: ${err.message}`);
+    setKitchenOrders({ items: [], totalPages: 1, currentPage: 1 });
+  }
+}, [page, authToken, setError, kitchenOrders.items]);
 
   const fetchPrinterData = useCallback(async () => {
     try {
@@ -89,17 +114,28 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
       setSuccess("Printer updated successfully!");
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      setError(`Failed to save menu: ${err.message}`);
+      setError(`Failed to save printer: ${err.message}`);
     }
-  }, [printerIp]);
+  }, [printerIp, authToken, setError, setSuccess]);
 
+  // Initial load
   useEffect(() => {
     fetchKitchenOrdersData();
   }, [fetchKitchenOrdersData]);
 
+  // Load printer data
   useEffect(() => {
     fetchPrinterData();
   }, [fetchPrinterData]);
+
+  // Auto-refresh every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchKitchenOrdersData(true);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [fetchKitchenOrdersData]);
 
   const handlePrintOrder = async (orderId) => {
     try {
@@ -126,7 +162,7 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
 
   return (
     <>
-      {/* Header Section - Matching AdminOrders style */}
+      {/* Header Section */}
       <div
         className="section-header"
         style={{
@@ -165,20 +201,6 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
           }}
         >
           Save Configuration
-        </button>
-        <button
-          onClick={fetchKitchenOrdersData}
-          className="btn-primary"
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Refresh Orders
         </button>
       </div>
 
@@ -314,21 +336,27 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
             </thead>
             <tbody>
               {kitchenOrders.items.length > 0 ? (
-                kitchenOrders.items.map((order, orderIndex) => (
+                kitchenOrders.items.map((order) => (
                   <tr
-                    key={order._id}
-                    style={{
-                      borderBottom: "1px solid #64748b",
-                      transition: "background-color 0.2s ease",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.target.closest("tr").style.backgroundColor = "#f8fafc")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.target.closest("tr").style.backgroundColor =
-                        "transparent")
-                    }
-                  >
+  key={order._id}
+  className={newKitchenOrderIds.has(order._id) ? 'new-order-blink' : ''}
+  style={{
+    borderBottom: "1px solid #64748b",
+    transition: "background-color 0.2s ease",
+  }}
+  onMouseEnter={(e) => {
+    // Only change background if NOT blinking
+    if (!newKitchenOrderIds.has(order._id)) {
+      e.target.closest("tr").style.backgroundColor = "#f8fafc";
+    }
+  }}
+  onMouseLeave={(e) => {
+    // Only reset background if NOT blinking
+    if (!newKitchenOrderIds.has(order._id)) {
+      e.target.closest("tr").style.backgroundColor = "transparent";
+    }
+  }}
+>
                     <td
                       style={{
                         padding: "16px 12px",

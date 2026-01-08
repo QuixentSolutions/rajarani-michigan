@@ -1054,16 +1054,17 @@ useEffect(() => {
           />
         )}
 
-        {activeTab === "kitchen" && (
-          <div className="section-card">
-            {/* The title is now rendered inside KitchenOrdersTable component */}
-            <KitchenOrdersTable
-              authToken={authToken}
-              setError={setError}
-              setSuccess={setSuccess}
-            />
-          </div>
-        )}
+       {activeTab === "kitchen" && (
+  <div className="section-card">
+    <KitchenOrdersTable
+      authToken={authToken}
+      setError={setError}
+      setSuccess={setSuccess}
+      tableStatuses={tableStatuses}
+      showBill={showBill}
+    />
+  </div>
+)}
 
         {renderModal()}
       </div>

@@ -16,12 +16,10 @@ const AdminDashboard = ({ onLogout }) => {
   const [authToken] = useState("Basic " + btoa("admin:password123"));
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [refreshKitchenOrders, setRefreshKitchenOrders] = useState(false);
+  const [refreshOrders, setRefreshrders] = useState(new Date());
   const [activeTab, setActiveTab] = useState("registrations");
   const [isLoading, setIsLoading] = useState(true);
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
-
-  const [lastOnlineOrderNo, setLastOnlineOrderNo] = useState(0);
 
   const [registrations, setRegistrations] = useState({
     items: [],
@@ -194,56 +192,133 @@ const AdminDashboard = ({ onLogout }) => {
     "order/kitchen"
   );
 
+  // useEffect(() => {
+  //   let ws;
+  //   let heartbeatInterval;
+  //   let reconnectTimeout;
+
+  //   const connectWebSocket = () => {
+  //     ws = new WebSocket("ws://localhost:5001");
+  //     wsRef.current = ws;
+
+  //     ws.onopen = () => {
+  //       console.log("✅ WebSocket connected");
+  //       heartbeatInterval = setInterval(() => {
+  //         if (ws.readyState === WebSocket.OPEN) {
+  //           ws.send(JSON.stringify({ type: "ping" }));
+  //         }
+  //       }, 20000);
+  //     };
+
+  //     ws.onmessage = (event) => {
+  //       try {
+  //         const data = JSON.parse(event.data);
+  //         if (data.type === "new_order") {
+  //           const audio = new Audio("/neworder.mp3");
+  //           audio
+  //             .play()
+  //             .catch((err) => console.error("Audio play failed:", err));
+  //           setSuccess(`New order received -  ${data.order.orderNumber}`);
+  //           setTimeout(() => setSuccess(""), 5000);
+  //           setRefreshKitchenOrders(true);
+  //         }
+  //       } catch (err) {
+  //         console.error("Error parsing WebSocket message:", err);
+  //       }
+  //     };
+
+  //     ws.onclose = () => {
+  //       console.log("❌ WebSocket disconnected. Reconnecting in 3s...");
+  //       reconnectTimeout = setTimeout(connectWebSocket, 3000);
+  //     };
+
+  //     ws.onerror = (error) => {
+  //       console.error("WebSocket error:", error);
+  //       ws.close();
+  //     };
+  //   };
+
+  //   connectWebSocket();
+
+  //   // Cleanup on unmount
+  //   return () => {
+  //     if (reconnectTimeout) clearTimeout(reconnectTimeout);
+  //     if (wsRef.current) {
+  //       wsRef.current.close();
+  //     }
+  //   };
+  // }, [activeTab, orders.currentPage, searchOrderQuery, fetchOrders]);
+
   useEffect(() => {
     let ws;
-    let reconnectTimeout;
+    let heartbeatInterval = null;
+    let reconnectTimeout = null;
+    let isUnmounted = false;
 
     const connectWebSocket = () => {
+      if (isUnmounted) return;
+
       ws = new WebSocket("ws://localhost:5001");
       wsRef.current = ws;
 
       ws.onopen = () => {
         console.log("✅ WebSocket connected");
+
+        // Clear any existing heartbeat
+        if (heartbeatInterval) clearInterval(heartbeatInterval);
+
+        heartbeatInterval = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: "ping" }));
+          }
+        }, 20000);
       };
 
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
+
           if (data.type === "new_order") {
             const audio = new Audio("/neworder.mp3");
-            audio
-              .play()
-              .catch((err) => console.error("Audio play failed:", err));
-            setSuccess(`New order received -  ${data.order.orderNumber}`);
+            audio.play().catch(() => {});
+            setSuccess(`New order received - ${data.order.orderNumber}`);
             setTimeout(() => setSuccess(""), 5000);
-            setRefreshKitchenOrders(true);
+            setRefreshrders(new Date());
           }
         } catch (err) {
-          console.error("Error parsing WebSocket message:", err);
+          console.error("WS parse error:", err);
         }
       };
 
-      ws.onclose = () => {
-        console.log("❌ WebSocket disconnected. Reconnecting in 3s...");
-        reconnectTimeout = setTimeout(connectWebSocket, 3000);
+      ws.onclose = (event) => {
+        console.warn("❌ WS closed", event.code);
+
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = null;
+
+        if (!isUnmounted) {
+          reconnectTimeout = setTimeout(connectWebSocket, 3000);
+        }
       };
 
-      ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
+      ws.onerror = () => {
         ws.close();
       };
     };
 
     connectWebSocket();
 
-    // Cleanup on unmount
     return () => {
-      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      isUnmounted = true;
+
+      clearInterval(heartbeatInterval);
+      clearTimeout(reconnectTimeout);
+
       if (wsRef.current) {
         wsRef.current.close();
       }
     };
-  }, [activeTab, orders.currentPage, searchOrderQuery, fetchOrders]);
+  }, []); // 🔥 EMPTY dependency array
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
@@ -1044,7 +1119,7 @@ const AdminDashboard = ({ onLogout }) => {
             handleRejectOnlineorders={handleRejectOnlineorders}
             handleView={handleView}
             renderPagination={renderPagination}
-            refresh={refreshKitchenOrders}
+            refresh={refreshOrders}
           />
         )}
 
@@ -1087,7 +1162,7 @@ const AdminDashboard = ({ onLogout }) => {
               setSuccess={setSuccess}
               tableStatuses={tableStatuses}
               showBill={showBill}
-              refresh={refreshKitchenOrders}
+              refresh={refreshOrders}
             />
           </div>
         )}

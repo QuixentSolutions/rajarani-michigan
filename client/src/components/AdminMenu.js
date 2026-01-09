@@ -65,8 +65,7 @@ const AdminMenu = ({
         );
       }
 
-      const result = await response.json();
-      console.log("Success: Menu item added successfully!");
+      await response.json();
       setSuccess("Menu item added successfully!");
       setNewMenuItem({ name: "", price: "", spicelevel: [], addons: [] });
 
@@ -124,7 +123,6 @@ const AdminMenu = ({
         throw new Error(errorMessage);
       }
 
-      console.log("Success: Menu item updated successfully!");
       setSuccess("Menu item updated successfully!");
       setEditingMenuItem(null);
       setEditingItemData(null);
@@ -175,7 +173,6 @@ const AdminMenu = ({
         throw new Error(errorMessage);
       }
 
-      console.log("Success: Menu item deleted successfully!");
       setSuccess("Menu item deleted successfully!");
 
       const latestMenuData = await fetchMenuData();

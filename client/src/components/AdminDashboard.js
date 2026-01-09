@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import "./AdminDashboard.css";
 import KitchenOrdersTable from "./KitchenOrdersTable";
 import SuccessPopup from "./SuccessPopup";
@@ -16,6 +16,7 @@ const AdminDashboard = ({ onLogout }) => {
   const [authToken] = useState("Basic " + btoa("admin:password123"));
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [refreshKitchenOrders, setRefreshKitchenOrders] = useState(false);
   const [activeTab, setActiveTab] = useState("registrations");
   const [isLoading, setIsLoading] = useState(true);
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
@@ -69,15 +70,8 @@ const AdminDashboard = ({ onLogout }) => {
   const [tips, setTips] = useState(0);
   const [tipsPercentage, setTipsPercentage] = useState(0);
 
-  const handleLogout = () => {
-    if (window.confirm("Are you sure you want to logout?")) {
-      if (typeof onLogout === "function") {
-        onLogout();
-      } else {
-        window.location.href = "/admin";
-      }
-    }
-  };
+  // WebSocket connection for real-time order notifications
+  const wsRef = useRef(null);
 
   const fetchData = useCallback(
     async (url, token, retryCount = 0) => {
@@ -201,6 +195,75 @@ const AdminDashboard = ({ onLogout }) => {
   );
 
   useEffect(() => {
+    let ws;
+    let reconnectTimeout;
+
+    const connectWebSocket = () => {
+      ws = new WebSocket("ws://localhost:5001");
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        console.log("✅ WebSocket connected");
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === "new_order") {
+            const audio = new Audio("/neworder.mp3");
+            audio
+              .play()
+              .catch((err) => console.error("Audio play failed:", err));
+            setSuccess(`New order received -  ${data.order.orderNumber}`);
+            setTimeout(() => setSuccess(""), 5000);
+            setRefreshKitchenOrders(true);
+          }
+        } catch (err) {
+          console.error("Error parsing WebSocket message:", err);
+        }
+      };
+
+      ws.onclose = () => {
+        console.log("❌ WebSocket disconnected. Reconnecting in 3s...");
+        reconnectTimeout = setTimeout(connectWebSocket, 3000);
+      };
+
+      ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+        ws.close();
+      };
+    };
+
+    connectWebSocket();
+
+    // Cleanup on unmount
+    return () => {
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, [activeTab, orders.currentPage, searchOrderQuery, fetchOrders]);
+
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to logout?")) {
+      if (typeof onLogout === "function") {
+        onLogout();
+      } else {
+        window.location.href = "/admin";
+      }
+    }
+  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (activeTab === "orders") {
+        fetchOrders(orders.currentPage, searchOrderQuery);
+      }
+    }, 10000); // Poll every 10 seconds
+
+    return () => clearInterval(interval);
+  }, [activeTab, fetchOrders, orders.currentPage, searchOrderQuery]);
+  useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       setError("");
@@ -224,8 +287,6 @@ const AdminDashboard = ({ onLogout }) => {
         await fetchOrders();
         await fetchMenuData();
         await fetchKitchenOrders();
-
-        console.log("Success: Dashboard loaded successfully!"); // Added console log
         setSuccess("Dashboard loaded successfully!");
         setTimeout(() => setSuccess(""), 3000);
       } catch (error) {
@@ -774,7 +835,34 @@ const AdminDashboard = ({ onLogout }) => {
         alert(dbData.error);
         return;
       }
-      setSuccess("Pickup order sent to kitchen!");
+      setSuccess("Online order sent to kitchen!");
+      setTimeout(() => setSuccess(""), 3000);
+      await fetchOrders();
+    } catch (err) {
+      // console.error("Order process error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRejectOnlineorders = async (orderNumber) => {
+    setIsLoading(true);
+
+    try {
+      const dbResponse = await fetch("/order/reject", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderNumber: orderNumber,
+        }),
+      });
+
+      const dbData = await dbResponse.json();
+      if (dbData.error) {
+        alert(dbData.error);
+        return;
+      }
+      setSuccess("Online order rejected!");
       setTimeout(() => setSuccess(""), 3000);
       await fetchOrders();
     } catch (err) {
@@ -908,7 +996,7 @@ const AdminDashboard = ({ onLogout }) => {
             className={`tab-btn ${activeTab === "orders" ? "active" : ""}`}
             onClick={() => setActiveTab("orders")}
           >
-            Orders
+            Online Orders
           </button>
           <button
             className={`tab-btn ${activeTab === "menu" ? "active" : ""}`}
@@ -932,7 +1020,7 @@ const AdminDashboard = ({ onLogout }) => {
             className={`tab-btn ${activeTab === "kitchen" ? "active" : ""}`}
             onClick={() => setActiveTab("kitchen")}
           >
-            Kitchen Orders
+            Table Orders
           </button>
         </div>
 
@@ -953,8 +1041,10 @@ const AdminDashboard = ({ onLogout }) => {
             searchOrderQuery={searchOrderQuery}
             showBill={showBill}
             handleAcceptedOnlineorders={handleAcceptedOnlineorders}
+            handleRejectOnlineorders={handleRejectOnlineorders}
             handleView={handleView}
             renderPagination={renderPagination}
+            refresh={refreshKitchenOrders}
           />
         )}
 
@@ -991,11 +1081,13 @@ const AdminDashboard = ({ onLogout }) => {
 
         {activeTab === "kitchen" && (
           <div className="section-card">
-            {/* The title is now rendered inside KitchenOrdersTable component */}
             <KitchenOrdersTable
               authToken={authToken}
               setError={setError}
               setSuccess={setSuccess}
+              tableStatuses={tableStatuses}
+              showBill={showBill}
+              refresh={refreshKitchenOrders}
             />
           </div>
         )}

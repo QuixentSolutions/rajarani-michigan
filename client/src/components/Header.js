@@ -30,8 +30,7 @@ function Header() {
 
   const [finalOrderAmount, setFinalOrderAmount] = useState(0);
 
-  const [deliveryModes, setDeliveryModes] = useState();
-
+const [deliveryModes, setDeliveryModes] = useState(["dinein", "pickup", "delivery"]);
   // const totalItems = useSelector((state) => state.cart.totalItems);
   // const cartItems = useSelector((state) => state.cart.items);
 
@@ -70,25 +69,25 @@ function Header() {
     setTotalAmount(subTotal);
   }, [cartItems]);
 
-  useEffect(() => {
-    const loadData = async () => {
-      const dbResponse = await fetch("/settings/latest", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-      const dbData = await dbResponse.json();
-      if (!dbResponse.ok) {
-        throw new Error(dbData.message || "Failed to save order.");
-      }
+  // useEffect(() => {
+  //   const loadData = async () => {
+  //     const dbResponse = await fetch("/settings/latest", {
+  //       method: "GET",
+  //       headers: { "Content-Type": "application/json" },
+  //     });
+  //     const dbData = await dbResponse.json();
+  //     if (!dbResponse.ok) {
+  //       throw new Error(dbData.message || "Failed to save order.");
+  //     }
 
-      const obj = dbData[0]?.settings || {};
-      // Get only keys where value is true
-      const result = Object.keys(obj).filter((key) => obj[key]);
-      setDeliveryModes(result || []);
-    };
+  //     const obj = dbData[0]?.settings || {};
+  //     // Get only keys where value is true
+  //     const result = Object.keys(obj).filter((key) => obj[key]);
+  //     setDeliveryModes(result || []);
+  //   };
 
-    loadData();
-  }, [isPopupOpen]);
+  //   loadData();
+  // }, [isPopupOpen]);
 
   const handleChange = (e) => {
     const input = e.target.value;
@@ -1200,26 +1199,22 @@ function Header() {
                   )}
                 </>
               )}
-              {(deliveryModes.includes("dinein") ||
-                deliveryModes.includes("pickup") ||
-                deliveryModes.includes("delivery")) && (
-                <button
-                  onClick={handleOrderNow}
-                  disabled={isCartEmpty}
-                  style={{
-                    backgroundColor: isCartEmpty ? "#aaa" : "black",
-                    color: "#fff",
-                    border: "none",
-                    padding: "10px 20px",
-                    borderRadius: "4px",
-                    cursor: isCartEmpty ? "not-allowed" : "pointer",
-                    marginRight: "10px",
-                    marginTop: "10px",
-                  }}
-                >
-                  {isCartEmpty ? `Add items to cart` : `Order Now`}
-                </button>
-              )}
+              <button
+                onClick={handleOrderNow}
+                disabled={isCartEmpty}
+                style={{
+                  backgroundColor: isCartEmpty ? "#aaa" : "black",
+                  color: "#fff",
+                  border: "none",
+                  padding: "10px 20px",
+                  borderRadius: "4px",
+                  cursor: isCartEmpty ? "not-allowed" : "pointer",
+                  marginRight: "10px",
+                  marginTop: "10px",
+                }}
+              >
+                {isCartEmpty ? `Add items to cart` : `Order Now`}
+              </button>
               <button
                 onClick={() => setIsPopupOpen(false)}
                 style={{

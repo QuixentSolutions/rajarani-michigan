@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
 
-const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
+const KitchenOrdersTable = ({
+  authToken,
+  setError,
+  setSuccess,
+  tableStatuses = [],
+  showBill = () => {},
+  refresh,
+}) => {
+  // Debug: log tableStatuses
+  console.log("tableStatuses in KitchenOrdersTable:", tableStatuses);
   const [kitchenOrders, setKitchenOrders] = useState({
     items: [],
     totalPages: 1,
@@ -30,6 +39,7 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
         );
       }
       const data = await response.json();
+
       setKitchenOrders({
         items: data.results,
         totalPages: data.totalPages,
@@ -39,7 +49,7 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
       setError(`Failed to load kitchen orders: ${err.message}`);
       setKitchenOrders({ items: [], totalPages: 1, currentPage: 1 });
     }
-  }, [page, authToken, setError]);
+  }, [page, authToken, setError, kitchenOrders.items]);
 
   const fetchPrinterData = useCallback(async () => {
     try {
@@ -89,17 +99,23 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
       setSuccess("Printer updated successfully!");
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      setError(`Failed to save menu: ${err.message}`);
+      setError(`Failed to save printer: ${err.message}`);
     }
-  }, [printerIp]);
+  }, [printerIp, authToken, setError, setSuccess]);
 
   useEffect(() => {
     fetchKitchenOrdersData();
-  }, [fetchKitchenOrdersData]);
+  }, []);
+
+  useEffect(() => {
+    if (refresh) {
+      fetchKitchenOrdersData();
+    }
+  }, [refresh]);
 
   useEffect(() => {
     fetchPrinterData();
-  }, [fetchPrinterData]);
+  }, []);
 
   const handlePrintOrder = async (orderId) => {
     try {
@@ -124,62 +140,106 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
     }
   };
 
+  const [blink, setBlink] = useState(false);
+
+  useEffect(() => {
+    if (refresh) {
+      setBlink(true);
+      const timer = setTimeout(() => {
+        setBlink(false);
+      }, 10000); // 10 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [refresh]);
+
   return (
     <>
-      {/* Header Section - Matching AdminOrders style */}
+      <style>
+        {`
+@keyframes blinkRow {
+  0% { background-color: #fff7ed; }
+  50% { background-color: #fde68a; }
+  100% { background-color: #fff7ed; }
+}
+`}
+      </style>
+      {/* Dine-In Section - Always show if tableStatuses has data */}
+      {tableStatuses.length > 0 ? (
+        <div style={{ marginBottom: "32px" }}>
+          <div className="table-status-container">
+            {tableStatuses.map((table) => (
+              <div
+                key={table.tableNumber}
+                className={`table-status-box status-${table.status.toLowerCase()}`}
+                onClick={() => {
+                  showBill(table.tableNumber);
+                }}
+              >
+                Table {table.tableNumber}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div
+          style={{
+            marginBottom: "32px",
+            padding: "20px",
+            textAlign: "center",
+            color: "#666",
+          }}
+        >
+          <p>
+            No table status data available. Please check if tableStatuses prop
+            is being passed correctly.
+          </p>
+        </div>
+      )}
+
+      {/* Header Section */}
       <div
         className="section-header"
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          marginBottom: "20px",
         }}
       >
-        <h2 className="section-title">Kitchen Orders (Dine-In)</h2>
-        <input
-          className="printer-details"
-          value={printerIp}
-          style={{
-            padding: "16px 12px",
-            textAlign: "center",
-            fontWeight: "600",
-            color: "#475569",
-            borderBottom: "2px solid #e2e8f0",
-            borderRight: "1px solid #cbd5e1",
-            minWidth: "120px",
-          }}
-          onChange={(e) => setPrinterIp(e.target.value)}
-          placeholder="Printer Address"
-          type="text"
-        />
-        <button
-          onClick={savePrinterData}
-          className="btn-primary"
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Save Configuration
-        </button>
-        <button
-          onClick={fetchKitchenOrdersData}
-          className="btn-primary"
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Refresh Orders
-        </button>
+        <h2 className="section-title">Table Orders (Dine-In)</h2>
+        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+          <input
+            className="printer-details"
+            value={printerIp}
+            style={{
+              padding: "8px 12px",
+              textAlign: "center",
+              fontWeight: "500",
+              color: "#475569",
+              border: "1px solid #cbd5e1",
+              borderRadius: "4px",
+              minWidth: "180px",
+            }}
+            onChange={(e) => setPrinterIp(e.target.value)}
+            placeholder="Printer Address"
+            type="text"
+          />
+          <button
+            onClick={savePrinterData}
+            className="btn-primary"
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#007bff",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Save Configuration
+          </button>
+        </div>
       </div>
 
       {/* Table Container */}
@@ -314,20 +374,15 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess }) => {
             </thead>
             <tbody>
               {kitchenOrders.items.length > 0 ? (
-                kitchenOrders.items.map((order, orderIndex) => (
+                kitchenOrders.items.map((order, index) => (
                   <tr
                     key={order._id}
                     style={{
                       borderBottom: "1px solid #64748b",
                       transition: "background-color 0.2s ease",
+                      animation:
+                        blink && index === 0 ? "blinkRow 1s infinite" : "none",
                     }}
-                    onMouseEnter={(e) =>
-                      (e.target.closest("tr").style.backgroundColor = "#f8fafc")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.target.closest("tr").style.backgroundColor =
-                        "transparent")
-                    }
                   >
                     <td
                       style={{

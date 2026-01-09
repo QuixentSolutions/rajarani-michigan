@@ -71,8 +71,28 @@ router.post("/", async (req, res) => {
   try {
     const order = new Order(req.body);
     const savedOrder = await order.save();
+
+    // Broadcast new order notification using global.broadcast
+    if (typeof global.broadcast === "function") {
+      global.broadcast({
+        type: "new_order",
+        order: {
+          orderNumber: savedOrder.orderNumber,
+          orderType: savedOrder.orderType,
+          customer: savedOrder.customer,
+          totalAmount: savedOrder.totalAmount,
+          createdAt: savedOrder.createdAt,
+        },
+      });
+      console.log(`📢 Broadcasted new order: ${savedOrder.orderNumber}`);
+    } else {
+      console.warn("⚠️ global.broadcast is not available");
+    }
+
     res.status(201).json(savedOrder);
   } catch (err) {
+    console.error("Order save error:", err);
+    console.error("Order save request body:", req.body);
     res.status(500).json({ error: err.message });
   }
 });
@@ -159,6 +179,26 @@ router.put("/accept", async (req, res) => {
     const update = {
       $set: {
         status: "accepted",
+      },
+    };
+    const result = await Order.updateOne(filter, update);
+    if (!result) return res.status(500).json({ error: "Order not found" });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put("/reject", async (req, res) => {
+  try {
+    const filter = {
+      orderNumber: req.body.orderNumber,
+    };
+    const order = await Order.findOne(filter);
+    req.body.updatedAt = new Date();
+    const update = {
+      $set: {
+        status: "rejected",
       },
     };
     const result = await Order.updateOne(filter, update);
@@ -314,7 +354,11 @@ router.post("/payment", async (req, res) => {
         }
       })
       .catch((error) => {
-        // Transaction error handled silently
+        console.error("Transaction error:", error);
+        return res.status(500).json({
+          success: false,
+          error: "Payment processing failed",
+        });
       });
   } catch (err) {
     return res

@@ -24,7 +24,8 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
+mongoose
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB connected successfully"))
   .catch((err) => console.error("MongoDB connection error:", err.message));
 
@@ -67,19 +68,23 @@ const server = app.listen(PORT, () =>
 // Initialize WebSocket server AFTER HTTP server starts
 wss = new WebSocket.Server({ server });
 
-wss.on('connection', (ws) => {
-  console.log('New WebSocket connection established');
+wss.on("connection", (ws) => {
+  console.log("New WebSocket connection established");
 
-  ws.on('message', (message) => {
-    console.log('Received message:', message.toString());
+  ws.on("message", (msg) => {
+    console.log("Received message:", msg.toString());
+    const data = JSON.parse(msg);
+    if (data.type === "ping") {
+      ws.send(JSON.stringify({ type: "pong" }));
+    }
   });
 
-  ws.on('close', () => {
-    console.log('WebSocket connection closed');
+  ws.on("close", () => {
+    console.log("WebSocket connection closed");
   });
 
-  ws.on('error', (error) => {
-    console.error('WebSocket error:', error);
+  ws.on("error", (error) => {
+    console.error("WebSocket error:", error);
   });
 });
 

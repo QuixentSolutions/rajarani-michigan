@@ -9,7 +9,6 @@ const KitchenOrdersTable = ({
   refresh,
 }) => {
   // Debug: log tableStatuses
-  console.log("tableStatuses in KitchenOrdersTable:", tableStatuses);
   const [kitchenOrders, setKitchenOrders] = useState({
     items: [],
     totalPages: 1,
@@ -108,6 +107,7 @@ const KitchenOrdersTable = ({
   }, []);
 
   useEffect(() => {
+    console.log(refresh);
     if (refresh) {
       fetchKitchenOrdersData();
     }

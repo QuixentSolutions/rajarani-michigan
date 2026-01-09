@@ -7,70 +7,46 @@ const AdminOrders = ({
   searchOrderQuery,
   showBill,
   handleAcceptedOnlineorders,
+  handleRejectOnlineorders,
   handleView,
   renderPagination,
+  refresh,
 }) => {
-  const [newOrderIds, setNewOrderIds] = useState(new Set());
-
-  // Auto-refresh every 10 seconds
   useEffect(() => {
-    const interval = setInterval(() => {
+    fetchOrders(orders.currentPage, searchOrderQuery);
+  }, [orders.currentPage, searchOrderQuery]);
+
+  useEffect(() => {
+    if (refresh) {
       fetchOrders(orders.currentPage, searchOrderQuery);
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [fetchOrders, orders.currentPage, searchOrderQuery]);
-
-  // Detect new orders when orders.items changes
-  useEffect(() => {
-    if (orders.items.length > 0) {
-      const currentIds = new Set(orders.items.map(order => order._id));
-      const newIds = [...currentIds].filter(id => !newOrderIds.has(id));
-      
-      if (newIds.length > 0) {
-        setNewOrderIds(new Set([...newOrderIds, ...newIds]));
-        
-        // Remove blinking after 10 seconds
-        setTimeout(() => {
-          setNewOrderIds(prevSet => {
-            const updated = new Set(prevSet);
-            newIds.forEach(id => updated.delete(id));
-            return updated;
-          });
-        }, 10000);
-      }
     }
-  }, [orders.items]);
+  }, [refresh]);
+
+  const [blink, setBlink] = useState(false);
+
+  useEffect(() => {
+    if (refresh) {
+      setBlink(true);
+      const timer = setTimeout(() => {
+        setBlink(false);
+      }, 10000); // 10 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [refresh]);
 
   return (
     <>
-      <style>{`
-        .new-order-row-blink {
-          animation: orderRowBlink 1s linear 10;
-        }
-        @keyframes orderRowBlink {
-          0%, 100% { background-color: transparent; }
-          50% { background-color: #fef3c7; }
-        }
-      `}</style>
-
+      <style>
+        {`
+@keyframes blinkRow {
+  0% { background-color: #fff7ed; }
+  50% { background-color: #fde68a; }
+  100% { background-color: #fff7ed; }
+}
+`}
+      </style>
       <div className="section-card">
-        <div
-          className="section-header"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <h2 className="section-title">Order Management</h2>
-        </div>
-
-        <div className="order-grid-container"></div>
-        <div className="subsection-header">
-          <h3>Pending Orders (Pickup or Delivery)</h3>
-        </div>
-
         <div className="table-container">
           <table className="data-table">
             <thead>
@@ -86,13 +62,20 @@ const AdminOrders = ({
             </thead>
             <tbody>
               {orders.items.length > 0 ? (
-                orders.items.map((order) => (
+                orders.items.map((order, index) => (
                   <>
                     {order.orderType !== "dinein" &&
                       order.payment.status === "paid" && (
-                        <tr 
+                        <tr
                           key={order._id}
-                          className={newOrderIds.has(order._id) ? 'new-order-row-blink' : ''}
+                          style={{
+                            borderBottom: "1px solid #64748b",
+                            transition: "background-color 0.2s ease",
+                            animation:
+                              blink && index === 0
+                                ? "blinkRow 1s infinite"
+                                : "none",
+                          }}
                         >
                           <td>
                             <code>{order.orderNumber || "N/A"}</code>
@@ -126,6 +109,20 @@ const AdminOrders = ({
                                 Accept
                               </button>
                             )}
+                            {order.status === "pending" && (
+                              <button
+                                className="view-btn"
+                                style={{
+                                  background:
+                                    "linear-gradient(135deg, red, blue)",
+                                }}
+                                onClick={() =>
+                                  handleRejectOnlineorders(order.orderNumber)
+                                }
+                              >
+                                Reject
+                              </button>
+                            )}
 
                             {order.status === "accepted" && (
                               <button
@@ -138,6 +135,16 @@ const AdminOrders = ({
                               >
                                 Settle
                               </button>
+                            )}
+
+                            {order.status === "rejected" && (
+                              <span
+                                style={{
+                                  color: "red",
+                                }}
+                              >
+                                Rejected
+                              </span>
                             )}
                           </td>
                         </tr>
@@ -155,7 +162,9 @@ const AdminOrders = ({
           </table>
         </div>
 
-        {renderPagination(orders, (page) => fetchOrders(page, searchOrderQuery))}
+        {renderPagination(orders, (page) =>
+          fetchOrders(page, searchOrderQuery)
+        )}
       </div>
     </>
   );

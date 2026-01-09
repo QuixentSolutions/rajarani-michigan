@@ -1,6 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 
-const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [], showBill = () => {} }) => {
+const KitchenOrdersTable = ({
+  authToken,
+  setError,
+  setSuccess,
+  tableStatuses = [],
+  showBill = () => {},
+  refresh,
+}) => {
   // Debug: log tableStatuses
   console.log("tableStatuses in KitchenOrdersTable:", tableStatuses);
   const [kitchenOrders, setKitchenOrders] = useState({
@@ -10,11 +17,10 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [
   });
   const [page, setPage] = useState(1);
   const [printerIp, setPrinterIp] = useState("");
-  const [newKitchenOrderIds, setNewKitchenOrderIds] = useState(new Set());
 
   const limit = 10;
 
-  const fetchKitchenOrdersData = useCallback(async (isPolling = false) => {
+  const fetchKitchenOrdersData = useCallback(async () => {
     try {
       setError("");
       const response = await fetch(
@@ -33,33 +39,12 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [
         );
       }
       const data = await response.json();
-      
-      const newData = {
+
+      setKitchenOrders({
         items: data.results,
         totalPages: data.totalPages,
         currentPage: page,
-      };
-      
-      if (isPolling && newData.items.length > 0) {
-        const existingIds = new Set(kitchenOrders.items.map(item => item._id));
-        const newIds = newData.items
-          .filter(item => !existingIds.has(item._id))
-          .map(item => item._id);
-        
-        if (newIds.length > 0) {
-          setNewKitchenOrderIds(prevSet => new Set([...prevSet, ...newIds]));
-          
-          setTimeout(() => {
-            setNewKitchenOrderIds(prevSet => {
-              const updated = new Set(prevSet);
-              newIds.forEach(id => updated.delete(id));
-              return updated;
-            });
-          }, 5000);
-        }
-      }
-      
-      setKitchenOrders(newData);
+      });
     } catch (err) {
       setError(`Failed to load kitchen orders: ${err.message}`);
       setKitchenOrders({ items: [], totalPages: 1, currentPage: 1 });
@@ -120,19 +105,17 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [
 
   useEffect(() => {
     fetchKitchenOrdersData();
-  }, [fetchKitchenOrdersData]);
+  }, []);
+
+  useEffect(() => {
+    if (refresh) {
+      fetchKitchenOrdersData();
+    }
+  }, [refresh]);
 
   useEffect(() => {
     fetchPrinterData();
-  }, [fetchPrinterData]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchKitchenOrdersData(true);
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [fetchKitchenOrdersData]);
+  }, []);
 
   const handlePrintOrder = async (orderId) => {
     try {
@@ -157,24 +140,33 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [
     }
   };
 
+  const [blink, setBlink] = useState(false);
+
+  useEffect(() => {
+    if (refresh) {
+      setBlink(true);
+      const timer = setTimeout(() => {
+        setBlink(false);
+      }, 10000); // 10 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [refresh]);
+
   return (
     <>
-      <style>{`
-        .new-order-blink {
-          animation: blink 1s linear 10;
-        }
-        @keyframes blink {
-          0%, 100% { background-color: transparent !important; }
-          50% { background-color: #fef3c7 !important; }
-        }
-      `}</style>
-
+      <style>
+        {`
+@keyframes blinkRow {
+  0% { background-color: #fff7ed; }
+  50% { background-color: #fde68a; }
+  100% { background-color: #fff7ed; }
+}
+`}
+      </style>
       {/* Dine-In Section - Always show if tableStatuses has data */}
       {tableStatuses.length > 0 ? (
         <div style={{ marginBottom: "32px" }}>
-          <div className="subsection-header">
-            <h3>Dine-In</h3>
-          </div>
           <div className="table-status-container">
             {tableStatuses.map((table) => (
               <div
@@ -190,8 +182,18 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [
           </div>
         </div>
       ) : (
-        <div style={{ marginBottom: "32px", padding: "20px", textAlign: "center", color: "#666" }}>
-          <p>No table status data available. Please check if tableStatuses prop is being passed correctly.</p>
+        <div
+          style={{
+            marginBottom: "32px",
+            padding: "20px",
+            textAlign: "center",
+            color: "#666",
+          }}
+        >
+          <p>
+            No table status data available. Please check if tableStatuses prop
+            is being passed correctly.
+          </p>
         </div>
       )}
 
@@ -205,7 +207,7 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [
           marginBottom: "20px",
         }}
       >
-        <h2 className="section-title">Kitchen Orders (Dine-In)</h2>
+        <h2 className="section-title">Table Orders (Dine-In)</h2>
         <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
           <input
             className="printer-details"
@@ -372,16 +374,17 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [
             </thead>
             <tbody>
               {kitchenOrders.items.length > 0 ? (
-                kitchenOrders.items.map((order) => (
+                kitchenOrders.items.map((order, index) => (
                   <tr
                     key={order._id}
                     style={{
                       borderBottom: "1px solid #64748b",
                       transition: "background-color 0.2s ease",
+                      animation:
+                        blink && index === 0 ? "blinkRow 1s infinite" : "none",
                     }}
                   >
                     <td
-                      className={newKitchenOrderIds.has(order._id) ? 'new-order-blink' : ''}
                       style={{
                         padding: "16px 12px",
                         color: "#1e293b",
@@ -394,7 +397,6 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [
                       {order.orderNumber}
                     </td>
                     <td
-                      className={newKitchenOrderIds.has(order._id) ? 'new-order-blink' : ''}
                       style={{
                         padding: "16px 12px",
                         textAlign: "center",
@@ -417,7 +419,6 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [
                       </span>
                     </td>
                     <td
-                      className={newKitchenOrderIds.has(order._id) ? 'new-order-blink' : ''}
                       style={{
                         padding: "16px 12px",
                         verticalAlign: "top",
@@ -446,7 +447,6 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [
                       ))}
                     </td>
                     <td
-                      className={newKitchenOrderIds.has(order._id) ? 'new-order-blink' : ''}
                       style={{
                         padding: "16px 12px",
                         textAlign: "center",
@@ -484,7 +484,6 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [
                       ))}
                     </td>
                     <td
-                      className={newKitchenOrderIds.has(order._id) ? 'new-order-blink' : ''}
                       style={{
                         padding: "16px 12px",
                         textAlign: "center",
@@ -513,7 +512,6 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [
                       ))}
                     </td>
                     <td
-                      className={newKitchenOrderIds.has(order._id) ? 'new-order-blink' : ''}
                       style={{
                         padding: "16px 12px",
                         verticalAlign: "top",
@@ -546,7 +544,6 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [
                       ))}
                     </td>
                     <td
-                      className={newKitchenOrderIds.has(order._id) ? 'new-order-blink' : ''}
                       style={{
                         padding: "16px 12px",
                         textAlign: "center",
@@ -559,7 +556,6 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [
                       ${order.totalAmount.toFixed(2)}
                     </td>
                     <td
-                      className={newKitchenOrderIds.has(order._id) ? 'new-order-blink' : ''}
                       style={{
                         padding: "16px 12px",
                         textAlign: "center",
@@ -716,7 +712,6 @@ const KitchenOrdersTable = ({ authToken, setError, setSuccess, tableStatuses = [
         </button>
       </div>
     </>
-    
   );
 };
 

@@ -16,6 +16,7 @@ const AdminDashboard = ({ onLogout }) => {
   const [authToken] = useState("Basic " + btoa("admin:password123"));
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [refreshKitchenOrders, setRefreshKitchenOrders] = useState(false);
   const [activeTab, setActiveTab] = useState("registrations");
   const [isLoading, setIsLoading] = useState(true);
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
@@ -208,18 +209,15 @@ const AdminDashboard = ({ onLogout }) => {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log("WebSocket message received:", data);
           if (data.type === "new_order") {
-            // if (data.order.orderType === "Online") {
-            // Play notification sound
             const audio = new Audio("/neworder.mp3");
-            audio.play().catch((err) => console.log("Audio play failed:", err));
-            setSuccess(
-              `New ${data.order.orderType} order received: ${data.order.orderNumber}`
-            );
+            audio
+              .play()
+              .catch((err) => console.error("Audio play failed:", err));
+            setSuccess(`New order received -  ${data.order.orderNumber}`);
             setTimeout(() => setSuccess(""), 5000);
+            setRefreshKitchenOrders(true);
           }
-          // }
         } catch (err) {
           console.error("Error parsing WebSocket message:", err);
         }
@@ -256,15 +254,15 @@ const AdminDashboard = ({ onLogout }) => {
       }
     }
   };
-useEffect(() => {
-  const interval = setInterval(() => {
-    if (activeTab === 'orders') {
-      fetchOrders(orders.currentPage, searchOrderQuery);
-    }
-  }, 10000); // Poll every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (activeTab === "orders") {
+        fetchOrders(orders.currentPage, searchOrderQuery);
+      }
+    }, 10000); // Poll every 10 seconds
 
-  return () => clearInterval(interval);
-}, [activeTab, fetchOrders, orders.currentPage, searchOrderQuery]);
+    return () => clearInterval(interval);
+  }, [activeTab, fetchOrders, orders.currentPage, searchOrderQuery]);
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
@@ -289,8 +287,6 @@ useEffect(() => {
         await fetchOrders();
         await fetchMenuData();
         await fetchKitchenOrders();
-
-        console.log("Success: Dashboard loaded successfully!"); // Added console log
         setSuccess("Dashboard loaded successfully!");
         setTimeout(() => setSuccess(""), 3000);
       } catch (error) {
@@ -839,7 +835,34 @@ useEffect(() => {
         alert(dbData.error);
         return;
       }
-      setSuccess("Pickup order sent to kitchen!");
+      setSuccess("Online order sent to kitchen!");
+      setTimeout(() => setSuccess(""), 3000);
+      await fetchOrders();
+    } catch (err) {
+      // console.error("Order process error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRejectOnlineorders = async (orderNumber) => {
+    setIsLoading(true);
+
+    try {
+      const dbResponse = await fetch("/order/reject", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderNumber: orderNumber,
+        }),
+      });
+
+      const dbData = await dbResponse.json();
+      if (dbData.error) {
+        alert(dbData.error);
+        return;
+      }
+      setSuccess("Online order rejected!");
       setTimeout(() => setSuccess(""), 3000);
       await fetchOrders();
     } catch (err) {
@@ -973,7 +996,7 @@ useEffect(() => {
             className={`tab-btn ${activeTab === "orders" ? "active" : ""}`}
             onClick={() => setActiveTab("orders")}
           >
-            Orders
+            Online Orders
           </button>
           <button
             className={`tab-btn ${activeTab === "menu" ? "active" : ""}`}
@@ -997,7 +1020,7 @@ useEffect(() => {
             className={`tab-btn ${activeTab === "kitchen" ? "active" : ""}`}
             onClick={() => setActiveTab("kitchen")}
           >
-            Kitchen Orders
+            Table Orders
           </button>
         </div>
 
@@ -1018,8 +1041,10 @@ useEffect(() => {
             searchOrderQuery={searchOrderQuery}
             showBill={showBill}
             handleAcceptedOnlineorders={handleAcceptedOnlineorders}
+            handleRejectOnlineorders={handleRejectOnlineorders}
             handleView={handleView}
             renderPagination={renderPagination}
+            refresh={refreshKitchenOrders}
           />
         )}
 
@@ -1054,17 +1079,18 @@ useEffect(() => {
           />
         )}
 
-       {activeTab === "kitchen" && (
-  <div className="section-card">
-    <KitchenOrdersTable
-      authToken={authToken}
-      setError={setError}
-      setSuccess={setSuccess}
-      tableStatuses={tableStatuses}
-      showBill={showBill}
-    />
-  </div>
-)}
+        {activeTab === "kitchen" && (
+          <div className="section-card">
+            <KitchenOrdersTable
+              authToken={authToken}
+              setError={setError}
+              setSuccess={setSuccess}
+              tableStatuses={tableStatuses}
+              showBill={showBill}
+              refresh={refreshKitchenOrders}
+            />
+          </div>
+        )}
 
         {renderModal()}
       </div>

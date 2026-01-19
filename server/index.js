@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
 const bodyParser = require("body-parser");
-const WebSocket = require("ws");
 const healthRoutes = require("./routes/health");
 const menuRoutes = require("./routes/menu");
 const registerRoutes = require("./routes/register");
 const settingsRoutes = require("./routes/settings");
 const printerRoutes = require("./routes/printer");
+const orderRoutes = require("./routes/orders");
 const wsServer = require("./ws");
 
 require("dotenv").config();
@@ -31,10 +31,8 @@ mongoose
   .then(() => console.log("MongoDB connected successfully"))
   .catch((err) => console.error("MongoDB connection error:", err.message));
 
-// API routes (now they can access global.broadcast)
 app.use("/health", healthRoutes);
 app.use("/menu", menuRoutes);
-const orderRoutes = require("./routes/orders"); // Load after global.broadcast is set
 app.use("/order", orderRoutes);
 app.use("/register", registerRoutes);
 app.use("/settings", settingsRoutes);

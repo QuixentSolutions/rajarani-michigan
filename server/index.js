@@ -9,6 +9,8 @@ const menuRoutes = require("./routes/menu");
 const registerRoutes = require("./routes/register");
 const settingsRoutes = require("./routes/settings");
 const printerRoutes = require("./routes/printer");
+const wsServer = require("./ws");
+
 require("dotenv").config();
 
 const app = express();
@@ -28,20 +30,6 @@ mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB connected successfully"))
   .catch((err) => console.error("MongoDB connection error:", err.message));
-
-// WebSocket server instance (created before routes)
-let wss;
-const broadcast = (message) => {
-  if (!wss) return;
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(message));
-    }
-  });
-};
-
-// Make broadcast available globally BEFORE loading routes
-global.broadcast = broadcast;
 
 // API routes (now they can access global.broadcast)
 app.use("/health", healthRoutes);
@@ -65,27 +53,4 @@ const server = app.listen(PORT, "0.0.0.0", () =>
   console.log(`Server running on http://0.0.0.0:${PORT}`)
 );
 
-// Initialize WebSocket server AFTER HTTP server starts
-wss = new WebSocket.Server({ server });
-
-wss.on("connection", (ws) => {
-  console.log("New WebSocket connection established");
-
-  ws.on("message", (msg) => {
-    console.log("Received message:", msg.toString());
-    const data = JSON.parse(msg);
-    if (data.type === "ping") {
-      ws.send(JSON.stringify({ type: "pong" }));
-    }
-  });
-
-  ws.on("close", () => {
-    console.log("WebSocket connection closed");
-  });
-
-  ws.on("error", (error) => {
-    console.error("WebSocket error:", error);
-  });
-});
-
-console.log(`🔌 WebSocket server ready on ws://localhost:${PORT}`);
+wsServer.init(server);

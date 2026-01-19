@@ -16,7 +16,7 @@ const AdminDashboard = ({ onLogout }) => {
   const [authToken] = useState("Basic " + btoa("admin:password123"));
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [refreshOrders, setRefreshrders] = useState(new Date());
+  const [refreshOrders, setRefreshOrders] = useState("");
   const [activeTab, setActiveTab] = useState("registrations");
   const [isLoading, setIsLoading] = useState(true);
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
@@ -220,13 +220,18 @@ const AdminDashboard = ({ onLogout }) => {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-
-          if (data.type === "new_order") {
-            const audio = new Audio("/neworder.mp3");
+          if (data.type === "new_order" && data.orderType === "dinein") {
+            const audio = new Audio("/new-dinein-order.mp3");
             audio.play().catch(() => {});
-            setSuccess(`New order received - ${data.order.orderNumber}`);
+            setSuccess(`New order received - ${data.orderNumber}`);
             setTimeout(() => setSuccess(""), 5000);
-            setRefreshrders(new Date());
+            setRefreshOrders(data.orderNumber);
+          } else if (data.type === "new_order") {
+            const audio = new Audio("/new-online-order.mp3");
+            audio.play().catch(() => {});
+            setSuccess(`New order received - ${data.orderNumber}`);
+            setTimeout(() => setSuccess(""), 5000);
+            setRefreshOrders(data.orderNumber);
           }
         } catch (err) {
           console.error("WS parse error:", err);

@@ -9,6 +9,7 @@ const KitchenOrdersTable = ({
   refresh,
 }) => {
   // Debug: log tableStatuses
+
   const [kitchenOrders, setKitchenOrders] = useState({
     items: [],
     totalPages: 1,
@@ -104,14 +105,7 @@ const KitchenOrdersTable = ({
 
   useEffect(() => {
     fetchKitchenOrdersData();
-  }, []);
-
-  useEffect(() => {
-    console.log(refresh);
-    if (refresh) {
-      fetchKitchenOrdersData();
-    }
-  }, [refresh]);
+  }, [page, refresh]);
 
   useEffect(() => {
     fetchPrinterData();

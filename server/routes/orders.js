@@ -7,8 +7,10 @@ const ThermalPrinter = require("node-thermal-printer").printer;
 const PrinterTypes = require("node-thermal-printer").types;
 const axios = require("axios");
 const PDFDocument = require("pdfkit");
+const WebSocket = require("ws");
 const fs = require("fs");
 const path = require("path");
+const wsServer = require("../ws");
 
 function buildEmailHTML(items) {
   const rows = items
@@ -72,22 +74,23 @@ router.post("/", async (req, res) => {
     const order = new Order(req.body);
     const savedOrder = await order.save();
 
-    // Broadcast new order notification using global.broadcast
-    if (typeof global.broadcast === "function") {
-      global.broadcast({
-        type: "new_order",
-        order: {
-          orderNumber: savedOrder.orderNumber,
-          orderType: savedOrder.orderType,
-          customer: savedOrder.customer,
-          totalAmount: savedOrder.totalAmount,
-          createdAt: savedOrder.createdAt,
-        },
-      });
-      console.log(`📢 Broadcasted new order: ${savedOrder.orderNumber}`);
-    } else {
-      console.warn("⚠️ global.broadcast is not available");
-    }
+    const wss = wsServer.getWSS();
+
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(
+          JSON.stringify({
+            type: "new_order",
+            orderNumber: savedOrder.orderNumber,
+            orderType: savedOrder.orderType,
+            customer: savedOrder.customer,
+            totalAmount: savedOrder.totalAmount,
+            createdAt: savedOrder.createdAt,
+            sentAt: new Date(),
+          })
+        );
+      }
+    });
 
     res.status(201).json(savedOrder);
   } catch (err) {

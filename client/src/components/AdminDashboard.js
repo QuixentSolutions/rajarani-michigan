@@ -201,7 +201,7 @@ const AdminDashboard = ({ onLogout }) => {
     const connectWebSocket = () => {
       if (isUnmounted) return;
 
-      ws = new WebSocket("ws://localhost:5001");
+      ws = new WebSocket("wss://rajaranimichigan.com/ws");
       wsRef.current = ws;
 
       ws.onopen = () => {

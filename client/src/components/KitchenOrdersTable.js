@@ -8,8 +8,6 @@ const KitchenOrdersTable = ({
   showBill = () => {},
   refresh,
 }) => {
-  // Debug: log tableStatuses
-
   const [kitchenOrders, setKitchenOrders] = useState({
     items: [],
     totalPages: 1,

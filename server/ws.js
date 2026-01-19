@@ -4,7 +4,7 @@ let wss;
 
 module.exports = {
   init: (server) => {
-    wss = new WebSocket.Server({ server });
+    wss = new WebSocket.Server({ server, path: "/ws" });
 
     wss.on("connection", (ws, req) => {
       console.log("WebSocket connected");

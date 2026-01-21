@@ -74,6 +74,8 @@ router.post("/", async (req, res) => {
     const order = new Order(req.body);
     const savedOrder = await order.save();
 
+    if (savedOrder.orderType !== "dinein") res.status(201).json(savedOrder);
+
     const wss = wsServer.getWSS();
 
     wss.clients.forEach((client) => {
@@ -295,6 +297,21 @@ router.post("/payment", async (req, res) => {
           };
           const order = await Order.findOneAndUpdate(filter, update, {
             returnDocument: "after",
+          });
+
+          const wss = wsServer.getWSS();
+
+          wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send(
+                JSON.stringify({
+                  type: "new_order",
+                  orderNumber: orderId,
+                  orderType: "pickup",
+                  sentAt: new Date(),
+                })
+              );
+            }
           });
 
           const emailHTML = buildEmailHTML(order.items);

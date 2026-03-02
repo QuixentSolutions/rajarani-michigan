@@ -936,7 +936,19 @@ const AdminDashboard = ({ onLogout }) => {
   };
 
   const handleChange = (key, value) => {
-    setSelected((prev) => ({ ...prev, [key]: value }));
+    // Handle nested properties like discountDetails.name
+    if (key.includes(".")) {
+      const [parentKey, childKey] = key.split(".");
+      setSelected((prev) => ({
+        ...prev,
+        [parentKey]: {
+          ...prev[parentKey],
+          [childKey]: value,
+        },
+      }));
+    } else {
+      setSelected((prev) => ({ ...prev, [key]: value }));
+    }
   };
 
   const saveSettings = async () => {

@@ -19,7 +19,7 @@ function Header() {
   const [addressError, setAddressError] = useState("");
   const [mobileError, setMobileError] = useState("");
   const [tableNumber, setTableNumber] = useState("1");
-  const [orderMode, setOrderMode] = useState("dinein");
+  const [orderMode, setOrderMode] = useState("pickup");
   const [address, setAddress] = useState("");
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
   const [isPaymentPopupOpen, setIsPaymentPopupOpen] = useState(false);
@@ -29,6 +29,7 @@ function Header() {
   const [onlinePaymentAmount, setOnlinePaymentAmount] = useState(0);
 
   const [finalOrderAmount, setFinalOrderAmount] = useState(0);
+  const [discountSettings, setDiscountSettings] = useState(null);
 
   const [deliveryModes, setDeliveryModes] = useState([
     "dinein",
@@ -85,9 +86,19 @@ function Header() {
       }
 
       const obj = dbData[0]?.settings || {};
-      // Get only keys where value is true
-      const result = Object.keys(obj).filter((key) => obj[key]);
+      // Get only order type keys where value is true (exclude discount and nested objects)
+      const result = Object.keys(obj).filter((key) => {
+        const value = obj[key];
+        return (
+          key === "dinein" ||
+          key === "pickup" ||
+          key === "delivery"
+        ) && value === true;
+      });
       setDeliveryModes(result || []);
+      
+      // Set discount settings
+      setDiscountSettings(obj.discount ? obj.discountDetails : null);
     };
 
     loadData();
@@ -186,8 +197,16 @@ function Header() {
 
     const orderId = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
 
-    const finalTotalAmount = totalAmount * 1.06;
-    const salesTaxAmount = totalAmount * 0.06;
+    // Calculate discount if applicable
+    let discountAmount = 0;
+    if (discountSettings && discountSettings.percentage) {
+      const discountPercent = parseFloat(discountSettings.percentage);
+      discountAmount = (totalAmount * discountPercent) / 100;
+    }
+
+    const subtotalAfterDiscount = totalAmount - discountAmount;
+    const salesTaxAmount = subtotalAfterDiscount * 0.06;
+    const finalTotalAmount = subtotalAfterDiscount + salesTaxAmount;
 
     // Store final amount for success popup
     setFinalOrderAmount(finalTotalAmount);
@@ -235,15 +254,15 @@ function Header() {
 
       if (orderMode !== "dinein") {
         setOnlinePaymentAmount(parseFloat(finalTotalAmount.toFixed(2)));
-        setIsPaymentPopupOpen(true);
         setSuccessOrderId(orderId);
+        setIsPaymentPopupOpen(true);
         setIsPopupOpen(false);
         setMobileNumber("+1");
         setTableNumber("1");
         setEmail("");
         setName("");
         setAddress("");
-        dispatch(clearCart());
+        // Don't clear cart yet - only clear it after payment (success or fail)
         setIsLoading(false);
       } else {
         setSuccessOrderId(orderId);
@@ -326,7 +345,7 @@ function Header() {
               Your order has been placed successfully. Details have been sent to
               your email. <br />
               <p style={{ color: "red", fontWeight: "bolder" }}>
-                Preparation time: 25 minutes.
+                Preparation time: {finalOrderAmount > 80 ? "35" : "25"} minutes.
               </p>
             </p>
           )}
@@ -427,13 +446,13 @@ function Header() {
         );
 
         if (result.code === 200) {
+          // Payment successful - clear cart and show success
+          dispatch(clearCart());
           setIsLoading(false);
           setIsPaymentPopupOpen(false);
           setIsSuccessPopupOpen(true);
         } else {
-          setIsLoading(false);
-          setIsPaymentPopupOpen(false);
-          alert("Payment failed!");
+          // Payment failed - do NOT clear cart, show error
         }
       } catch (error) {
         setIsLoading(false);
@@ -599,7 +618,6 @@ function Header() {
   const CartItem = ({ itemKey, item }) => {
     const basePrice = parseFloat(item.basePrice || item.price);
     const [quantity, setQuantity] = useState(item.quantity);
-    const [totalPrice, setTotalPrice] = useState(basePrice * item.quantity);
 
     const updateCart = async (newQuantity) => {
       try {
@@ -629,13 +647,14 @@ function Header() {
     const handleIncrease = () => {
       const newQty = quantity + 1;
       setQuantity(newQty);
-      setTotalPrice(newQty * basePrice);
       updateCart(newQty);
     };
 
     const handleDecrease = () => {
       const newQty = quantity - 1;
       if (newQty >= 1) {
+        setQuantity(newQty);
+        update
         setQuantity(newQty);
         setTotalPrice(newQty * basePrice);
         updateCart(newQty);
@@ -1008,11 +1027,27 @@ function Header() {
                   marginTop: "20px",
                 }}
               />
+              {discountSettings && (
+                <input
+                  type="text"
+                  placeholder="Discount"
+                  disabled
+                  value={`${discountSettings.name}: -$${((totalAmount * parseFloat(discountSettings.percentage)) / 100).toFixed(2)} (${discountSettings.percentage}%)`}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    marginTop: "10px",
+                    color: "#dc3545",
+                  }}
+                />
+              )}
               <input
                 type="text"
                 placeholder="Sales Tax"
                 disabled
-                value={`Sales Tax (6%): $${(totalAmount * 0.06).toFixed(2)}`}
+                value={`Sales Tax (6%): $${(discountSettings ? (totalAmount - (totalAmount * parseFloat(discountSettings.percentage)) / 100) * 0.06 : totalAmount * 0.06).toFixed(2)}`}
                 style={{
                   width: "100%",
                   padding: "8px",
@@ -1025,13 +1060,14 @@ function Header() {
                 type="text"
                 placeholder="Total Amount"
                 disabled
-                value={`Total Amount: $${(totalAmount * 1.06).toFixed(2)}`}
+                value={`Total Amount: $${(discountSettings ? (totalAmount - (totalAmount * parseFloat(discountSettings.percentage)) / 100) * 1.06 : totalAmount * 1.06).toFixed(2)}`}
                 style={{
                   width: "100%",
                   padding: "8px",
                   border: "1px solid #ccc",
                   borderRadius: "4px",
                   marginTop: "10px",
+                  fontWeight: "bold",
                 }}
               />
 

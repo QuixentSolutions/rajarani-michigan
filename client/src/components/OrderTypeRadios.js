@@ -5,6 +5,10 @@ const OrderTypeRadios = ({ selected, handleChange }) => {
     <div>
       {Object.keys(selected).map((key) => {
         const value = selected[key];
+        // Skip discount and nested objects like discountDetails
+        if (key === "discount" || (typeof value === "object" && value !== null)) {
+          return null;
+        }
         return (
           <div key={key} style={{ marginBottom: "10px" }}>
             <div>Allow {key}</div>

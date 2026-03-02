@@ -85,6 +85,20 @@ const SuccessPopup = ({ isSuccessPopupOpen, setIsSuccessPopupOpen, billDetails, 
               <span>Sales Tax</span>
               <span>{billDetails.salesTax.toFixed(2)}</span>
             </div>
+            {billDetails.discountAmount > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: "6px",
+                  color: "#dc3545",
+                  fontWeight: "500",
+                }}
+              >
+                <span>Discount ({billDetails.discountPercentage}%)</span>
+                <span>-{billDetails.discountAmount.toFixed(2)}</span>
+              </div>
+            )}
             <hr style={{ margin: "8px 0" }} />
 
             <span>Tips %</span>

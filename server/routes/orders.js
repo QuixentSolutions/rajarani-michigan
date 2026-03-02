@@ -74,8 +74,6 @@ router.post("/", async (req, res) => {
     const order = new Order(req.body);
     const savedOrder = await order.save();
 
-    if (savedOrder.orderType !== "dinein") res.status(201).json(savedOrder);
-
     const wss = wsServer.getWSS();
 
     wss.clients.forEach((client) => {
@@ -138,6 +136,30 @@ router.get("/table/:tableno", async (req, res) => {
     combined.subTotal = Math.round(combined.subTotal * 100) / 100;
     combined.salesTax = Math.round(combined.salesTax * 100) / 100;
     combined.totalAmount = Math.round(combined.totalAmount * 100) / 100;
+
+    // Only include discount details for dinein orders
+    const isDineinOrder = order.some(o => o.orderType === "dinein");
+    if (isDineinOrder) {
+      // Fetch discount settings to include discount details
+      const Settings = require("../models/settings");
+      const settings = await Settings.findOne().sort({ createdAt: -1 });
+      if (settings?.settings?.discount && settings.settings.discountDetails) {
+        const discountDetails = settings.settings.discountDetails;
+        const discountPercentage = parseFloat(discountDetails.percentage || 0);
+        const discountAmount = (combined.subTotal * discountPercentage) / 100;
+        
+        combined.discountAmount = Math.round(discountAmount * 100) / 100;
+        combined.discountPercentage = discountPercentage;
+      } else {
+        combined.discountAmount = 0;
+        combined.discountPercentage = 0;
+      }
+    } else {
+      // For non-dinein orders, don't include discount details
+      combined.discountAmount = 0;
+      combined.discountPercentage = 0;
+    }
+
     res.json(combined);
   } catch (err) {
     res.status(500).json({ error: err.message });

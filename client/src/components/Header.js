@@ -650,17 +650,13 @@ function Header() {
       updateCart(newQty);
     };
 
-    const handleDecrease = () => {
+        const handleDecrease = () => {
       const newQty = quantity - 1;
       if (newQty >= 1) {
         setQuantity(newQty);
-        update
-        setQuantity(newQty);
-        setTotalPrice(newQty * basePrice);
         updateCart(newQty);
       } else {
         setQuantity(0);
-        setTotalPrice(0);
         updateCart(0);
       }
     };
@@ -1169,7 +1165,6 @@ function Header() {
                   justifyContent: "space-evenly",
                 }}
               >
-                {/* {["dinein", "pickup", "delivery"].map((mode) => ( */}
                 {deliveryModes.map((mode) => (
                   <label
                     key={mode}

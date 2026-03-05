@@ -62,14 +62,14 @@ function Header() {
       return `+1 (${digits.slice(0, 3)}) ${digits.slice(3)}`;
     return `+1 (${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(
       6,
-      10
+      10,
     )}`;
   };
 
   useEffect(() => {
     const subTotal = Object.values(cartItems).reduce(
       (sum, { quantity, price }) => sum + parseFloat(price),
-      0
+      0,
     );
     setTotalAmount(subTotal);
   }, [cartItems]);
@@ -90,13 +90,12 @@ function Header() {
       const result = Object.keys(obj).filter((key) => {
         const value = obj[key];
         return (
-          key === "dinein" ||
-          key === "pickup" ||
-          key === "delivery"
-        ) && value === true;
+          (key === "dinein" || key === "pickup" || key === "delivery") &&
+          value === true
+        );
       });
       setDeliveryModes(result || []);
-      
+
       // Set discount settings
       setDiscountSettings(obj.discount ? obj.discountDetails : null);
     };
@@ -126,7 +125,7 @@ function Header() {
           const { latitude, longitude } = pos.coords;
           try {
             const res = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
             );
             const data = await res.json();
             setAddress(data.display_name);
@@ -135,7 +134,7 @@ function Header() {
           }
         },
         (err) => console.error("Error getting location:", err.message),
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
       );
     }
   };
@@ -230,7 +229,7 @@ function Header() {
           price,
           spiceLevel,
           addons,
-        })
+        }),
       ),
       subTotal: parseFloat(totalAmount.toFixed(2)),
       salesTax: parseFloat(salesTaxAmount.toFixed(2)),
@@ -256,30 +255,24 @@ function Header() {
         setOnlinePaymentAmount(parseFloat(finalTotalAmount.toFixed(2)));
         setSuccessOrderId(orderId);
         setIsPaymentPopupOpen(true);
-        setIsPopupOpen(false);
-        setMobileNumber("+1");
-        setTableNumber("1");
-        setEmail("");
-        setName("");
-        setAddress("");
-        // Don't clear cart yet - only clear it after payment (success or fail)
-        setIsLoading(false);
       } else {
         setSuccessOrderId(orderId);
         setIsSuccessPopupOpen(true);
-        setIsPopupOpen(false);
-        setMobileNumber("+1");
-        setTableNumber("1");
-        setEmail("");
-        setName("");
-        setAddress("");
-        dispatch(clearCart());
-        setIsLoading(false);
       }
+
+      setIsPopupOpen(false);
+      setMobileNumber("+1");
+      setTableNumber("1");
+      setEmail("");
+      setName("");
+      setAddress("");
+
+      // ✅ Clear cart only after successful order
+      dispatch(clearCart());
     } catch (err) {
       console.error("Order process error:", err);
       alert(
-        `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`
+        `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`,
       );
     } finally {
       setIsLoading(false);
@@ -364,7 +357,7 @@ function Header() {
       return Promise.race([
         fetch(url, options).then((res) => res.json()),
         new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Request timed out")), timeout)
+          setTimeout(() => reject(new Error("Request timed out")), timeout),
         ),
       ]);
     }
@@ -442,7 +435,7 @@ function Header() {
               orderId: successOrderId,
             }),
           },
-          30000
+          30000,
         );
 
         if (result.code === 200) {
@@ -589,7 +582,9 @@ function Header() {
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s ease, transform 0.1s ease;
+            transition:
+              background 0.3s ease,
+              transform 0.1s ease;
           }
           .close-button {
             padding: 14px;
@@ -600,7 +595,9 @@ function Header() {
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s ease, transform 0.1s ease;
+            transition:
+              background 0.3s ease,
+              transform 0.1s ease;
           }
 
           .payment-button:hover {
@@ -636,7 +633,7 @@ function Header() {
         setCartItems(cart);
         localStorage.setItem(
           "cart",
-          JSON.stringify({ items: cart, totalItems: Object.keys(cart).length })
+          JSON.stringify({ items: cart, totalItems: Object.keys(cart).length }),
         );
         dispatch(rehydrateCart());
       } catch (err) {
@@ -650,7 +647,7 @@ function Header() {
       updateCart(newQty);
     };
 
-        const handleDecrease = () => {
+    const handleDecrease = () => {
       const newQty = quantity - 1;
       if (newQty >= 1) {
         setQuantity(newQty);
@@ -1003,7 +1000,7 @@ function Header() {
                             </td>
                             <td>{price}</td>
                           </tr>
-                        )
+                        ),
                       )}
                     </tbody>
                   </table>
@@ -1014,7 +1011,7 @@ function Header() {
                 type="text"
                 placeholder="Subtotal"
                 disabled
-                value={`Subtotal: $${totalAmount.toFixed(2)}`}
+                value={`Sub Total: $${totalAmount.toFixed(2)}`}
                 style={{
                   width: "100%",
                   padding: "8px",
@@ -1024,20 +1021,22 @@ function Header() {
                 }}
               />
               {discountSettings && (
-                <input
-                  type="text"
-                  placeholder="Discount"
-                  disabled
-                  value={`${discountSettings.name}: -$${((totalAmount * parseFloat(discountSettings.percentage)) / 100).toFixed(2)} (${discountSettings.percentage}%)`}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    border: "1px solid #ccc",
-                    borderRadius: "4px",
-                    marginTop: "10px",
-                    color: "#dc3545",
-                  }}
-                />
+                <>
+                  <input
+                    type="text"
+                    placeholder="Discount"
+                    disabled
+                    value={`Discount for ${discountSettings.name}: $${((totalAmount * parseFloat(discountSettings.percentage)) / 100).toFixed(2)} (${discountSettings.percentage}%)`}
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      marginTop: "10px",
+                      color: "#dc3545",
+                    }}
+                  />
+                </>
               )}
               <input
                 type="text"
@@ -1323,4 +1322,3 @@ function Header() {
 }
 
 export default Header;
-

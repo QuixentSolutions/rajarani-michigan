@@ -19,7 +19,7 @@ function Header() {
   const [addressError, setAddressError] = useState("");
   const [mobileError, setMobileError] = useState("");
   const [tableNumber, setTableNumber] = useState("1");
-  const [orderMode, setOrderMode] = useState("dinein");
+  const [orderMode, setOrderMode] = useState("pickup");
   const [address, setAddress] = useState("");
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
   const [isPaymentPopupOpen, setIsPaymentPopupOpen] = useState(false);
@@ -29,6 +29,7 @@ function Header() {
   const [onlinePaymentAmount, setOnlinePaymentAmount] = useState(0);
 
   const [finalOrderAmount, setFinalOrderAmount] = useState(0);
+  const [discountSettings, setDiscountSettings] = useState(null);
 
   const [deliveryModes, setDeliveryModes] = useState([
     "dinein",
@@ -61,14 +62,14 @@ function Header() {
       return `+1 (${digits.slice(0, 3)}) ${digits.slice(3)}`;
     return `+1 (${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(
       6,
-      10
+      10,
     )}`;
   };
 
   useEffect(() => {
     const subTotal = Object.values(cartItems).reduce(
       (sum, { quantity, price }) => sum + parseFloat(price),
-      0
+      0,
     );
     setTotalAmount(subTotal);
   }, [cartItems]);
@@ -85,9 +86,18 @@ function Header() {
       }
 
       const obj = dbData[0]?.settings || {};
-      // Get only keys where value is true
-      const result = Object.keys(obj).filter((key) => obj[key]);
+      // Get only order type keys where value is true (exclude discount and nested objects)
+      const result = Object.keys(obj).filter((key) => {
+        const value = obj[key];
+        return (
+          (key === "dinein" || key === "pickup" || key === "delivery") &&
+          value === true
+        );
+      });
       setDeliveryModes(result || []);
+
+      // Set discount settings
+      setDiscountSettings(obj.discount ? obj.discountDetails : null);
     };
 
     loadData();
@@ -115,7 +125,7 @@ function Header() {
           const { latitude, longitude } = pos.coords;
           try {
             const res = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
             );
             const data = await res.json();
             setAddress(data.display_name);
@@ -124,7 +134,7 @@ function Header() {
           }
         },
         (err) => console.error("Error getting location:", err.message),
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
       );
     }
   };
@@ -186,8 +196,16 @@ function Header() {
 
     const orderId = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
 
-    const finalTotalAmount = totalAmount * 1.06;
-    const salesTaxAmount = totalAmount * 0.06;
+    // Calculate discount if applicable
+    let discountAmount = 0;
+    if (discountSettings && discountSettings.percentage) {
+      const discountPercent = parseFloat(discountSettings.percentage);
+      discountAmount = (totalAmount * discountPercent) / 100;
+    }
+
+    const subtotalAfterDiscount = totalAmount - discountAmount;
+    const salesTaxAmount = subtotalAfterDiscount * 0.06;
+    const finalTotalAmount = subtotalAfterDiscount + salesTaxAmount;
 
     // Store final amount for success popup
     setFinalOrderAmount(finalTotalAmount);
@@ -211,7 +229,7 @@ function Header() {
           price,
           spiceLevel,
           addons,
-        })
+        }),
       ),
       subTotal: parseFloat(totalAmount.toFixed(2)),
       salesTax: parseFloat(salesTaxAmount.toFixed(2)),
@@ -235,32 +253,26 @@ function Header() {
 
       if (orderMode !== "dinein") {
         setOnlinePaymentAmount(parseFloat(finalTotalAmount.toFixed(2)));
-        setIsPaymentPopupOpen(true);
         setSuccessOrderId(orderId);
-        setIsPopupOpen(false);
-        setMobileNumber("+1");
-        setTableNumber("1");
-        setEmail("");
-        setName("");
-        setAddress("");
-        dispatch(clearCart());
-        setIsLoading(false);
+        setIsPaymentPopupOpen(true);
       } else {
         setSuccessOrderId(orderId);
         setIsSuccessPopupOpen(true);
-        setIsPopupOpen(false);
-        setMobileNumber("+1");
-        setTableNumber("1");
-        setEmail("");
-        setName("");
-        setAddress("");
-        dispatch(clearCart());
-        setIsLoading(false);
       }
+
+      setIsPopupOpen(false);
+      setMobileNumber("+1");
+      setTableNumber("1");
+      setEmail("");
+      setName("");
+      setAddress("");
+
+      // ✅ Clear cart only after successful order
+      dispatch(clearCart());
     } catch (err) {
       console.error("Order process error:", err);
       alert(
-        `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`
+        `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`,
       );
     } finally {
       setIsLoading(false);
@@ -326,7 +338,7 @@ function Header() {
               Your order has been placed successfully. Details have been sent to
               your email. <br />
               <p style={{ color: "red", fontWeight: "bolder" }}>
-                Preparation time: 25 minutes.
+                Preparation time: {finalOrderAmount > 80 ? "35" : "25"} minutes.
               </p>
             </p>
           )}
@@ -345,7 +357,7 @@ function Header() {
       return Promise.race([
         fetch(url, options).then((res) => res.json()),
         new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Request timed out")), timeout)
+          setTimeout(() => reject(new Error("Request timed out")), timeout),
         ),
       ]);
     }
@@ -423,17 +435,17 @@ function Header() {
               orderId: successOrderId,
             }),
           },
-          30000
+          30000,
         );
 
         if (result.code === 200) {
+          // Payment successful - clear cart and show success
+          dispatch(clearCart());
           setIsLoading(false);
           setIsPaymentPopupOpen(false);
           setIsSuccessPopupOpen(true);
         } else {
-          setIsLoading(false);
-          setIsPaymentPopupOpen(false);
-          alert("Payment failed!");
+          // Payment failed - do NOT clear cart, show error
         }
       } catch (error) {
         setIsLoading(false);
@@ -570,7 +582,9 @@ function Header() {
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s ease, transform 0.1s ease;
+            transition:
+              background 0.3s ease,
+              transform 0.1s ease;
           }
           .close-button {
             padding: 14px;
@@ -581,7 +595,9 @@ function Header() {
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s ease, transform 0.1s ease;
+            transition:
+              background 0.3s ease,
+              transform 0.1s ease;
           }
 
           .payment-button:hover {
@@ -599,7 +615,6 @@ function Header() {
   const CartItem = ({ itemKey, item }) => {
     const basePrice = parseFloat(item.basePrice || item.price);
     const [quantity, setQuantity] = useState(item.quantity);
-    const [totalPrice, setTotalPrice] = useState(basePrice * item.quantity);
 
     const updateCart = async (newQuantity) => {
       try {
@@ -618,7 +633,7 @@ function Header() {
         setCartItems(cart);
         localStorage.setItem(
           "cart",
-          JSON.stringify({ items: cart, totalItems: Object.keys(cart).length })
+          JSON.stringify({ items: cart, totalItems: Object.keys(cart).length }),
         );
         dispatch(rehydrateCart());
       } catch (err) {
@@ -629,7 +644,6 @@ function Header() {
     const handleIncrease = () => {
       const newQty = quantity + 1;
       setQuantity(newQty);
-      setTotalPrice(newQty * basePrice);
       updateCart(newQty);
     };
 
@@ -637,11 +651,9 @@ function Header() {
       const newQty = quantity - 1;
       if (newQty >= 1) {
         setQuantity(newQty);
-        setTotalPrice(newQty * basePrice);
         updateCart(newQty);
       } else {
         setQuantity(0);
-        setTotalPrice(0);
         updateCart(0);
       }
     };
@@ -988,7 +1000,7 @@ function Header() {
                             </td>
                             <td>{price}</td>
                           </tr>
-                        )
+                        ),
                       )}
                     </tbody>
                   </table>
@@ -999,7 +1011,7 @@ function Header() {
                 type="text"
                 placeholder="Subtotal"
                 disabled
-                value={`Subtotal: $${totalAmount.toFixed(2)}`}
+                value={`Sub Total: $${totalAmount.toFixed(2)}`}
                 style={{
                   width: "100%",
                   padding: "8px",
@@ -1008,11 +1020,29 @@ function Header() {
                   marginTop: "20px",
                 }}
               />
+              {discountSettings && (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Discount"
+                    disabled
+                    value={`Discount for ${discountSettings.name}: $${((totalAmount * parseFloat(discountSettings.percentage)) / 100).toFixed(2)} (${discountSettings.percentage}%)`}
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      marginTop: "10px",
+                      color: "#dc3545",
+                    }}
+                  />
+                </>
+              )}
               <input
                 type="text"
                 placeholder="Sales Tax"
                 disabled
-                value={`Sales Tax (6%): $${(totalAmount * 0.06).toFixed(2)}`}
+                value={`Sales Tax (6%): $${(discountSettings ? (totalAmount - (totalAmount * parseFloat(discountSettings.percentage)) / 100) * 0.06 : totalAmount * 0.06).toFixed(2)}`}
                 style={{
                   width: "100%",
                   padding: "8px",
@@ -1025,13 +1055,14 @@ function Header() {
                 type="text"
                 placeholder="Total Amount"
                 disabled
-                value={`Total Amount: $${(totalAmount * 1.06).toFixed(2)}`}
+                value={`Total Amount: $${(discountSettings ? (totalAmount - (totalAmount * parseFloat(discountSettings.percentage)) / 100) * 1.06 : totalAmount * 1.06).toFixed(2)}`}
                 style={{
                   width: "100%",
                   padding: "8px",
                   border: "1px solid #ccc",
                   borderRadius: "4px",
                   marginTop: "10px",
+                  fontWeight: "bold",
                 }}
               />
 
@@ -1133,7 +1164,6 @@ function Header() {
                   justifyContent: "space-evenly",
                 }}
               >
-                {/* {["dinein", "pickup", "delivery"].map((mode) => ( */}
                 {deliveryModes.map((mode) => (
                   <label
                     key={mode}

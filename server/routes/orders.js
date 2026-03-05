@@ -33,10 +33,10 @@ function buildEmailHTML(items) {
                 : "NA"
             }</td>
             <td style="padding:8px;border:1px solid #ccc;text-align:right;">$${unitPrice.toFixed(
-              2
+              2,
             )}</td>
             <td style="padding:8px;border:1px solid #ccc;text-align:right;">$${lineTotal.toFixed(
-              2
+              2,
             )}</td>
           </tr>`;
     })
@@ -61,7 +61,7 @@ function buildEmailHTML(items) {
             <tr>
               <td colspan="5" style="padding:8px;border:1px solid #ccc;text-align:right;font-weight:bold;">Sub Total</td>
               <td style="padding:8px;border:1px solid #ccc;text-align:right;font-weight:bold;">$${subTotal.toFixed(
-                2
+                2,
               )}</td>
             </tr>
           </tbody>
@@ -73,8 +73,6 @@ router.post("/", async (req, res) => {
   try {
     const order = new Order(req.body);
     const savedOrder = await order.save();
-
-    if (savedOrder.orderType !== "dinein") res.status(201).json(savedOrder);
 
     const wss = wsServer.getWSS();
 
@@ -89,7 +87,7 @@ router.post("/", async (req, res) => {
             totalAmount: savedOrder.totalAmount,
             createdAt: savedOrder.createdAt,
             sentAt: new Date(),
-          })
+          }),
         );
       }
     });
@@ -132,12 +130,36 @@ router.get("/table/:tableno", async (req, res) => {
         acc.totalAmount += order.totalAmount;
         return acc;
       },
-      { items: [], orderNumbers: [], subTotal: 0, salesTax: 0, totalAmount: 0 }
+      { items: [], orderNumbers: [], subTotal: 0, salesTax: 0, totalAmount: 0 },
     );
 
     combined.subTotal = Math.round(combined.subTotal * 100) / 100;
     combined.salesTax = Math.round(combined.salesTax * 100) / 100;
     combined.totalAmount = Math.round(combined.totalAmount * 100) / 100;
+
+    // Only include discount details for dinein orders
+    const isDineinOrder = order.some((o) => o.orderType === "dinein");
+    if (isDineinOrder) {
+      // Fetch discount settings to include discount details
+      const Settings = require("../models/settings");
+      const settings = await Settings.findOne().sort({ createdAt: -1 });
+      if (settings?.settings?.discount && settings.settings.discountDetails) {
+        const discountDetails = settings.settings.discountDetails;
+        const discountPercentage = parseFloat(discountDetails.percentage || 0);
+        const discountAmount = (combined.subTotal * discountPercentage) / 100;
+
+        combined.discountAmount = Math.round(discountAmount * 100) / 100;
+        combined.discountPercentage = discountPercentage;
+      } else {
+        combined.discountAmount = 0;
+        combined.discountPercentage = 0;
+      }
+    } else {
+      // For non-dinein orders, don't include discount details
+      combined.discountAmount = 0;
+      combined.discountPercentage = 0;
+    }
+
     res.json(combined);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -309,7 +331,7 @@ router.post("/payment", async (req, res) => {
                   orderNumber: orderId,
                   orderType: "pickup",
                   sentAt: new Date(),
-                })
+                }),
               );
             }
           });
@@ -336,6 +358,7 @@ router.post("/payment", async (req, res) => {
             sales_tax: order.salesTax.toFixed(2),
             total_amount: order.totalAmount.toFixed(2),
             address: order.deliveryAddress ? order.deliveryAddress : "N/A",
+            preparation_time: order.totalAmount > 80 ? "35" : "25",
             order_details: emailHTML,
           };
           const serviceId = process.env.EMAILJS_SERVICE_ID;
@@ -414,7 +437,7 @@ router.put("/kitchen/:id", async (req, res) => {
     const result = await Order.findByIdAndUpdate(
       req.params.id,
       { sentToKitchen: 1, updatedAt: new Date() },
-      { new: true }
+      { new: true },
     );
     const print = await printOrder(result);
     if (!print)
@@ -492,14 +515,14 @@ async function printOrder(order) {
     isConnected = await printer.isPrinterConnected();
   } catch (err) {
     console.error(
-      `[ERROR] Printer not connected at error block - ${printerConfig?.printerIp}`
+      `[ERROR] Printer not connected at error block - ${printerConfig?.printerIp}`,
     );
   }
 
   if (!isConnected) {
     // ❌ Printer not connected - return false
     console.error(
-      `[ERROR] Printer not connected at after success verification - ${printerConfig?.printerIp}`
+      `[ERROR] Printer not connected at after success verification - ${printerConfig?.printerIp}`,
     );
     return false;
   }
@@ -513,7 +536,7 @@ async function printOrder(order) {
   try {
     await printer.execute();
     console.log(
-      `[SUCCESS] Order ${order.orderNumber} printed to thermal printer`
+      `[SUCCESS] Order ${order.orderNumber} printed to thermal printer`,
     );
     // ✅ Generate PDF ONLY in development/test mode
     if (process.env.NODE_ENV !== "production") {
@@ -579,7 +602,7 @@ async function printOrder(order) {
   } catch (err) {
     console.error(
       `[ERROR] Failed to print order ${order.orderNumber}:`,
-      err.message
+      err.message,
     );
     return false;
   }

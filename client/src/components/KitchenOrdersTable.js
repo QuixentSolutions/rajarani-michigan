@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-
+import { printOrder } from "../utils/printer";
 const KitchenOrdersTable = ({
   authToken,
   setError,
@@ -28,12 +28,12 @@ const KitchenOrdersTable = ({
             Authorization: authToken,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          errorData.message || `Server error (${response.status})`
+          errorData.message || `Server error (${response.status})`,
         );
       }
       const data = await response.json();
@@ -61,7 +61,7 @@ const KitchenOrdersTable = ({
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          errorData.message || `Server error (${response.status})`
+          errorData.message || `Server error (${response.status})`,
         );
       }
       const data = await response.json();
@@ -91,7 +91,7 @@ const KitchenOrdersTable = ({
         throw new Error(
           `Server responded with ${response.status}: ${
             errorData.message || "Failed to update status"
-          }`
+          }`,
         );
       }
       setSuccess("Printer updated successfully!");
@@ -111,22 +111,31 @@ const KitchenOrdersTable = ({
 
   const handlePrintOrder = async (orderId) => {
     try {
-      const dbResponse = await fetch(`/order/kitchen/${orderId}`, {
-        method: "PUT",
-        headers: {
-          Authorization: authToken,
-          "Content-Type": "application/json",
-        },
+      const orderDetailsResponse = await fetch(`/order/orderId/${orderId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
       });
 
-      const dbData = await dbResponse.json();
-      if (dbData.error) {
-        alert(dbData.error);
-        return;
+      const orderDetails = await orderDetailsResponse.json();
+      const print = printOrder(orderDetails);
+
+      if (print) {
+        const dbResponse = await fetch(`/order/kitchen/${orderId}`, {
+          method: "PUT",
+          headers: {
+            Authorization: authToken,
+            "Content-Type": "application/json",
+          },
+        });
+        const dbData = await dbResponse.json();
+        if (dbData.error) {
+          alert(dbData.error);
+          return;
+        }
+        setSuccess("Order marked as sent to kitchen!");
+        setTimeout(() => setSuccess(""), 3000);
+        fetchKitchenOrdersData();
       }
-      setSuccess("Order marked as sent to kitchen!");
-      setTimeout(() => setSuccess(""), 3000);
-      fetchKitchenOrdersData();
     } catch (err) {
       setError(`Failed to mark order as sent: ${err.message}`);
     }
@@ -200,7 +209,7 @@ const KitchenOrdersTable = ({
         }}
       >
         <h2 className="section-title">Table Orders (Dine-In)</h2>
-        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+        {/* <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
           <input
             className="printer-details"
             value={printerIp}
@@ -231,7 +240,7 @@ const KitchenOrdersTable = ({
           >
             Save Configuration
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Table Container */}

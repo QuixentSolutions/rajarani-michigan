@@ -11,6 +11,7 @@ import AdminOrders from "./AdminOrders";
 import AdminMenu from "./AdminMenu";
 import AdminSettings from "./AdminSettings";
 import AdminReports from "./AdminReports";
+import { printOrder } from "../utils/printer";
 
 const AdminDashboard = ({ onLogout }) => {
   const [authToken] = useState("Basic " + btoa("admin:password123"));
@@ -84,12 +85,12 @@ const AdminDashboard = ({ onLogout }) => {
         if (response.status === 429) {
           if (retryCount < 2) {
             await new Promise((resolve) =>
-              setTimeout(resolve, (retryCount + 1) * 2000)
+              setTimeout(resolve, (retryCount + 1) * 2000),
             );
             return fetchData(url, token, retryCount + 1);
           } else {
             throw new Error(
-              "Server is busy. Please wait a moment and refresh the page."
+              "Server is busy. Please wait a moment and refresh the page.",
             );
           }
         }
@@ -108,11 +109,11 @@ const AdminDashboard = ({ onLogout }) => {
           if (contentType && contentType.includes("application/json")) {
             const errorData = await response.json();
             throw new Error(
-              errorData.message || `Server error (${response.status})`
+              errorData.message || `Server error (${response.status})`,
             );
           } else {
             throw new Error(
-              `Server returned ${response.status}. Please check if the backend is running on http://localhost:5001`
+              `Server returned ${response.status}. Please check if the backend is running on http://localhost:5001`,
             );
           }
         }
@@ -120,7 +121,7 @@ const AdminDashboard = ({ onLogout }) => {
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
           throw new Error(
-            "Server returned HTML instead of JSON. Please check if your backend API is running correctly."
+            "Server returned HTML instead of JSON. Please check if your backend API is running correctly.",
           );
         }
 
@@ -131,13 +132,13 @@ const AdminDashboard = ({ onLogout }) => {
           error.message.includes("Failed to fetch")
         ) {
           throw new Error(
-            "Unable to connect to server. Please check if your backend is running on http://localhost:5001"
+            "Unable to connect to server. Please check if your backend is running on http://localhost:5001",
           );
         }
         throw error;
       }
     },
-    [onLogout]
+    [onLogout],
   );
 
   const createFetchFunction = useCallback(
@@ -181,7 +182,7 @@ const AdminDashboard = ({ onLogout }) => {
           return errorResult; // Return empty data on error
         }
       },
-    [authToken, fetchData]
+    [authToken, fetchData],
   );
 
   const fetchRegistrations = createFetchFunction(setRegistrations, "register");
@@ -189,7 +190,7 @@ const AdminDashboard = ({ onLogout }) => {
   const fetchMenuData = createFetchFunction(setMenuData, "menu/all");
   const fetchKitchenOrders = createFetchFunction(
     setKitchenOrders,
-    "order/kitchen"
+    "order/kitchen",
   );
 
   useEffect(() => {
@@ -314,7 +315,7 @@ const AdminDashboard = ({ onLogout }) => {
         setTimeout(() => setSuccess(""), 3000);
       } catch (error) {
         setError(
-          "Failed to load dashboard data. Please refresh and try again."
+          "Failed to load dashboard data. Please refresh and try again.",
         );
       } finally {
         setIsLoading(false);
@@ -358,7 +359,7 @@ const AdminDashboard = ({ onLogout }) => {
         throw new Error(
           `Server responded with ${response.status}: ${
             errorData.message || "Failed to update status"
-          }`
+          }`,
         );
       }
 
@@ -398,7 +399,7 @@ const AdminDashboard = ({ onLogout }) => {
         throw new Error(
           `Server responded with ${response.status}: ${
             errorData.message || "Failed to update status"
-          }`
+          }`,
         );
       }
       await fetchMenuData();
@@ -425,7 +426,7 @@ const AdminDashboard = ({ onLogout }) => {
           className="pagination-btn"
         >
           ← Previous
-        </button>
+        </button>,
       );
     }
 
@@ -442,7 +443,7 @@ const AdminDashboard = ({ onLogout }) => {
           className={`pagination-btn ${i === currentPage ? "active" : ""}`}
         >
           {i}
-        </button>
+        </button>,
       );
     }
 
@@ -454,7 +455,7 @@ const AdminDashboard = ({ onLogout }) => {
           className="pagination-btn"
         >
           Next →
-        </button>
+        </button>,
       );
     }
 
@@ -674,7 +675,7 @@ const AdminDashboard = ({ onLogout }) => {
                                   (a) =>
                                     `${a.name.replace(/^Add\s/, "").trim()} (+${
                                       a.price
-                                    })`
+                                    })`,
                                 )
                                 .join(", ")}
                             </div>
@@ -721,7 +722,7 @@ const AdminDashboard = ({ onLogout }) => {
                               (a) =>
                                 `${a.name.replace(/^Add\s/, "").trim()} (${
                                   a.price
-                                })`
+                                })`,
                             )
                             .join(", ")}
                         </div>
@@ -766,7 +767,7 @@ const AdminDashboard = ({ onLogout }) => {
                                     (a) =>
                                       `${a.name
                                         .replace(/^Add\s/, "")
-                                        .trim()} (+${a.price})`
+                                        .trim()} (+${a.price})`,
                                   )
                                   .join(", ")}
                               </div>
@@ -827,7 +828,7 @@ const AdminDashboard = ({ onLogout }) => {
     } catch (err) {
       // console.error("Order process error:", err);
       alert(
-        `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`
+        `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`,
       );
     } finally {
       setIsLoading(false);
@@ -836,7 +837,7 @@ const AdminDashboard = ({ onLogout }) => {
 
   const tipsPercentageUpdate = async (e) => {
     setTips(
-      parseFloat((billDetails.totalAmount * e.target.value) / 100).toFixed(2)
+      parseFloat((billDetails.totalAmount * e.target.value) / 100).toFixed(2),
     );
     setTipsPercentage(e.target.value);
   };
@@ -858,9 +859,23 @@ const AdminDashboard = ({ onLogout }) => {
         alert(dbData.error);
         return;
       }
-      setSuccess("Online order sent to kitchen!");
-      setTimeout(() => setSuccess(""), 3000);
-      await fetchOrders();
+
+      const orderDetailsResponse = await fetch(
+        `/order/orderId/${orderNumber}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+
+      const orderDetails = await orderDetailsResponse.json();
+      const print = printOrder(orderDetails);
+
+      if (print) {
+        setSuccess("Online order sent to kitchen!");
+        setTimeout(() => setSuccess(""), 3000);
+        await fetchOrders();
+      }
     } catch (err) {
       // console.error("Order process error:", err);
     } finally {
@@ -928,7 +943,7 @@ const AdminDashboard = ({ onLogout }) => {
     } catch (err) {
       // console.error("Order process error:", err);
       alert(
-        `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`
+        `We're sorry, your order couldn't be placed (Error: ${err.message}). Please call us directly.`,
       );
     } finally {
       setIsLoading(false);
@@ -976,7 +991,7 @@ const AdminDashboard = ({ onLogout }) => {
       alert("Settings saved successfully!");
     } catch (err) {
       alert(
-        `We're sorry, your settings couldn't be saved (Error: ${err.message}). Please try again.`
+        `We're sorry, your settings couldn't be saved (Error: ${err.message}). Please try again.`,
       );
     } finally {
       setIsLoading(false);

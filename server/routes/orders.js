@@ -1,14 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../models/orders");
-const Printer = require("../models/printer");
 const emailjs = require("@emailjs/nodejs");
-const ThermalPrinter = require("node-thermal-printer").printer;
-const PrinterTypes = require("node-thermal-printer").types;
 const axios = require("axios");
-const PDFDocument = require("pdfkit");
 const WebSocket = require("ws");
-const fs = require("fs");
 const path = require("path");
 const wsServer = require("../ws");
 
@@ -199,9 +194,9 @@ router.put("/accept", async (req, res) => {
       orderNumber: req.body.orderNumber,
     };
     const order = await Order.findOne(filter);
-    const print = await printOrder(order);
-    if (!print)
-      return res.status(500).json({ error: "Unable to connect to printer" });
+    // const print = await printOrder(order);
+    // if (!print)
+    //   return res.status(500).json({ error: "Unable to connect to printer" });
     req.body.updatedAt = new Date();
     const update = {
       $set: {
@@ -245,6 +240,18 @@ router.get("/all", async (req, res) => {
       .limit(req.query.limit)
       .sort({ createdAt: -1 });
     res.json({ results: orders, totalPages: totalCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/orderId/:orderId", async (req, res) => {
+  try {
+    const order = await Order.findOne({ _id: req.params.orderId });
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+    res.json(order);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -439,9 +446,9 @@ router.put("/kitchen/:id", async (req, res) => {
       { sentToKitchen: 1, updatedAt: new Date() },
       { new: true },
     );
-    const print = await printOrder(result);
-    if (!print)
-      return res.status(500).json({ error: "Unable to connect to printer" });
+    // const print = await printOrder(result);
+    // if (!print)
+    //   return res.status(500).json({ error: "Unable to connect to printer" });
     if (!result) {
       return res.status(500).json({ error: "Order not found" });
     }
@@ -450,162 +457,5 @@ router.put("/kitchen/:id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-async function printOrder(order) {
-  const printerConfig = await Printer.findOne().sort({ createdAt: -1 });
-
-  const orderDate = new Date(order.createdAt);
-  const formattedDate = orderDate.toLocaleDateString("en-US", {
-    month: "2-digit",
-    day: "2-digit",
-    year: "numeric",
-  });
-  const formattedTime = orderDate.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
-
-  let receipt = "";
-
-  // === Header ===
-  receipt += "--------------------------------\n";
-  receipt += `Order Number : ${order.orderNumber}\n`;
-  receipt += `Order Date   : ${formattedDate}\n`;
-  receipt += `Order Time   : ${formattedTime}\n`;
-  receipt += `Order Type   : ${order.orderType}\n`;
-
-  if (order.orderType === "dinein") {
-    receipt += `Table No     : ${order.tableNumber}\n`;
-  } else {
-    receipt += `Name         : ${order.customer.name}\n`;
-    receipt += `Phone        : ${order.customer.phone || "-"}\n`;
-  }
-
-  receipt += "--------------------------------\n\n";
-
-  // === Items ===
-  order.items.forEach((item) => {
-    const itemName = item.name.split("_")[0];
-    receipt += `${item.quantity} X ${itemName}\n`;
-
-    if (item.spiceLevel) {
-      receipt += `    ${item.spiceLevel}\n`;
-    }
-
-    if (item.addons && item.addons.length > 0) {
-      item.addons.forEach((addon) => {
-        const addonName = typeof addon === "object" ? addon.name : addon;
-        receipt += `    ${addonName}\n`;
-      });
-    }
-  });
-
-  receipt += "\n--------------------------------\n";
-  receipt += "Thank you!\n";
-
-  let printer = new ThermalPrinter({
-    type: PrinterTypes.STAR,
-    interface: `tcp://${printerConfig?.printerIp}`,
-  });
-
-  let isConnected = false;
-  try {
-    isConnected = await printer.isPrinterConnected();
-  } catch (err) {
-    console.error(
-      `[ERROR] Printer not connected at error block - ${printerConfig?.printerIp}`,
-    );
-  }
-
-  if (!isConnected) {
-    // ❌ Printer not connected - return false
-    console.error(
-      `[ERROR] Printer not connected at after success verification - ${printerConfig?.printerIp}`,
-    );
-    return false;
-  }
-
-  // Printer is connected - proceed with printing
-  printer.bold(true);
-  printer.println(receipt);
-  printer.bold(false);
-  printer.cut();
-
-  try {
-    await printer.execute();
-    console.log(
-      `[SUCCESS] Order ${order.orderNumber} printed to thermal printer`,
-    );
-    // ✅ Generate PDF ONLY in development/test mode
-    if (process.env.NODE_ENV !== "production") {
-      const receiptsDir = path.join(__dirname, "..", "receipts");
-      if (!fs.existsSync(receiptsDir)) {
-        fs.mkdirSync(receiptsDir, { recursive: true });
-      }
-
-      const pdfPath = path.join(receiptsDir, `${order.orderNumber}.pdf`);
-      const doc = new PDFDocument({
-        size: [226.77, 600],
-        margin: 10,
-      });
-      const stream = fs.createWriteStream(pdfPath);
-      doc.pipe(stream);
-
-      doc.font("Courier").fontSize(10);
-
-      doc.text("--------------------------------", { align: "left" });
-      doc.text(`Order Number : ${order.orderNumber}`);
-      doc.text(`Order Date   : ${formattedDate}`);
-      doc.text(`Order Time   : ${formattedTime}`);
-      doc.text(`Order Type   : ${order.orderType}`);
-
-      if (order.orderType === "dinein") {
-        doc.text(`Table No     : ${order.tableNumber}`);
-      } else {
-        doc.text(`Name         : ${order.customer.name}`);
-        doc.text(`Phone        : ${order.customer.phone || "-"}`);
-      }
-
-      doc.text("--------------------------------");
-      doc.moveDown(0.3);
-
-      order.items.forEach((item) => {
-        const itemName = item.name.split("_")[0];
-
-        doc.font("Courier-Bold").fontSize(10);
-        doc.text(`${item.quantity} X ${itemName}`);
-
-        doc.font("Courier").fontSize(8);
-        if (item.spiceLevel) {
-          doc.text(`    ${item.spiceLevel}`);
-        }
-        if (item.addons && item.addons.length > 0) {
-          item.addons.forEach((addon) => {
-            const addonName = typeof addon === "object" ? addon.name : addon;
-            doc.text(`    ${addonName}`);
-          });
-        }
-      });
-
-      doc.font("Courier").fontSize(10);
-      doc.moveDown(0.3);
-      doc.text("--------------------------------");
-      doc.text("Thank you!", { align: "center" });
-      doc.end();
-      await new Promise((resolve) => stream.on("finish", resolve));
-      console.log(`[TEST MODE] PDF backup created: ${pdfPath}`);
-    }
-
-    return true;
-  } catch (err) {
-    console.error(
-      `[ERROR] Failed to print order ${order.orderNumber}:`,
-      err.message,
-    );
-    return false;
-  }
-}
 
 module.exports = router;

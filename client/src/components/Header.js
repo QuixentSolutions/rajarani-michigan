@@ -4,10 +4,11 @@ import { useSelector } from "react-redux";
 import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { clearCart, rehydrateCart } from "../cartSlice";
-import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
+import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaCalendarAlt } from "react-icons/fa";
 // import AnniversaryPopup from "./AnniversaryPopup";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import { View, Text, TouchableOpacity } from "react-native";
+import AnnualDayRegistration from "./AnnualDayRegistration";
 
 function Header() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -30,6 +31,7 @@ function Header() {
 
   const [finalOrderAmount, setFinalOrderAmount] = useState(0);
   const [discountSettings, setDiscountSettings] = useState(null);
+  const [isAnnualDayPopupOpen, setIsAnnualDayPopupOpen] = useState(false);
 
   const [deliveryModes, setDeliveryModes] = useState([
     "dinein",
@@ -53,6 +55,14 @@ function Header() {
 
   const handleCartClick = () => {
     setIsPopupOpen(true);
+  };
+
+  const handleAnnualDayClick = () => {
+    setIsAnnualDayPopupOpen(true);
+  };
+
+  const handleCloseAnnualDayPopup = () => {
+    setIsAnnualDayPopupOpen(false);
   };
 
   const formatPhoneNumber = (value) => {
@@ -722,6 +732,10 @@ function Header() {
       {isLoading && <Loader />}
       {isSuccessPopupOpen && <SuccessPopup />}
       {isPaymentPopupOpen && <PaymentPopup />}
+      <AnnualDayRegistration 
+        isOpen={isAnnualDayPopupOpen} 
+        onClose={handleCloseAnnualDayPopup} 
+      />
 
       <style>
         {`
@@ -826,6 +840,29 @@ function Header() {
                   style={{ color: "#28A745" }}
                 />
               </a>
+              <button
+                onClick={handleAnnualDayClick}
+                className="annual-day-icon"
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  padding: "8px",
+                  borderRadius: "50%",
+                  transition: "all 0.3s ease",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+                title="Annual Day Registration"
+              >
+                <FaCalendarAlt
+                  style={{
+                    color: "#ff6b6b",
+                    fontSize: "20px"
+                  }}
+                />
+              </button>
               {/* <div
                 style={{
                   position: "relative",

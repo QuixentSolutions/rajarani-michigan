@@ -37,6 +37,8 @@ const AdminRegistrations = ({ registrations, fetchRegistrations, searchRegistrat
               <th>Mobile Number</th>
               <th>Event Date</th>
               <th>Event Name</th>
+              <th>Quantity</th>
+              <th>Food Preference</th>
             </tr>
           </thead>
           <tbody>
@@ -54,11 +56,26 @@ const AdminRegistrations = ({ registrations, fetchRegistrations, searchRegistrat
                       : "N/A"}
                   </td>
                   <td>{reg.eventName}</td>
+                  <td>{reg.quantity || "1"}</td>
+                  <td>
+                    <span 
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: "12px",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        backgroundColor: (reg.foodPreference === "veg" || reg.foodPreference === "vegetarian") ? "#d4edda" : "#f8d7da",
+                        color: (reg.foodPreference === "veg" || reg.foodPreference === "vegetarian") ? "#155724" : "#721c24"
+                      }}
+                    >
+                      {(reg.foodPreference === "veg" || reg.foodPreference === "vegetarian") ? "🥗 Vegetarian" : "🍗 Non-Vegetarian"}
+                    </span>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="empty-state">
+                <td colSpan="7" className="empty-state">
                   No registrations found
                 </td>
               </tr>

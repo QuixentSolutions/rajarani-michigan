@@ -22,6 +22,17 @@ const registrationSchema = new mongoose.Schema({
     type: String,
   },
   mobile: String,
+  quantity: {
+    type: String,
+    default: "1",
+    trim: true,
+  },
+  foodPreference: {
+    type: String,
+    enum: ["veg", "non-veg"],
+    default: "veg",
+    trim: true,
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

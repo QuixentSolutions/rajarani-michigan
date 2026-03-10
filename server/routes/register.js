@@ -40,6 +40,64 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Payment processing endpoint for registrations
+router.post("/payment", async (req, res) => {
+  try {
+    const { opaqueData, amount, registrationId } = req.body;
+
+    // Create payment request to Authorize.net
+    const paymentData = {
+      createTransactionRequest: {
+        merchantAuthentication: {
+          name: process.env.AUTHORIZE_API_LOGIN_ID,
+          transactionKey: process.env.AUTHORIZE_TRANSACTION_KEY,
+        },
+        refTransId: registrationId,
+        transactionRequest: {
+          transactionType: "authCaptureTransaction",
+          amount: amount.toString(),
+          payment: {
+            opaqueData: {
+              dataDescriptor: opaqueData.dataDescriptor,
+              dataValue: opaqueData.dataValue,
+            },
+          },
+        },
+      },
+    };
+
+    // Send payment request to Authorize.net
+    const response = await fetch("https://api.authorize.net/xml/v1/request.api", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(paymentData),
+    });
+
+    const result = await response.json();
+
+    if (result.transactionResponse && result.transactionResponse.responseCode === "1") {
+      // Payment successful - return transaction details
+      // Registration will be saved by frontend after successful payment
+      res.status(200).json({ 
+        success: true, 
+        message: "Payment processed successfully",
+        transactionId: result.transactionResponse.transId
+      });
+    } else {
+      // Payment failed
+      res.status(400).json({ 
+        success: false, 
+        message: result.transactionResponse?.errors?.[0]?.errorText || "Payment failed" 
+      });
+    }
+  } catch (err) {
+    console.error("Payment processing error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get("/", async (req, res) => {
   try {
     const orders = await Registration.find().sort({ createdAt: -1 });

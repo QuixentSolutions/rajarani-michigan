@@ -269,6 +269,76 @@
   }
 }
 
+/* Payment Summary Styles */
+.payment-summary {
+  margin-top: 15px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.item-row {
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+}
+
+.summary-row span {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+  min-width: 150px;
+}
+
+.item-row span {
+  font-weight: 500;
+  color: #555;
+  font-size: 13px;
+}
+
+.summary-input {
+  width: 120px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  text-align: right;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.item-input {
+  background-color: #fafafa;
+  border-color: #e0e0e0;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.total-row {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #ddd;
+}
+
+.total-input {
+  background-color: #e3f2fd;
+  border-color: #2196f3;
+  color: #1976d2;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.total-row span {
+  color: #1976d2;
+  font-size: 16px;
+  font-weight: 700;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .annual-day-modal {

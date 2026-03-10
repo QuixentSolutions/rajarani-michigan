@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { clearCart, rehydrateCart } from "../cartSlice";
-import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaCalendarAlt } from "react-icons/fa";
+import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
 // import AnniversaryPopup from "./AnniversaryPopup";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import { View, Text, TouchableOpacity } from "react-native";
@@ -844,24 +844,24 @@ function Header() {
                 onClick={handleAnnualDayClick}
                 className="annual-day-icon"
                 style={{
-                  border: "none",
-                  background: "transparent",
+                  border: "1px solid #ff6b6b",
+                  background: "#fff",
                   cursor: "pointer",
-                  padding: "8px",
-                  borderRadius: "50%",
+                  padding: "6px 10px",
+                  borderRadius: "6px",
                   transition: "all 0.3s ease",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center"
+                  gap: "4px",
+                  fontSize: "10px",
+                  fontWeight: "600",
+                  color: "#ff6b6b",
+                  whiteSpace: "nowrap",
+                  minWidth: "auto"
                 }}
                 title="Annual Day Registration"
               >
-                <FaCalendarAlt
-                  style={{
-                    color: "#ff6b6b",
-                    fontSize: "20px"
-                  }}
-                />
+                <span>Annual Day Registration</span>
               </button>
               {/* <div
                 style={{

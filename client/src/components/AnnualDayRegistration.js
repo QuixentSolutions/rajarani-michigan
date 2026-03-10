@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./AnnualDayRegistration.css";
-import { FaCalendarAlt, FaUtensils, FaTimes } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
 
 function AnnualDayRegistration({ isOpen, onClose }) {
   const VEG_PRICE = 15;
@@ -93,9 +93,6 @@ function AnnualDayRegistration({ isOpen, onClose }) {
       setIsLoading(true);
       
       try {
-        // Calculate total people for this registration
-        const totalPeople = parseInt(formData.vegCount || 0) + parseInt(formData.nonVegCount || 0);
-        
         // Generate registration ID
         const registrationId = `REG-${Math.floor(10000 + Math.random() * 90000)}`;
         
@@ -301,9 +298,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
           </button>
           
           <div className="modal-header">
-            <FaCalendarAlt className="header-icon" />
             <h2>Annual Day Registration</h2>
-            <p>Join us for our special Annual Day celebration!</p>
           </div>
 
           <form onSubmit={handleSubmit} className="registration-form">
@@ -374,7 +369,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
               <div className="food-count-container" style={{display: 'flex', gap: '20px', marginBottom: '15px'}}>
                 <div className="food-count-item" style={{flex: 1}}>
                   <label htmlFor="vegCount" style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px'}}>
-                    <FaUtensils style={{color: '#28a745'}} /> Vegetarian
+                    Vegetarian
                   </label>
                   <input
                     type="number"
@@ -394,7 +389,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
                 
                 <div className="food-count-item" style={{flex: 1}}>
                   <label htmlFor="nonVegCount" style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px'}}>
-                    <FaUtensils style={{color: '#dc3545'}} /> Non-Vegetarian
+                    Non-Vegetarian
                   </label>
                   <input
                     type="number"

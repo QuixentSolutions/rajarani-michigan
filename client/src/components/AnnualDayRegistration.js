@@ -7,9 +7,9 @@ function AnnualDayRegistration({ isOpen, onClose }) {
     name: "",
     email: "",
     mobileNumber: "",
-    date: "",
-    foodPreference: "veg",
-    quantity: "1"
+    date: "2026-05-12",
+    vegCount: "1",
+    nonVegCount: "0"
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -31,12 +31,17 @@ function AnnualDayRegistration({ isOpen, onClose }) {
       newErrors.mobileNumber = "Valid mobile number is required";
     }
     
-    if (!formData.date) {
-      newErrors.date = "Date is required";
+    const totalPeople = parseInt(formData.vegCount || 0) + parseInt(formData.nonVegCount || 0);
+    if (totalPeople < 1) {
+      newErrors.vegCount = "At least one person must be registered";
     }
     
-    if (!formData.quantity || formData.quantity < 1) {
-      newErrors.quantity = "Quantity must be at least 1";
+    if (parseInt(formData.vegCount || 0) < 0) {
+      newErrors.vegCount = "Veg count cannot be negative";
+    }
+    
+    if (parseInt(formData.nonVegCount || 0) < 0) {
+      newErrors.nonVegCount = "Non-veg count cannot be negative";
     }
     
     setErrors(newErrors);
@@ -66,6 +71,9 @@ function AnnualDayRegistration({ isOpen, onClose }) {
       setIsLoading(true);
       
       try {
+        // Calculate total people for this registration
+        const totalPeople = parseInt(formData.vegCount || 0) + parseInt(formData.nonVegCount || 0);
+        
         // Save to database using the same endpoint as anniversary
         const dbResponse = await fetch("/register", {
           method: "POST",
@@ -78,8 +86,9 @@ function AnnualDayRegistration({ isOpen, onClose }) {
             mobile: formData.mobileNumber.trim(),
             eventDate: formData.date,
             eventName: "Annual Day Celebration",
-            foodPreference: formData.foodPreference,
-            quantity: formData.quantity
+            vegCount: parseInt(formData.vegCount) || 0,
+            nonVegCount: parseInt(formData.nonVegCount) || 0,
+            quantity: totalPeople.toString()
           }),
         });
 
@@ -98,9 +107,9 @@ function AnnualDayRegistration({ isOpen, onClose }) {
           name: "",
           email: "",
           mobileNumber: "",
-          date: "",
-          foodPreference: "veg",
-          quantity: "1"
+          date: "2026-05-12",
+          vegCount: "1",
+          nonVegCount: "0"
         });
         onClose();
         
@@ -196,66 +205,67 @@ function AnnualDayRegistration({ isOpen, onClose }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="date">Registration Date *</label>
+            <label htmlFor="date">Event Date</label>
             <input
               type="date"
               id="date"
               name="date"
               value={formData.date}
               onChange={handleChange}
-              className={errors.date ? "error" : ""}
-              min={new Date().toISOString().split('T')[0]}
+              readOnly
+              style={{backgroundColor: '#f8f9fa', cursor: 'not-allowed'}}
               disabled={isLoading}
             />
-            {errors.date && <span className="error-message">{errors.date}</span>}
+            <small style={{color: '#666', fontSize: '12px'}}>Annual Day Celebration - May 12, 2026</small>
           </div>
 
           <div className="form-group">
-            <label htmlFor="quantity">Number of People *</label>
-            <input
-              type="number"
-              id="quantity"
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleChange}
-              className={errors.quantity ? "error" : ""}
-              min="1"
-              max="10"
-              placeholder="How many people?"
-              disabled={isLoading}
-            />
-            {errors.quantity && <span className="error-message">{errors.quantity}</span>}
-          </div>
-
-          <div className="form-group">
-            <label>Food Preference *</label>
-            <div className="food-preference">
-              <label className="radio-label">
+            <label>Food Preferences *</label>
+            
+            <div className="food-count-container" style={{display: 'flex', gap: '20px', marginBottom: '15px'}}>
+              <div className="food-count-item" style={{flex: 1}}>
+                <label htmlFor="vegCount" style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px'}}>
+                  <FaUtensils style={{color: '#28a745'}} /> Vegetarian
+                </label>
                 <input
-                  type="radio"
-                  name="foodPreference"
-                  value="veg"
-                  checked={formData.foodPreference === "veg"}
+                  type="number"
+                  id="vegCount"
+                  name="vegCount"
+                  value={formData.vegCount}
                   onChange={handleChange}
+                  className={errors.vegCount ? "error" : ""}
+                  min="0"
+                  max="10"
+                  placeholder="0"
                   disabled={isLoading}
+                  style={{width: '100%', padding: '10px', border: errors.vegCount ? '1px solid #dc3545' : '1px solid #ddd', borderRadius: '5px'}}
                 />
-                <span className="radio-custom">
-                  <FaUtensils /> Vegetarian
-                </span>
-              </label>
-              <label className="radio-label">
+                {errors.vegCount && <span className="error-message">{errors.vegCount}</span>}
+              </div>
+              
+              <div className="food-count-item" style={{flex: 1}}>
+                <label htmlFor="nonVegCount" style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px'}}>
+                  <FaUtensils style={{color: '#dc3545'}} /> Non-Vegetarian
+                </label>
                 <input
-                  type="radio"
-                  name="foodPreference"
-                  value="non-veg"
-                  checked={formData.foodPreference === "non-veg"}
+                  type="number"
+                  id="nonVegCount"
+                  name="nonVegCount"
+                  value={formData.nonVegCount}
                   onChange={handleChange}
+                  className={errors.nonVegCount ? "error" : ""}
+                  min="0"
+                  max="10"
+                  placeholder="0"
                   disabled={isLoading}
+                  style={{width: '100%', padding: '10px', border: errors.nonVegCount ? '1px solid #dc3545' : '1px solid #ddd', borderRadius: '5px'}}
                 />
-                <span className="radio-custom">
-                  <FaUtensils /> Non-Vegetarian
-                </span>
-              </label>
+                {errors.nonVegCount && <span className="error-message">{errors.nonVegCount}</span>}
+              </div>
+            </div>
+            
+            <div style={{fontSize: '14px', color: '#28a745', fontWeight: 'bold'}}>
+              Total People: {parseInt(formData.vegCount || 0) + parseInt(formData.nonVegCount || 0)}
             </div>
           </div>
 

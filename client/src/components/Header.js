@@ -8,7 +8,6 @@ import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
 // import AnniversaryPopup from "./AnniversaryPopup";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import { View, Text, TouchableOpacity } from "react-native";
-import AnnualDayRegistration from "./AnnualDayRegistration";
 
 function Header() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -31,7 +30,6 @@ function Header() {
 
   const [finalOrderAmount, setFinalOrderAmount] = useState(0);
   const [discountSettings, setDiscountSettings] = useState(null);
-  const [isAnnualDayPopupOpen, setIsAnnualDayPopupOpen] = useState(false);
 
   const [deliveryModes, setDeliveryModes] = useState([
     "dinein",
@@ -55,14 +53,6 @@ function Header() {
 
   const handleCartClick = () => {
     setIsPopupOpen(true);
-  };
-
-  const handleAnnualDayClick = () => {
-    setIsAnnualDayPopupOpen(true);
-  };
-
-  const handleCloseAnnualDayPopup = () => {
-    setIsAnnualDayPopupOpen(false);
   };
 
   const formatPhoneNumber = (value) => {
@@ -732,10 +722,6 @@ function Header() {
       {isLoading && <Loader />}
       {isSuccessPopupOpen && <SuccessPopup />}
       {isPaymentPopupOpen && <PaymentPopup />}
-      <AnnualDayRegistration 
-        isOpen={isAnnualDayPopupOpen} 
-        onClose={handleCloseAnnualDayPopup} 
-      />
 
       <style>
         {`
@@ -840,29 +826,6 @@ function Header() {
                   style={{ color: "#28A745" }}
                 />
               </a>
-              <button
-                onClick={handleAnnualDayClick}
-                className="annual-day-icon"
-                style={{
-                  border: "1px solid #ff6b6b",
-                  background: "#fff",
-                  cursor: "pointer",
-                  padding: "6px 10px",
-                  borderRadius: "6px",
-                  transition: "all 0.3s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                  fontSize: "10px",
-                  fontWeight: "600",
-                  color: "#ff6b6b",
-                  whiteSpace: "nowrap",
-                  minWidth: "auto"
-                }}
-                title="Annual Day Registration"
-              >
-                <span>Annual Day Registration</span>
-              </button>
               {/* <div
                 style={{
                   position: "relative",

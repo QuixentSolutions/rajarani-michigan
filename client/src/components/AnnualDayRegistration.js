@@ -407,10 +407,6 @@ function AnnualDayRegistration({ isOpen, onClose }) {
                   {errors.nonVegCount && <span className="error-message">{errors.nonVegCount}</span>}
                 </div>
               </div>
-              
-              <div style={{fontSize: '14px', color: '#28a745', fontWeight: 'bold'}}>
-                Total People: {parseInt(formData.vegCount || 0) + parseInt(formData.nonVegCount || 0)}
-              </div>
             </div>
 
             {/* Payment Summary */}
@@ -477,7 +473,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
             </div>
 
             <button type="submit" className="submit-btn" disabled={isLoading || totalAmount === 0}>
-              {isLoading ? "Processing..." : `Pay $${totalAmount.toFixed(2)} & Register`}
+              {isLoading ? "Processing..." : "Pay"}
             </button>
           </form>
         </div>

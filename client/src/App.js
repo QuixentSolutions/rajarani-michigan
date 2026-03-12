@@ -20,9 +20,9 @@ const HomePage = () => {
   return (
     <>
       <Header />
-      <AnnualDayBanner />
       <ReviewBanner />
       <Hero />
+      <AnnualDayBanner />
       <Discount />
       {/* <RegistrationCard /> */}
       <MenuCards />

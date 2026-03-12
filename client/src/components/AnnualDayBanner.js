@@ -30,8 +30,6 @@ function AnnualDayBanner() {
             width: '100%',
             maxWidth: '500px',
             height: 'auto',
-            maxHeight: '500px',
-            objectFit: 'cover',
             borderRadius: '8px',
             boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
             transition: 'transform 0.3s ease'

@@ -1,31 +1,32 @@
-#!/bin/bas:qw
-#h
+#!/bin/bash
 set -e
 
-echo "🚀 Stopping all PM2 processes..."
-pm2 stop all || true
-pm2 delete all || true
+APP_BACKEND="server"
+APP_FRONTEND="client"
 
-echo "📥 Pulling latest code from Git..."
+echo "📥 Pulling latest code..."
 cd /home/ubuntu/rajarani/rajarani-michigan
-git pull
+git pull origin main
 
-echo "🛠 Installing backend dependencies..."
+# --- Backend ---
+echo "🛠 Installing backend..."
 cd server
 npm install
-echo "▶️ Starting backend with PM2..."
-pm2 start npm --name server -- run start
 
-echo "🛠 Installing frontend dependencies..."
+echo "🔄 Restarting backend..."
+pm2 restart $APP_BACKEND || pm2 start npm --name $APP_BACKEND -- run start
+
+# --- Frontend ---
+echo "🛠 Installing frontend..."
 cd ../client
 npm install
 
-echo "🏗 Building frontend... (this may take a few minutes)"
+echo "🏗 Building frontend..."
 npm run build
 
-echo "▶️ Starting frontend with PM2..."
-pm2 start npm --name client -- run start
+echo "🔄 Restarting frontend..."
+pm2 restart $APP_FRONTEND || pm2 start npm --name $APP_FRONTEND -- run start
 
-echo "✅ Deployment complete!"
+pm2 save
 
-echo "lsof -i :5001 --> Pls kill the process manually if needed"
+echo "✅ Deployment complete (clean & safe)"

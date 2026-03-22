@@ -6,7 +6,7 @@ import Header from "./components/Header";
 import Hero from "./components/Hero";
 import Discount from "./components/Discount";
 import MenuCards from "./components/MenuCards";
-import RegistrationCard from "./components/RegistrationCard";
+// import RegistrationCard from "./components/RegistrationCard";
 import Footer from "./components/Footer";
 import WhatsAppFloatingButton from "./components/WhatsAppFloatingButton";
 import ReviewBanner from "./components/ReviewBanner";
@@ -21,8 +21,8 @@ const HomePage = () => {
     <>
       <Header />
       <ReviewBanner />
-      <Hero />
       <AnnualDayBanner />
+      <Hero />
       <Discount />
       {/* <RegistrationCard /> */}
       <MenuCards />

@@ -1441,12 +1441,23 @@ button[aria-label="Cart"]{
     font-size: 36px;
   }
 
+.annual-day-icon:hover {
+  background-color: rgba(255, 107, 107, 0.1);
+  transform: scale(1.1);
+}
+
 @media (max-width: 769px) {
   button[aria-label="Cart"] {
     font-size: 24px;
   }
   .icon-header{
     font-size: 24px;
+  }
+  .annual-day-icon {
+    padding: 6px;
+  }
+  .annual-day-icon svg {
+    font-size: 18px !important;
   }
 }
 

@@ -10,6 +10,7 @@ import RegistrationCard from "./components/RegistrationCard";
 import Footer from "./components/Footer";
 import WhatsAppFloatingButton from "./components/WhatsAppFloatingButton";
 import ReviewBanner from "./components/ReviewBanner";
+import AnnualDayBanner from "./components/AnnualDayBanner";
 import AdminApp from "./components/AdminApp";
 
 import "./App.css";
@@ -21,6 +22,7 @@ const HomePage = () => {
       <Header />
       <ReviewBanner />
       <Hero />
+      <AnnualDayBanner />
       <Discount />
       {/* <RegistrationCard /> */}
       <MenuCards />

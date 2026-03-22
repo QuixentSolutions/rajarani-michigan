@@ -37,6 +37,8 @@ const AdminRegistrations = ({ registrations, fetchRegistrations, searchRegistrat
               <th>Mobile Number</th>
               <th>Event Date</th>
               <th>Event Name</th>
+              <th>Quantity</th>
+              <th>Food Preference</th>
             </tr>
           </thead>
           <tbody>
@@ -54,11 +56,104 @@ const AdminRegistrations = ({ registrations, fetchRegistrations, searchRegistrat
                       : "N/A"}
                   </td>
                   <td>{reg.eventName}</td>
+                  <td>{reg.quantity || "1"}</td>
+                  <td>
+                    {(() => {
+                      const vegCount = reg.vegCount || 0;
+                      const nonVegCount = reg.nonVegCount || 0;
+                      const quantity = parseInt(reg.quantity) || 1;
+                      
+                      // For new registrations with proper veg/non-veg counts
+                      if (vegCount > 0 && nonVegCount > 0) {
+                        return (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span 
+                              style={{
+                                padding: "4px 8px",
+                                borderRadius: "12px",
+                                fontSize: "12px",
+                                fontWeight: "600",
+                                backgroundColor: "#d4edda",
+                                color: "#155724",
+                                display: 'inline-block'
+                              }}
+                            >
+                              🥗 {vegCount} Veg
+                            </span>
+                            <span 
+                              style={{
+                                padding: "4px 8px",
+                                borderRadius: "12px",
+                                fontSize: "12px",
+                                fontWeight: "600",
+                                backgroundColor: "#f8d7da",
+                                color: "#721c24",
+                                display: 'inline-block'
+                              }}
+                            >
+                              🍗 {nonVegCount} Non-Veg
+                            </span>
+                          </div>
+                        );
+                      }
+                      // For registrations with only veg or only non-veg
+                      else if (vegCount > 0) {
+                        return (
+                          <span 
+                            style={{
+                              padding: "4px 8px",
+                              borderRadius: "12px",
+                              fontSize: "12px",
+                              fontWeight: "600",
+                              backgroundColor: "#d4edda",
+                              color: "#155724"
+                            }}
+                          >
+                            🥗 {vegCount} Vegetarian
+                          </span>
+                        );
+                      }
+                      // For registrations with only non-veg
+                      else if (nonVegCount > 0) {
+                        return (
+                          <span 
+                            style={{
+                              padding: "4px 8px",
+                              borderRadius: "12px",
+                              fontSize: "12px",
+                              fontWeight: "600",
+                              backgroundColor: "#f8d7da",
+                              color: "#721c24"
+                            }}
+                          >
+                            🍗 {nonVegCount} Non-Vegetarian
+                          </span>
+                        );
+                      }
+                      // For legacy registrations with no veg/non-veg counts, assume vegetarian
+                      else {
+                        return (
+                          <span 
+                            style={{
+                              padding: "4px 8px",
+                              borderRadius: "12px",
+                              fontSize: "12px",
+                              fontWeight: "600",
+                              backgroundColor: "#d4edda",
+                              color: "#155724"
+                            }}
+                          >
+                            🥗 {quantity} Vegetarian
+                          </span>
+                        );
+                      }
+                    })()}
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="empty-state">
+                <td colSpan="7" className="empty-state">
                   No registrations found
                 </td>
               </tr>

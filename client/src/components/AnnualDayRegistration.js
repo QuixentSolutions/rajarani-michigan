@@ -3,8 +3,8 @@ import "./AnnualDayRegistration.css";
 import { FaTimes } from "react-icons/fa";
 
 function AnnualDayRegistration({ isOpen, onClose }) {
-  const VEG_PRICE = 15;
-  const NON_VEG_PRICE = 20;
+  const VEG_PRICE = 8;
+  const NON_VEG_PRICE = 9;
   const SALES_TAX_RATE = 0.06; // 6%
 
   const [formData, setFormData] = useState({
@@ -13,7 +13,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
     mobileNumber: "",
     date: "2026-05-12",
     vegCount: "1",
-    nonVegCount: "0"
+    nonVegCount: "0",
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +28,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
   const calculateTotals = () => {
     const vegCount = parseInt(formData.vegCount) || 0;
     const nonVegCount = parseInt(formData.nonVegCount) || 0;
-    const subTotal = (vegCount * VEG_PRICE) + (nonVegCount * NON_VEG_PRICE);
+    const subTotal = vegCount * VEG_PRICE + nonVegCount * NON_VEG_PRICE;
     const salesTax = subTotal * SALES_TAX_RATE;
     const totalAmount = subTotal + salesTax;
     return { subTotal, salesTax, totalAmount };
@@ -38,66 +38,69 @@ function AnnualDayRegistration({ isOpen, onClose }) {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = "Name is required";
     }
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email || !emailRegex.test(formData.email)) {
       newErrors.email = "Valid email is required";
     }
-    
+
     const mobileRegex = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}$/;
     if (!formData.mobileNumber || !mobileRegex.test(formData.mobileNumber)) {
       newErrors.mobileNumber = "Valid mobile number is required";
     }
-    
-    const totalPeople = parseInt(formData.vegCount || 0) + parseInt(formData.nonVegCount || 0);
+
+    const totalPeople =
+      parseInt(formData.vegCount || 0) + parseInt(formData.nonVegCount || 0);
     if (totalPeople < 1) {
       newErrors.vegCount = "At least one person must be registered";
     }
-    
+
     if (parseInt(formData.vegCount || 0) < 0) {
       newErrors.vegCount = "Veg count cannot be negative";
     }
-    
+
     if (parseInt(formData.nonVegCount || 0) < 0) {
       newErrors.nonVegCount = "Non-veg count cannot be negative";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
+
     // Clear error for this field when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ""
+        [name]: "",
       }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       setIsLoading(true);
-      
+
       try {
         // Generate registration ID
         const registrationId = `REG-${Math.floor(10000 + Math.random() * 90000)}`;
-        
+
         // Ask for confirmation
-        let userConfirmed = window.confirm("Ready to finalize your registration?");
+        let userConfirmed = window.confirm(
+          "Ready to finalize your registration?",
+        );
 
         if (!userConfirmed) {
           // User clicked "Cancel", stop processing
@@ -109,7 +112,6 @@ function AnnualDayRegistration({ isOpen, onClose }) {
         setSuccessOrderId(registrationId);
         setIsPaymentPopupOpen(true);
         // Don't close main modal yet - wait until payment is complete
-
       } catch (err) {
         console.error("Registration process error:", err);
         alert(`Registration Failed: ${err.message}`);
@@ -133,11 +135,11 @@ function AnnualDayRegistration({ isOpen, onClose }) {
   const handleMobileChange = (e) => {
     const input = e.target.value;
     if (!input.startsWith("+1") && input !== "") {
-      setFormData(prev => ({ ...prev, mobileNumber: "+1" }));
+      setFormData((prev) => ({ ...prev, mobileNumber: "+1" }));
       return;
     }
     const formatted = formatPhoneNumber(input);
-    setFormData(prev => ({ ...prev, mobileNumber: formatted }));
+    setFormData((prev) => ({ ...prev, mobileNumber: formatted }));
   };
 
   const sendPayment = async (e) => {
@@ -218,8 +220,10 @@ function AnnualDayRegistration({ isOpen, onClose }) {
 
       if (paymentResult.ok && paymentData.success) {
         // Payment successful - now save registration
-        const totalPeople = parseInt(formData.vegCount || 0) + parseInt(formData.nonVegCount || 0);
-        
+        const totalPeople =
+          parseInt(formData.vegCount || 0) +
+          parseInt(formData.nonVegCount || 0);
+
         const registrationData = {
           orderNumber: successOrderId,
           name: formData.name.trim(),
@@ -251,15 +255,17 @@ function AnnualDayRegistration({ isOpen, onClose }) {
 
         if (!dbResponse.ok) {
           throw new Error(
-            dbData.message || "Failed to save registration to database."
+            dbData.message || "Failed to save registration to database.",
           );
         }
 
         // Payment and registration successful
         setIsLoading(false);
         setIsPaymentPopupOpen(false);
-        alert("Annual Day Registration successful! Payment completed. Confirmation email sent.");
-        
+        alert(
+          "Annual Day Registration successful! Payment completed. Confirmation email sent.",
+        );
+
         // Reset form and close both modals
         setFormData({
           name: "",
@@ -267,7 +273,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
           mobileNumber: "",
           date: "2026-05-12",
           vegCount: "1",
-          nonVegCount: "0"
+          nonVegCount: "0",
         });
         setCardNumber("");
         setExpMonth("");
@@ -278,7 +284,9 @@ function AnnualDayRegistration({ isOpen, onClose }) {
         // Payment failed
         setIsLoading(false);
         setIsPaymentPopupOpen(false);
-        alert(`Payment Failed: ${paymentData.message || 'Payment could not be processed'}`);
+        alert(
+          `Payment Failed: ${paymentData.message || "Payment could not be processed"}`,
+        );
       }
     } catch (error) {
       setIsLoading(false);
@@ -296,7 +304,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
           <button className="close-btn" onClick={onClose}>
             <FaTimes />
           </button>
-          
+
           <div className="modal-header">
             <h2>Annual Day Registration</h2>
           </div>
@@ -315,7 +323,9 @@ function AnnualDayRegistration({ isOpen, onClose }) {
                 placeholder="Enter your full name"
                 disabled={isLoading}
               />
-              {errors.name && <span className="error-message">{errors.name}</span>}
+              {errors.name && (
+                <span className="error-message">{errors.name}</span>
+              )}
             </div>
 
             <div className="form-group">
@@ -330,7 +340,9 @@ function AnnualDayRegistration({ isOpen, onClose }) {
                 placeholder="Enter your email"
                 disabled={isLoading}
               />
-              {errors.email && <span className="error-message">{errors.email}</span>}
+              {errors.email && (
+                <span className="error-message">{errors.email}</span>
+              )}
             </div>
 
             <div className="form-group">
@@ -345,7 +357,9 @@ function AnnualDayRegistration({ isOpen, onClose }) {
                 placeholder="+1 (555) 123-4567"
                 disabled={isLoading}
               />
-              {errors.mobileNumber && <span className="error-message">{errors.mobileNumber}</span>}
+              {errors.mobileNumber && (
+                <span className="error-message">{errors.mobileNumber}</span>
+              )}
             </div>
 
             <div className="form-group">
@@ -357,18 +371,31 @@ function AnnualDayRegistration({ isOpen, onClose }) {
                 value={formData.date}
                 onChange={handleChange}
                 readOnly
-                style={{backgroundColor: '#f8f9fa', cursor: 'not-allowed'}}
+                style={{ backgroundColor: "#f8f9fa", cursor: "not-allowed" }}
                 disabled={isLoading}
               />
-              <small style={{color: '#666', fontSize: '12px'}}>Annual Day Celebration - May 12, 2026</small>
+              <small style={{ color: "#666", fontSize: "12px" }}>
+                Annual Day Celebration - May 12, 2026
+              </small>
             </div>
 
             <div className="form-group">
               <label>Food Preferences *</label>
-              
-              <div className="food-count-container" style={{display: 'flex', gap: '20px', marginBottom: '15px'}}>
-                <div className="food-count-item" style={{flex: 1}}>
-                  <label htmlFor="vegCount" style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px'}}>
+
+              <div
+                className="food-count-container"
+                style={{ display: "flex", gap: "20px", marginBottom: "15px" }}
+              >
+                <div className="food-count-item" style={{ flex: 1 }}>
+                  <label
+                    htmlFor="vegCount"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      marginBottom: "5px",
+                    }}
+                  >
                     Vegetarian
                   </label>
                   <input
@@ -382,13 +409,30 @@ function AnnualDayRegistration({ isOpen, onClose }) {
                     max="10"
                     placeholder="0"
                     disabled={isLoading}
-                    style={{width: '100%', padding: '10px', border: errors.vegCount ? '1px solid #dc3545' : '1px solid #ddd', borderRadius: '5px'}}
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      border: errors.vegCount
+                        ? "1px solid #dc3545"
+                        : "1px solid #ddd",
+                      borderRadius: "5px",
+                    }}
                   />
-                  {errors.vegCount && <span className="error-message">{errors.vegCount}</span>}
+                  {errors.vegCount && (
+                    <span className="error-message">{errors.vegCount}</span>
+                  )}
                 </div>
-                
-                <div className="food-count-item" style={{flex: 1}}>
-                  <label htmlFor="nonVegCount" style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px'}}>
+
+                <div className="food-count-item" style={{ flex: 1 }}>
+                  <label
+                    htmlFor="nonVegCount"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      marginBottom: "5px",
+                    }}
+                  >
                     Non-Vegetarian
                   </label>
                   <input
@@ -402,9 +446,18 @@ function AnnualDayRegistration({ isOpen, onClose }) {
                     max="10"
                     placeholder="0"
                     disabled={isLoading}
-                    style={{width: '100%', padding: '10px', border: errors.nonVegCount ? '1px solid #dc3545' : '1px solid #ddd', borderRadius: '5px'}}
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      border: errors.nonVegCount
+                        ? "1px solid #dc3545"
+                        : "1px solid #ddd",
+                      borderRadius: "5px",
+                    }}
                   />
-                  {errors.nonVegCount && <span className="error-message">{errors.nonVegCount}</span>}
+                  {errors.nonVegCount && (
+                    <span className="error-message">{errors.nonVegCount}</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -414,71 +467,81 @@ function AnnualDayRegistration({ isOpen, onClose }) {
               <label>Payment Summary</label>
               <div className="payment-summary">
                 {/* Individual Items */}
-                {(parseInt(formData.vegCount) > 0 || parseInt(formData.nonVegCount) > 0) && (
+                {(parseInt(formData.vegCount) > 0 ||
+                  parseInt(formData.nonVegCount) > 0) && (
                   <>
                     {parseInt(formData.vegCount) > 0 && (
                       <div className="summary-row item-row">
-                        <span>Vegetarian ({formData.vegCount} × ${VEG_PRICE}):</span>
-                        <input 
-                          type="text" 
-                          value={`$${(parseInt(formData.vegCount) * VEG_PRICE).toFixed(2)}`} 
-                          readOnly 
+                        <span>
+                          Vegetarian ({formData.vegCount} × ${VEG_PRICE}):
+                        </span>
+                        <input
+                          type="text"
+                          value={`$${(parseInt(formData.vegCount) * VEG_PRICE).toFixed(2)}`}
+                          readOnly
                           className="summary-input item-input"
                         />
                       </div>
                     )}
                     {parseInt(formData.nonVegCount) > 0 && (
                       <div className="summary-row item-row">
-                        <span>Non-Vegetarian ({formData.nonVegCount} × ${NON_VEG_PRICE}):</span>
-                        <input 
-                          type="text" 
-                          value={`$${(parseInt(formData.nonVegCount) * NON_VEG_PRICE).toFixed(2)}`} 
-                          readOnly 
+                        <span>
+                          Non-Vegetarian ({formData.nonVegCount} × $
+                          {NON_VEG_PRICE}):
+                        </span>
+                        <input
+                          type="text"
+                          value={`$${(parseInt(formData.nonVegCount) * NON_VEG_PRICE).toFixed(2)}`}
+                          readOnly
                           className="summary-input item-input"
                         />
                       </div>
                     )}
                   </>
                 )}
-                
+
                 {/* Totals */}
                 <div className="summary-row">
                   <span>Sub Total:</span>
-                  <input 
-                    type="text" 
-                    value={`$${subTotal.toFixed(2)}`} 
-                    readOnly 
+                  <input
+                    type="text"
+                    value={`$${subTotal.toFixed(2)}`}
+                    readOnly
                     className="summary-input"
                   />
                 </div>
                 <div className="summary-row">
                   <span>Sales Tax ({(SALES_TAX_RATE * 100).toFixed(0)}%):</span>
-                  <input 
-                    type="text" 
-                    value={`$${salesTax.toFixed(2)}`} 
-                    readOnly 
+                  <input
+                    type="text"
+                    value={`$${salesTax.toFixed(2)}`}
+                    readOnly
                     className="summary-input"
                   />
                 </div>
                 <div className="summary-row total-row">
                   <span>Total Amount:</span>
-                  <input 
-                    type="text" 
-                    value={`$${totalAmount.toFixed(2)}`} 
-                    readOnly 
+                  <input
+                    type="text"
+                    value={`$${totalAmount.toFixed(2)}`}
+                    readOnly
                     className="summary-input total-input"
                   />
                 </div>
               </div>
             </div>
 
-            <button type="submit" className="submit-btn" disabled={isLoading || totalAmount === 0}>
+            <button
+              type="submit"
+              className="submit-btn"
+              disabled={isLoading || totalAmount === 0}
+            >
               {isLoading ? "Processing..." : "Pay"}
             </button>
           </form>
         </div>
       </div>
-      
+
       {/* Payment Popup */}
       {isPaymentPopupOpen && (
         <div className="payment-overlay">
@@ -604,7 +667,9 @@ function AnnualDayRegistration({ isOpen, onClose }) {
               border: none;
               border-radius: 8px;
               cursor: pointer;
-              transition: background 0.3s ease, transform 0.1s ease;
+              transition:
+                background 0.3s ease,
+                transform 0.1s ease;
             }
 
             .payment-button:hover {

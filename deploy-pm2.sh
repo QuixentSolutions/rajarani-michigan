@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-APP_BACKEND="server"
-APP_FRONTEND="client"
+APP_BACKEND="rajarani-server"
+APP_FRONTEND="rajarani-client"
 
 echo "📥 Pulling latest code..."
 cd /home/ubuntu/rajarani/rajarani-michigan

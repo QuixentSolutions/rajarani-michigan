@@ -51,22 +51,55 @@ router.post("/payment", async (req, res) => {
       registrationId,
     });
 
+    const API_LOGIN_ID = process.env.AUTHORIZE_API_LOGIN_ID?.trim();
+    const TRANSACTION_KEY = process.env.AUTHORIZE_TRANSACTION_KEY?.trim();
+
     // Create payment request to Authorize.net
+    // const paymentData = {
+    //   createTransactionRequest: {
+    //     merchantAuthentication: {
+    //       name: process.env.AUTHORIZE_API_LOGIN_ID,
+    //       transactionKey: process.env.AUTHORIZE_TRANSACTION_KEY,
+    //     },
+    //     refId: registrationId,
+    //     transactionRequest: {
+    //       transactionType: "authCaptureTransaction",
+    //       amount: amount.toString(),
+    //       payment: {
+    //         opaqueData: {
+    //           dataDescriptor: opaqueData.dataDescriptor,
+    //           dataValue: opaqueData.dataValue,
+    //         },
+    //       },
+    //     },
+    //   },
+    // };
+
+    if (!API_LOGIN_ID || !TRANSACTION_KEY) {
+      return res
+        .status(500)
+        .json({ success: false, error: "Server missing API credentials" });
+    }
+
     const paymentData = {
       createTransactionRequest: {
         merchantAuthentication: {
-          name: process.env.AUTHORIZE_API_LOGIN_ID,
-          transactionKey: process.env.AUTHORIZE_TRANSACTION_KEY,
+          name: API_LOGIN_ID,
+          transactionKey: TRANSACTION_KEY,
         },
-        refTransId: registrationId,
+        refId: registrationId,
         transactionRequest: {
           transactionType: "authCaptureTransaction",
-          amount: amount.toString(),
+          amount: amount,
           payment: {
             opaqueData: {
-              dataDescriptor: opaqueData.dataDescriptor,
+              dataDescriptor: "COMMON.ACCEPT.INAPP.PAYMENT",
               dataValue: opaqueData.dataValue,
             },
+          },
+          order: {
+            invoiceNumber: registrationId,
+            description: "New registration placed",
           },
         },
       },

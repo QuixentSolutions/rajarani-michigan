@@ -90,7 +90,7 @@ router.post("/payment", async (req, res) => {
 
     const result = await response.json();
 
-    console.log("Parsed payment response:", result);
+    console.log("Parsed payment response:", JSON.stringify(result));
 
     if (
       result.transactionResponse &&

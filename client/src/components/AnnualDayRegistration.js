@@ -11,7 +11,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
     name: "",
     email: "",
     mobileNumber: "",
-    date: "2026-05-12",
+    date: "2026-04-25",
     vegCount: "1",
     nonVegCount: "0",
   });
@@ -375,7 +375,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
                 disabled={isLoading}
               />
               <small style={{ color: "#666", fontSize: "12px" }}>
-                Annual Day Celebration - May 12, 2026
+                Annual Day Celebration - April 25, 2026
               </small>
             </div>
 

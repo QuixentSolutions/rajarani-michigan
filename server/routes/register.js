@@ -45,6 +45,12 @@ router.post("/payment", async (req, res) => {
   try {
     const { opaqueData, amount, registrationId } = req.body;
 
+    console.log("Received payment request:", {
+      opaqueData,
+      amount,
+      registrationId,
+    });
+
     // Create payment request to Authorize.net
     const paymentData = {
       createTransactionRequest: {
@@ -66,30 +72,44 @@ router.post("/payment", async (req, res) => {
       },
     };
 
+    console.log("Sending payment request to Authorize.net:", paymentData);
+
     // Send payment request to Authorize.net
-    const response = await fetch("https://api.authorize.net/xml/v1/request.api", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      "https://api.authorize.net/xml/v1/request.api",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(paymentData),
       },
-      body: JSON.stringify(paymentData),
-    });
+    );
+
+    console.log("Received response from Authorize.net:", response.status);
 
     const result = await response.json();
 
-    if (result.transactionResponse && result.transactionResponse.responseCode === "1") {
+    console.log("Parsed payment response:", result);
+
+    if (
+      result.transactionResponse &&
+      result.transactionResponse.responseCode === "1"
+    ) {
       // Payment successful - return transaction details
       // Registration will be saved by frontend after successful payment
-      res.status(200).json({ 
-        success: true, 
+      res.status(200).json({
+        success: true,
         message: "Payment processed successfully",
-        transactionId: result.transactionResponse.transId
+        transactionId: result.transactionResponse.transId,
       });
     } else {
       // Payment failed
-      res.status(400).json({ 
-        success: false, 
-        message: result.transactionResponse?.errors?.[0]?.errorText || "Payment failed" 
+      res.status(400).json({
+        success: false,
+        message:
+          result.transactionResponse?.errors?.[0]?.errorText ||
+          "Payment failed",
       });
     }
   } catch (err) {

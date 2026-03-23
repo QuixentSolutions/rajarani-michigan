@@ -1,6 +1,11 @@
 import React from "react";
 
-const AdminRegistrations = ({ registrations, fetchRegistrations, searchRegistrationQuery, renderPagination }) => {
+const AdminRegistrations = ({
+  registrations,
+  fetchRegistrations,
+  searchRegistrationQuery,
+  renderPagination,
+}) => {
   return (
     <div className="section-card">
       <div
@@ -13,7 +18,12 @@ const AdminRegistrations = ({ registrations, fetchRegistrations, searchRegistrat
       >
         <h2 className="section-title">Event Registrations</h2>
         <button
-          onClick={() => fetchRegistrations(registrations.currentPage, searchRegistrationQuery)}
+          onClick={() =>
+            fetchRegistrations(
+              registrations.currentPage,
+              searchRegistrationQuery,
+            )
+          }
           className="btn-primary"
           style={{
             padding: "8px 16px",
@@ -21,7 +31,7 @@ const AdminRegistrations = ({ registrations, fetchRegistrations, searchRegistrat
             color: "white",
             border: "none",
             borderRadius: "4px",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
         >
           Refresh Registrations
@@ -62,12 +72,18 @@ const AdminRegistrations = ({ registrations, fetchRegistrations, searchRegistrat
                       const vegCount = reg.vegCount || 0;
                       const nonVegCount = reg.nonVegCount || 0;
                       const quantity = parseInt(reg.quantity) || 1;
-                      
+
                       // For new registrations with proper veg/non-veg counts
                       if (vegCount > 0 && nonVegCount > 0) {
                         return (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <span 
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "4px",
+                            }}
+                          >
+                            <span
                               style={{
                                 padding: "4px 8px",
                                 borderRadius: "12px",
@@ -75,12 +91,12 @@ const AdminRegistrations = ({ registrations, fetchRegistrations, searchRegistrat
                                 fontWeight: "600",
                                 backgroundColor: "#d4edda",
                                 color: "#155724",
-                                display: 'inline-block'
+                                display: "inline-block",
                               }}
                             >
                               🥗 {vegCount} Veg
                             </span>
-                            <span 
+                            <span
                               style={{
                                 padding: "4px 8px",
                                 borderRadius: "12px",
@@ -88,7 +104,7 @@ const AdminRegistrations = ({ registrations, fetchRegistrations, searchRegistrat
                                 fontWeight: "600",
                                 backgroundColor: "#f8d7da",
                                 color: "#721c24",
-                                display: 'inline-block'
+                                display: "inline-block",
                               }}
                             >
                               🍗 {nonVegCount} Non-Veg
@@ -99,14 +115,14 @@ const AdminRegistrations = ({ registrations, fetchRegistrations, searchRegistrat
                       // For registrations with only veg or only non-veg
                       else if (vegCount > 0) {
                         return (
-                          <span 
+                          <span
                             style={{
                               padding: "4px 8px",
                               borderRadius: "12px",
                               fontSize: "12px",
                               fontWeight: "600",
                               backgroundColor: "#d4edda",
-                              color: "#155724"
+                              color: "#155724",
                             }}
                           >
                             🥗 {vegCount} Vegetarian
@@ -116,14 +132,14 @@ const AdminRegistrations = ({ registrations, fetchRegistrations, searchRegistrat
                       // For registrations with only non-veg
                       else if (nonVegCount > 0) {
                         return (
-                          <span 
+                          <span
                             style={{
                               padding: "4px 8px",
                               borderRadius: "12px",
                               fontSize: "12px",
                               fontWeight: "600",
                               backgroundColor: "#f8d7da",
-                              color: "#721c24"
+                              color: "#721c24",
                             }}
                           >
                             🍗 {nonVegCount} Non-Vegetarian
@@ -133,17 +149,17 @@ const AdminRegistrations = ({ registrations, fetchRegistrations, searchRegistrat
                       // For legacy registrations with no veg/non-veg counts, assume vegetarian
                       else {
                         return (
-                          <span 
+                          <span
                             style={{
                               padding: "4px 8px",
                               borderRadius: "12px",
                               fontSize: "12px",
                               fontWeight: "600",
                               backgroundColor: "#d4edda",
-                              color: "#155724"
+                              color: "#155724",
                             }}
                           >
-                            🥗 {quantity} Vegetarian
+                            Not Available
                           </span>
                         );
                       }
@@ -163,7 +179,7 @@ const AdminRegistrations = ({ registrations, fetchRegistrations, searchRegistrat
       </div>
 
       {renderPagination(registrations, (page) =>
-        fetchRegistrations(page, searchRegistrationQuery)
+        fetchRegistrations(page, searchRegistrationQuery),
       )}
     </div>
   );

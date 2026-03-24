@@ -45,12 +45,6 @@ router.post("/payment", async (req, res) => {
   try {
     const { opaqueData, amount, registrationId } = req.body;
 
-    console.log("Received payment request:", {
-      opaqueData,
-      amount,
-      registrationId,
-    });
-
     const API_LOGIN_ID = process.env.AUTHORIZE_API_LOGIN_ID?.trim();
     const TRANSACTION_KEY = process.env.AUTHORIZE_TRANSACTION_KEY?.trim();
 
@@ -105,8 +99,6 @@ router.post("/payment", async (req, res) => {
       },
     };
 
-    console.log("Sending payment request to Authorize.net:", paymentData);
-
     // Send payment request to Authorize.net
     const response = await fetch(
       "https://api.authorize.net/xml/v1/request.api",
@@ -119,11 +111,7 @@ router.post("/payment", async (req, res) => {
       },
     );
 
-    console.log("Received response from Authorize.net:", response.status);
-
     const result = await response.json();
-
-    console.log("Parsed payment response:", JSON.stringify(result));
 
     if (
       result.transactionResponse &&

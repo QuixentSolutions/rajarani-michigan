@@ -271,7 +271,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
           name: "",
           email: "",
           mobileNumber: "",
-          date: "2026-05-12",
+          date: "2026-04-25",
           vegCount: "1",
           nonVegCount: "0",
         });

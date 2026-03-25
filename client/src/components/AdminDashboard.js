@@ -1123,9 +1123,9 @@ const AdminDashboard = ({ onLogout }) => {
           <AdminReports
             viewOrderDetils={viewOrderDetils}
             renderPagination={renderPagination}
-            menuData={menuData}
-            fetchMenuData={fetchMenuData}
-            searchMenuQuery={searchMenuQuery}
+            ordersData={orders}
+            fetchOrders={fetchOrders}
+            searchOrderQuery={searchOrderQuery}
           />
         )}
 

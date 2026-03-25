@@ -50,9 +50,10 @@ const OrdersTable = ({ viewOrderDetils }) => {
       <table style={{ borderCollapse: "collapse", width: "100%" }}>
         <thead>
           <tr>
+            <th style={tableHeaderStyle}>Date</th>
             <th style={tableHeaderStyle}>Order Number</th>
-            <th style={tableHeaderStyle}>Sub Total</th>
-            <th style={tableHeaderStyle}>Sales Tax</th>
+            {/* <th style={tableHeaderStyle}>Sub Total</th>
+            <th style={tableHeaderStyle}>Sales Tax</th> */}
             <th style={tableHeaderStyle}>Total Amount</th>
             <th style={tableHeaderStyle}>Tip</th>
             <th style={tableHeaderStyle}>Payment status</th>
@@ -67,9 +68,10 @@ const OrdersTable = ({ viewOrderDetils }) => {
           {orderReports.length > 0 ? (
             orderReports.map((order) => (
               <tr key={order._id}>
+                <td style={tableCellStyle}>{order.createdAt}</td>
                 <td style={tableCellStyle}>{order.orderNumber}</td>
-                <td style={tableCellStyle}>${order.subTotal}</td>
-                <td style={tableCellStyle}>${order.salesTax}</td>
+                {/* <td style={tableCellStyle}>${order.subTotal}</td>
+                <td style={tableCellStyle}>${order.salesTax}</td> */}
                 <td style={tableCellStyle}>${order.totalAmount}</td>
                 <td style={tableCellStyle}>${order.tips}</td>
                 <td
@@ -89,9 +91,7 @@ const OrdersTable = ({ viewOrderDetils }) => {
                   {order.customer.email ? order.customer.email : "NA"}
                 </td>
                 <td style={tableCellStyle}>
-                  {order.customer.phone === "+1"
-                    ? "NA"
-                    : order.customer.phone}
+                  {order.customer.phone === "+1" ? "NA" : order.customer.phone}
                 </td>
                 <td
                   style={tableCellStyle}

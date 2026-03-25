@@ -1,13 +1,12 @@
 import React from "react";
-import OrdersTable from './OrdersTable';
+import OrdersTable from "./OrdersTable";
 
 const AdminReports = ({
   viewOrderDetils,
   renderPagination,
-  menuData,
-  fetchMenuData,
-  searchMenuQuery,
-  refreshOrderReports
+  ordersData,
+  fetchOrders,
+  searchOrderQuery,
 }) => {
   return (
     <div className="section-card">
@@ -18,12 +17,12 @@ const AdminReports = ({
           justifyContent: "space-between",
           alignItems: "center",
           flexWrap: "wrap",
-          gap: "12px"
+          gap: "12px",
         }}
       >
         <h2 className="section-title">Reports</h2>
         <button
-          onClick={refreshOrderReports || (() => fetchMenuData(menuData.currentPage, searchMenuQuery))}
+          onClick={() => fetchOrders(ordersData.currentPage, searchOrderQuery)}
           className="btn-primary"
           style={{
             padding: "8px 16px",
@@ -33,7 +32,7 @@ const AdminReports = ({
             borderRadius: "4px",
             cursor: "pointer",
             minWidth: "fit-content",
-            whiteSpace: "nowrap"
+            whiteSpace: "nowrap",
           }}
         >
           Refresh Reports
@@ -44,8 +43,8 @@ const AdminReports = ({
         <OrdersTable viewOrderDetils={viewOrderDetils} />
       </div>
 
-      {renderPagination(menuData, (page) =>
-        fetchMenuData(page, searchMenuQuery)
+      {renderPagination(ordersData, (page) =>
+        fetchOrders(page, searchOrderQuery),
       )}
     </div>
   );

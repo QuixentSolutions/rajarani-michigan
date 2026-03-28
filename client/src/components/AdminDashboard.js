@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useSelector } from "react-redux";
 import "./AdminDashboard.css";
 import KitchenOrdersTable from "./KitchenOrdersTable";
 import SuccessPopup from "./SuccessPopup";
@@ -11,9 +12,15 @@ import AdminOrders from "./AdminOrders";
 import AdminMenu from "./AdminMenu";
 import AdminSettings from "./AdminSettings";
 import AdminReports from "./AdminReports";
+import AdminInvoice from "./AdminInvoice";
+import AdminCatering from "./AdminCatering";
+import AdminDineInSales from "./AdminDineInSales";
+import AdminOnlineOrderSales from "./AdminOnlineOrderSales";
 import { printOrder } from "../utils/printer";
 
-const AdminDashboard = ({ onLogout }) => {
+const AdminDashboard = ({ onLogout, onSwitchStore }) => {
+  const storeSlug = useSelector((state) => state.store.selectedStore?.slug);
+  const storeName = useSelector((state) => state.store.selectedStore?.name);
   const [authToken] = useState("Basic " + btoa("admin:password123"));
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -146,7 +153,7 @@ const AdminDashboard = ({ onLogout }) => {
       async (page = 1, searchQuery = "") => {
         try {
           setError("");
-          const url = `/${type}?page=${page}${
+          const url = `/stores/${storeSlug}/${type}?page=${page}${
             searchQuery ? `&search=${searchQuery}` : ""
           }`;
           const data = await fetchData(url, authToken);
@@ -327,7 +334,7 @@ const AdminDashboard = ({ onLogout }) => {
 
   useEffect(() => {
     const loadData = async () => {
-      const dbResponse = await fetch("/settings/latest", {
+      const dbResponse = await fetch(`/stores/${storeSlug}/settings/latest`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -346,13 +353,16 @@ const AdminDashboard = ({ onLogout }) => {
   const showBill = async (tableNo) => {
     try {
       setTableNo(tableNo);
-      const response = await fetch(`/order/table/${tableNo}`, {
-        method: "GET",
-        headers: {
-          Authorization: authToken,
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `/stores/${storeSlug}/order/table/${tableNo}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: authToken,
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -385,7 +395,7 @@ const AdminDashboard = ({ onLogout }) => {
   const handleSaveMenu = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/menu`, {
+      const response = await fetch(`/stores/${storeSlug}/menu`, {
         method: "POST",
         headers: {
           Authorization: authToken,
@@ -803,7 +813,7 @@ const AdminDashboard = ({ onLogout }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch("/order/settle", {
+      const dbResponse = await fetch(`/stores/${storeSlug}/order/settle`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -846,7 +856,7 @@ const AdminDashboard = ({ onLogout }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch("/order/accept", {
+      const dbResponse = await fetch(`/stores/${storeSlug}/order/accept`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -861,7 +871,7 @@ const AdminDashboard = ({ onLogout }) => {
       }
 
       const orderDetailsResponse = await fetch(
-        `/order/orderId/${orderNumber}`,
+        `/stores/${storeSlug}/order/orderId/${orderNumber}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -887,7 +897,7 @@ const AdminDashboard = ({ onLogout }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch("/order/reject", {
+      const dbResponse = await fetch(`/stores/${storeSlug}/order/reject`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -919,7 +929,7 @@ const AdminDashboard = ({ onLogout }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch("/order/settle", {
+      const dbResponse = await fetch(`/stores/${storeSlug}/order/settle`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -974,7 +984,7 @@ const AdminDashboard = ({ onLogout }) => {
     }
 
     try {
-      const dbResponse = await fetch("/settings", {
+      const dbResponse = await fetch(`/stores/${storeSlug}/settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1024,6 +1034,14 @@ const AdminDashboard = ({ onLogout }) => {
         <div className="dashboard-header">
           <h1>Raja Rani Admin Dashboard</h1>
           <div className="header-actions">
+            {storeName && (
+              <span className="header-store-label">
+                Store: <strong>{storeName}</strong>
+              </span>
+            )}
+            <button onClick={onSwitchStore} className="logout-btn" style={{ background: "linear-gradient(135deg, #5a6268, #495057)" }}>
+              Switch Store
+            </button>
             <button onClick={handleLogout} className="logout-btn">
               Logout
             </button>
@@ -1040,7 +1058,7 @@ const AdminDashboard = ({ onLogout }) => {
             }`}
             onClick={() => setActiveTab("registrations")}
           >
-            Event Registrations
+            Registrations
           </button>
           <button
             className={`tab-btn ${activeTab === "orders" ? "active" : ""}`}
@@ -1052,7 +1070,7 @@ const AdminDashboard = ({ onLogout }) => {
             className={`tab-btn ${activeTab === "menu" ? "active" : ""}`}
             onClick={() => setActiveTab("menu")}
           >
-            Menu Management
+            Menu
           </button>
           <button
             className={`tab-btn ${activeTab === "settings" ? "active" : ""}`}
@@ -1066,11 +1084,37 @@ const AdminDashboard = ({ onLogout }) => {
           >
             Reports
           </button>
+          {/* Table Orders tab — dine-in order flow disabled
           <button
             className={`tab-btn ${activeTab === "kitchen" ? "active" : ""}`}
             onClick={() => setActiveTab("kitchen")}
           >
             Table Orders
+          </button>
+          */}
+          <button
+            className={`tab-btn ${activeTab === "catering" ? "active" : ""}`}
+            onClick={() => setActiveTab("catering")}
+          >
+            Catering Orders
+          </button>
+          <button
+            className={`tab-btn ${activeTab === "dinein-sales" ? "active" : ""}`}
+            onClick={() => setActiveTab("dinein-sales")}
+          >
+            Dine In Sales
+          </button>
+          <button
+            className={`tab-btn ${activeTab === "online-sales" ? "active" : ""}`}
+            onClick={() => setActiveTab("online-sales")}
+          >
+            Online Order Sales
+          </button>
+          <button
+            className={`tab-btn ${activeTab === "invoice" ? "active" : ""}`}
+            onClick={() => setActiveTab("invoice")}
+          >
+            Expenses
           </button>
         </div>
 
@@ -1129,6 +1173,7 @@ const AdminDashboard = ({ onLogout }) => {
           />
         )}
 
+        {/* Table Orders (dine-in) section — disabled
         {activeTab === "kitchen" && (
           <div className="section-card">
             <KitchenOrdersTable
@@ -1141,6 +1186,15 @@ const AdminDashboard = ({ onLogout }) => {
             />
           </div>
         )}
+        */}
+
+        {activeTab === "catering" && <AdminCatering />}
+
+        {activeTab === "dinein-sales" && <AdminDineInSales />}
+
+        {activeTab === "online-sales" && <AdminOnlineOrderSales />}
+
+        {activeTab === "invoice" && <AdminInvoice />}
 
         {renderModal()}
       </div>

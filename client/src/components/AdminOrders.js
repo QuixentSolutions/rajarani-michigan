@@ -55,6 +55,7 @@ const AdminOrders = ({
                 <th>Name</th>
                 <th>Email</th>
                 <th>Total Amount</th>
+                <th>Tip</th>
                 <th>Mode</th>
                 <th>Order Date</th>
                 <th>Actions</th>
@@ -90,6 +91,15 @@ const AdminOrders = ({
                             <strong>
                               ${(order.totalAmount || 0).toFixed(2)}
                             </strong>
+                          </td>
+                          <td>
+                            {order.tips > 0 ? (
+                              <span style={{ color: "#28a745", fontWeight: "600" }}>
+                                ${(order.tips || 0).toFixed(2)}
+                              </span>
+                            ) : (
+                              <span style={{ color: "#aaa" }}>—</span>
+                            )}
                           </td>
                           <td>{order.orderType.toUpperCase()}</td>
 
@@ -153,7 +163,7 @@ const AdminOrders = ({
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="empty-state">
+                  <td colSpan="8" className="empty-state">
                     No orders found
                   </td>
                 </tr>

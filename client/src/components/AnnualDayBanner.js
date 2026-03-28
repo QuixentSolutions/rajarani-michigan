@@ -25,8 +25,32 @@ function AnnualDayBanner() {
           textAlign: "center",
         }}
       >
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleClick();
+          }}
+          style={{
+            display: "block",
+            margin: "0 auto 12px auto",
+            padding: "12px 32px",
+            backgroundColor: "#e63946",
+            color: "white",
+            fontSize: "16px",
+            fontWeight: "bold",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+            transition: "background-color 0.2s ease",
+          }}
+          onMouseOver={(e) => (e.target.style.backgroundColor = "#c1121f")}
+          onMouseOut={(e) => (e.target.style.backgroundColor = "#e63946")}
+        >
+          Register Now
+        </button>
         <img
-          src={`${process.env.PUBLIC_URL}/annualDayBanner.jpeg`}
+          src={`${process.env.PUBLIC_URL}/annualDayBanner.jpg`}
           alt="Annual Day Celebration"
           style={{
             width: "100%",

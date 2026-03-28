@@ -1,70 +1,54 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { clearSelectedStore } from "../storeSlice";
 import AdminLogin from "./AdminLogin";
+import AdminStoreSelector from "./AdminStoreSelector";
 import AdminDashboard from "./AdminDashboard";
 
-const AdminApp = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+// phase: 'loading' | 'login' | 'store-select' | 'dashboard'
 
-  // Check if user is already logged in on component mount
+const AdminApp = () => {
+  const dispatch = useDispatch();
+  const [phase, setPhase] = useState("loading");
+
   useEffect(() => {
     const token = sessionStorage.getItem("adminToken");
-    if (token) {
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
+    // Always ask for store selection on every mount (refresh resets in-memory state)
+    setPhase(token ? "store-select" : "login");
   }, []);
 
-  const handleLoginSuccess = (token) => {
-    setIsAuthenticated(true);
+  const handleLoginSuccess = () => {
+    setPhase("store-select");
+  };
+
+  const handleStoreSelected = () => {
+    setPhase("dashboard");
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
     sessionStorage.removeItem("adminToken");
+    dispatch(clearSelectedStore());
+    setPhase("login");
   };
 
-  // Loading spinner while checking authentication
-  if (isLoading) {
+  if (phase === "loading") {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          backgroundColor: "#f8f9fa",
-        }}
-      >
-        <div
-          style={{
-            width: "50px",
-            height: "50px",
-            border: "5px solid #f3f3f3",
-            borderTop: "5px solid #FFA500",
-            borderRadius: "50%",
-            animation: "spin 1s linear infinite",
-          }}
-        ></div>
-        <style>
-          {`
-                        @keyframes spin {
-                            0% { transform: rotate(0deg); }
-                            100% { transform: rotate(360deg); }
-                        }
-                    `}
-        </style>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", backgroundColor: "#f8f9fa" }}>
+        <div style={{ width: 50, height: 50, border: "5px solid #f3f3f3", borderTop: "5px solid #FFA500", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+        <style>{`@keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }`}</style>
       </div>
     );
   }
 
-  // Show login form if not authenticated
-  if (!isAuthenticated) {
+  if (phase === "login") {
     return <AdminLogin onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // Show dashboard if authenticated
-  return <AdminDashboard onLogout={handleLogout} />;
+  if (phase === "store-select") {
+    return <AdminStoreSelector onStoreSelected={handleStoreSelected} />;
+  }
+
+  return <AdminDashboard onLogout={handleLogout} onSwitchStore={() => setPhase("store-select")} />;
 };
 
 export default AdminApp;

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import "./AnnualDayRegistration.css";
 import { FaTimes } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 function AnnualDayRegistration({ isOpen, onClose }) {
+  const storeSlug = useSelector((state) => state.store.selectedStore?.slug);
   const VEG_PRICE = 8;
   const NON_VEG_PRICE = 9;
   const SALES_TAX_RATE = 0.06; // 6%
@@ -206,7 +208,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
 
     try {
       // First process payment
-      const paymentResult = await fetch("/register/payment", {
+      const paymentResult = await fetch(`/stores/${storeSlug}/register/payment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -243,7 +245,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
         };
 
         // Save registration to database
-        const dbResponse = await fetch("/register", {
+        const dbResponse = await fetch(`/stores/${storeSlug}/register`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

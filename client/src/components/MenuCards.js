@@ -7,6 +7,7 @@ import "./MenuCards.css";
 function Menu() {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
+  const storeSlug = useSelector((state) => state.store.selectedStore?.slug);
 
   const [notification, setNotification] = useState(null);
   const [menuSections, setMenuSections] = useState([]);
@@ -87,7 +88,7 @@ function Menu() {
 
   const fetchMenu = async () => {
     try {
-      const response = await fetch(`/menu`);
+      const response = await fetch(`/stores/${storeSlug}/menu`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import { store } from "./store";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
@@ -12,6 +12,7 @@ import WhatsAppFloatingButton from "./components/WhatsAppFloatingButton";
 import ReviewBanner from "./components/ReviewBanner";
 import AnnualDayBanner from "./components/AnnualDayBanner";
 import AdminApp from "./components/AdminApp";
+import StoreSelector from "./components/StoreSelector";
 
 import "./App.css";
 
@@ -32,6 +33,12 @@ const HomePage = () => {
   );
 };
 
+function StoreGate({ children }) {
+  const selectedStore = useSelector((state) => state.store.selectedStore);
+  if (!selectedStore) return <StoreSelector />;
+  return children;
+}
+
 function App() {
   return (
     <Provider store={store}>
@@ -39,7 +46,7 @@ function App() {
         <div className="whole-container">
           <Routes>
             {/* Route for your main homepage */}
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<StoreGate><HomePage /></StoreGate>} />
 
             {/* Route for the admin with authentication */}
             <Route path="/admin" element={<AdminApp />} />

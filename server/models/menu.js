@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 
 const menuSchema = new mongoose.Schema({
-  _id: { type: String }, 
+  _id: { type: String },
+  storeId: { type: String, required: true, index: true },
   title: { type: String, required: true },
   color: String,
   days: [String],

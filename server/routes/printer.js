@@ -4,7 +4,7 @@ const Printer = require("../models/printer");
 
 router.post("/", async (req, res) => {
   try {
-    const printer = new Printer(req.body);
+    const printer = new Printer({ ...req.body, storeId: req.storeId });
     const savedPrinter = await printer.save();
     res.status(201).json(savedPrinter);
   } catch (err) {
@@ -14,7 +14,7 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const printer = await Printer.findOne().sort({ createdAt: -1 });
+    const printer = await Printer.findOne({ storeId: req.storeId }).sort({ createdAt: -1 });
     res.json(printer);
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const settingsSchema = new mongoose.Schema({
+  storeId: { type: String, required: true, index: true },
   name: {
     type: String,
     required: true,
@@ -13,6 +14,8 @@ const settingsSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
+
+settingsSchema.index({ storeId: 1, name: 1 }, { unique: true });
 
 const Settings = mongoose.model("settings", settingsSchema);
 

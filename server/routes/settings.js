@@ -4,7 +4,7 @@ const Settings = require("../models/settings");
 
 router.post("/", async (req, res) => {
   try {
-    const setting = new Settings(req.body);
+    const setting = new Settings({ ...req.body, storeId: req.storeId });
     const savedSettings = await setting.save();
     res.status(201).json(savedSettings);
   } catch (err) {
@@ -14,7 +14,7 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const settings = await Settings.find().sort({ createdAt: -1 });
+    const settings = await Settings.find({ storeId: req.storeId }).sort({ createdAt: -1 });
     res.json(settings);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
 
 router.get("/latest", async (req, res) => {
   try {
-    const settings = await Settings.find().sort({ createdAt: -1 }).limit(1);
+    const settings = await Settings.find({ storeId: req.storeId }).sort({ createdAt: -1 }).limit(1);
     res.json(settings);
   } catch (err) {
     res.status(500).json({ error: err.message });

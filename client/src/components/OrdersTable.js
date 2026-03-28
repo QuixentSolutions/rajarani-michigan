@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useSelector } from "react-redux";
 
 const OrdersTable = ({ viewOrderDetils }) => {
+  const storeSlug = useSelector((state) => state.store.selectedStore?.slug);
   const [orderReports, setOrderReports] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -27,7 +29,7 @@ const OrdersTable = ({ viewOrderDetils }) => {
 
   const fetchOrderReports = useCallback(async () => {
     try {
-      const response = await fetch(`/order/all?page=${page}&limit=${limit}`);
+      const response = await fetch(`/stores/${storeSlug}/order/all?page=${page}&limit=${limit}`);
       if (!response.ok) {
         throw new Error(`Server error (${response.status})`);
       }

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import AnnualDayRegistration from './AnnualDayRegistration';
+import React, { useState } from "react";
+import AnnualDayRegistration from "./AnnualDayRegistration";
 
 function AnnualDayBanner() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -14,37 +14,39 @@ function AnnualDayBanner() {
 
   return (
     <>
-      <div 
+      <div
+        className="registration-container"
+        id="registration"
         onClick={handleClick}
         style={{
-          width: '100%',
-          cursor: 'pointer',
-          margin: '20px 0',
-          textAlign: 'center'
+          width: "100%",
+          cursor: "pointer",
+          margin: "20px 0",
+          textAlign: "center",
         }}
       >
-        <img 
-          src={`${process.env.PUBLIC_URL}/annualDayBanner.jpeg`} 
+        <img
+          src={`${process.env.PUBLIC_URL}/annualDayBanner.jpeg`}
           alt="Annual Day Celebration"
           style={{
-            width: '100%',
-            maxWidth: '500px',
-            height: 'auto',
-            borderRadius: '8px',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-            transition: 'transform 0.3s ease'
+            width: "100%",
+            maxWidth: "500px",
+            height: "auto",
+            borderRadius: "8px",
+            boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+            transition: "transform 0.3s ease",
           }}
           onMouseOver={(e) => {
-            e.target.style.transform = 'scale(1.02)';
+            e.target.style.transform = "scale(1.02)";
           }}
           onMouseOut={(e) => {
-            e.target.style.transform = 'scale(1)';
+            e.target.style.transform = "scale(1)";
           }}
           onError={(e) => {
-            console.error('Image failed to load:', e.target.src);
+            console.error("Image failed to load:", e.target.src);
             // Show a placeholder if image fails
-            e.target.style.display = 'none';
-            const placeholder = document.createElement('div');
+            e.target.style.display = "none";
+            const placeholder = document.createElement("div");
             placeholder.style.cssText = `
               background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
               color: white;
@@ -65,15 +67,12 @@ function AnnualDayBanner() {
             e.target.parentNode.appendChild(placeholder);
           }}
           onLoad={(e) => {
-            console.log('Image loaded successfully:', e.target.src);
+            console.log("Image loaded successfully:", e.target.src);
           }}
         />
       </div>
 
-      <AnnualDayRegistration 
-        isOpen={isPopupOpen} 
-        onClose={handleClose} 
-      />
+      <AnnualDayRegistration isOpen={isPopupOpen} onClose={handleClose} />
     </>
   );
 }

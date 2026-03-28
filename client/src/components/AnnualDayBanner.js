@@ -1,8 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AnnualDayRegistration from "./AnnualDayRegistration";
 
 function AnnualDayBanner() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  useEffect(() => {
+    if (window.location.hash === "#registration") {
+      const el = document.getElementById("registration");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, []);
 
   const handleClick = () => {
     setIsPopupOpen(true);

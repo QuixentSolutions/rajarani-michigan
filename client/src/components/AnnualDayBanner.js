@@ -56,7 +56,7 @@ function AnnualDayBanner() {
           onMouseOver={(e) => (e.target.style.backgroundColor = "#c1121f")}
           onMouseOut={(e) => (e.target.style.backgroundColor = "#e63946")}
         >
-          Register Now
+          CSK Food Register Now
         </button>
         <img
           src={`${process.env.PUBLIC_URL}/annualDayBanner.jpg`}

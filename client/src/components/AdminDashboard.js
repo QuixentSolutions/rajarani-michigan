@@ -71,6 +71,8 @@ const AdminDashboard = ({ onLogout }) => {
 
   // WebSocket connection for real-time order notifications
   const wsRef = useRef(null);
+  const audioUnlockedRef = useRef(false);
+  const lastPongRef = useRef(Date.now());
 
   const fetchData = useCallback(
     async (url, token, retryCount = 0) => {
@@ -194,10 +196,41 @@ const AdminDashboard = ({ onLogout }) => {
   );
 
   useEffect(() => {
+    // Unlock audio on first user interaction (browser autoplay policy)
+    const unlockAudio = () => {
+      if (audioUnlockedRef.current) return;
+      const silent = new Audio("/new-online-order.mp3");
+      silent.volume = 0;
+      silent.play().then(() => {
+        silent.pause();
+        audioUnlockedRef.current = true;
+      }).catch(() => {});
+      document.removeEventListener("click", unlockAudio);
+      document.removeEventListener("keydown", unlockAudio);
+    };
+    document.addEventListener("click", unlockAudio);
+    document.addEventListener("keydown", unlockAudio);
+
+    return () => {
+      document.removeEventListener("click", unlockAudio);
+      document.removeEventListener("keydown", unlockAudio);
+    };
+  }, []);
+
+  useEffect(() => {
     let ws;
     let heartbeatInterval = null;
     let reconnectTimeout = null;
     let isUnmounted = false;
+
+    const playAudio = (src) => {
+      const audio = new Audio(src);
+      audio.play().catch(() => {
+        // Autoplay blocked — show visual alert so admin still notices
+        setError("🔔 New order received! (Enable sound by clicking the page)");
+        setTimeout(() => setError(""), 8000);
+      });
+    };
 
     const connectWebSocket = () => {
       if (isUnmounted) return;
@@ -207,12 +240,18 @@ const AdminDashboard = ({ onLogout }) => {
 
       ws.onopen = () => {
         console.log("✅ WebSocket connected");
+        lastPongRef.current = Date.now();
 
-        // Clear any existing heartbeat
         if (heartbeatInterval) clearInterval(heartbeatInterval);
 
         heartbeatInterval = setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
+            // If no pong received in last 45s, connection is dead — reconnect
+            if (Date.now() - lastPongRef.current > 45000) {
+              console.warn("⚠️ No pong received, reconnecting...");
+              ws.close();
+              return;
+            }
             ws.send(JSON.stringify({ type: "ping" }));
           }
         }, 20000);
@@ -221,15 +260,15 @@ const AdminDashboard = ({ onLogout }) => {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          if (data.type === "new_order" && data.orderType === "dinein") {
-            const audio = new Audio("/new-dinein-order.mp3");
-            audio.play().catch(() => {});
+          if (data.type === "pong") {
+            lastPongRef.current = Date.now();
+          } else if (data.type === "new_order" && data.orderType === "dinein") {
+            playAudio("/new-dinein-order.mp3");
             setSuccess(`New order received - ${data.orderNumber}`);
             setTimeout(() => setSuccess(""), 5000);
             setRefreshOrders(data.orderNumber);
           } else if (data.type === "new_order") {
-            const audio = new Audio("/new-online-order.mp3");
-            audio.play().catch(() => {});
+            playAudio("/new-online-order.mp3");
             setSuccess(`New order received - ${data.orderNumber}`);
             setTimeout(() => setSuccess(""), 5000);
             setRefreshOrders(data.orderNumber);

@@ -433,7 +433,7 @@ function Header() {
 
       try {
         const result = await fetchWithTimeout(
-          "/order/payment",
+          "/api/order/payment",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

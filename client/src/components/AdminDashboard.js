@@ -78,8 +78,10 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
 
   // WebSocket connection for real-time order notifications
   const wsRef = useRef(null);
-  const audioUnlockedRef = useRef(false);
   const lastPongRef = useRef(Date.now());
+  const [audioEnabled, setAudioEnabled] = useState(false);
+  const onlineAudioRef = useRef(null);
+  const dineinAudioRef = useRef(null);
 
   const fetchData = useCallback(
     async (url, token, retryCount = 0) => {
@@ -202,27 +204,15 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     "order/kitchen",
   );
 
-  useEffect(() => {
-    // Unlock audio on first user interaction (browser autoplay policy)
-    const unlockAudio = () => {
-      if (audioUnlockedRef.current) return;
-      const silent = new Audio("/new-online-order.mp3");
-      silent.volume = 0;
-      silent.play().then(() => {
-        silent.pause();
-        audioUnlockedRef.current = true;
-      }).catch(() => {});
-      document.removeEventListener("click", unlockAudio);
-      document.removeEventListener("keydown", unlockAudio);
-    };
-    document.addEventListener("click", unlockAudio);
-    document.addEventListener("keydown", unlockAudio);
-
-    return () => {
-      document.removeEventListener("click", unlockAudio);
-      document.removeEventListener("keydown", unlockAudio);
-    };
-  }, []);
+  const enableAudio = () => {
+    // Must happen inside a click handler so browser allows playback
+    onlineAudioRef.current = new Audio("/new-online-order.mp3");
+    dineinAudioRef.current = new Audio("/new-dinein-order.mp3");
+    // Play + immediately pause to unlock both audio objects
+    onlineAudioRef.current.play().then(() => onlineAudioRef.current.pause()).catch(() => {});
+    dineinAudioRef.current.play().then(() => dineinAudioRef.current.pause()).catch(() => {});
+    setAudioEnabled(true);
+  };
 
   useEffect(() => {
     let ws;
@@ -230,13 +220,10 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     let reconnectTimeout = null;
     let isUnmounted = false;
 
-    const playAudio = (src) => {
-      const audio = new Audio(src);
-      audio.play().catch(() => {
-        // Autoplay blocked — show visual alert so admin still notices
-        setError("🔔 New order received! (Enable sound by clicking the page)");
-        setTimeout(() => setError(""), 8000);
-      });
+    const playAudio = (audioRef) => {
+      if (!audioRef.current) return;
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => {});
     };
 
     const connectWebSocket = () => {
@@ -270,12 +257,12 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
           if (data.type === "pong") {
             lastPongRef.current = Date.now();
           } else if (data.type === "new_order" && data.orderType === "dinein") {
-            playAudio("/new-dinein-order.mp3");
+            playAudio(dineinAudioRef);
             setSuccess(`New order received - ${data.orderNumber}`);
             setTimeout(() => setSuccess(""), 5000);
             setRefreshOrders(data.orderNumber);
           } else if (data.type === "new_order") {
-            playAudio("/new-online-order.mp3");
+            playAudio(onlineAudioRef);
             setSuccess(`New order received - ${data.orderNumber}`);
             setTimeout(() => setSuccess(""), 5000);
             setRefreshOrders(data.orderNumber);

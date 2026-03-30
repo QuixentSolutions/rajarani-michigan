@@ -385,7 +385,7 @@ const AdminDashboard = ({ onLogout }) => {
   const handleSaveMenu = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/menu`, {
+      const response = await fetch(`/api/menu`, {
         method: "POST",
         headers: {
           Authorization: authToken,

@@ -40,7 +40,7 @@ const AdminMenu = ({
     }
 
     try {
-      const url = `/menu/category/${selectedSection._id}/item`;
+      const url = `/api/menu/category/${selectedSection._id}/item`;
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -61,7 +61,7 @@ const AdminMenu = ({
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(
-          `Server responded with ${response.status}: ${errorText}`
+          `Server responded with ${response.status}: ${errorText}`,
         );
       }
 
@@ -72,7 +72,7 @@ const AdminMenu = ({
       const latestMenuData = await fetchMenuData();
       if (latestMenuData && latestMenuData.items) {
         const updatedSection = latestMenuData.items.find(
-          (section) => section._id === selectedSection._id
+          (section) => section._id === selectedSection._id,
         );
         if (updatedSection) {
           setSelectedSection(updatedSection);
@@ -81,7 +81,7 @@ const AdminMenu = ({
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(
-        `Failed to add menu item: ${err.message}. Make sure your server is running on port 5001.`
+        `Failed to add menu item: ${err.message}. Make sure your server is running on port 5001.`,
       );
     }
   };
@@ -130,7 +130,7 @@ const AdminMenu = ({
       const latestMenuData = await fetchMenuData();
       if (latestMenuData && latestMenuData.items) {
         const updatedSection = latestMenuData.items.find(
-          (section) => section._id === selectedSection._id
+          (section) => section._id === selectedSection._id,
         );
         if (updatedSection) {
           setSelectedSection(updatedSection);
@@ -152,7 +152,7 @@ const AdminMenu = ({
         throw new Error("No section selected");
       }
 
-      const url = `/menu/category/${selectedSection._id}/item/${itemId}`;
+      const url = `/api/menu/category/${selectedSection._id}/item/${itemId}`;
       const response = await fetch(url, {
         method: "DELETE",
         headers: {
@@ -178,7 +178,7 @@ const AdminMenu = ({
       const latestMenuData = await fetchMenuData();
       if (latestMenuData && latestMenuData.items) {
         const updatedSection = latestMenuData.items.find(
-          (section) => section._id === selectedSection._id
+          (section) => section._id === selectedSection._id,
         );
         if (updatedSection) {
           setSelectedSection(updatedSection);
@@ -276,7 +276,7 @@ const AdminMenu = ({
                                         style={{ marginRight: "1rem" }}
                                         checked={
                                           editingItemData?.spicelevel?.includes(
-                                            level
+                                            level,
                                           ) || false
                                         }
                                         onChange={(e) => {
@@ -289,7 +289,7 @@ const AdminMenu = ({
                                                   value,
                                                 ]
                                               : (prev.spicelevel || []).filter(
-                                                  (l) => l !== value
+                                                  (l) => l !== value,
                                                 ),
                                           }));
                                         }}
@@ -333,7 +333,7 @@ const AdminMenu = ({
                                     const allAddonsMap = new Map();
 
                                     predefinedAddons.forEach((addon) =>
-                                      allAddonsMap.set(addon.name, addon)
+                                      allAddonsMap.set(addon.name, addon),
                                     );
 
                                     (editingItemData?.addons || []).forEach(
@@ -347,11 +347,11 @@ const AdminMenu = ({
                                             name: normalizedName,
                                           });
                                         }
-                                      }
+                                      },
                                     );
 
                                     return Array.from(
-                                      allAddonsMap.values()
+                                      allAddonsMap.values(),
                                     ).map((addon) => (
                                       <label
                                         key={addon.name}
@@ -366,7 +366,7 @@ const AdminMenu = ({
                                               (selectedAddon) =>
                                                 selectedAddon.name
                                                   .replace(/^Add\s/, "")
-                                                  .trim() === addon.name
+                                                  .trim() === addon.name,
                                             ) || false
                                           }
                                           onChange={(e) => {
@@ -384,7 +384,7 @@ const AdminMenu = ({
                                                     (selectedAddon) =>
                                                       selectedAddon.name
                                                         .replace(/^Add\s/, "")
-                                                        .trim() !== value
+                                                        .trim() !== value,
                                                   );
                                               return {
                                                 ...prev,
@@ -534,7 +534,7 @@ const AdminMenu = ({
                                           name: addon.name
                                             .replace(/^Add\s/, "")
                                             .trim(),
-                                        })
+                                        }),
                                       ),
                                     });
                                   }}
@@ -673,7 +673,7 @@ const AdminMenu = ({
                         const allAddonsMap = new Map();
 
                         predefinedAddons.forEach((addon) =>
-                          allAddonsMap.set(addon.name, addon)
+                          allAddonsMap.set(addon.name, addon),
                         );
 
                         (newMenuItem.addons || []).forEach((addon) => {
@@ -694,7 +694,7 @@ const AdminMenu = ({
                               (selectedAddon) =>
                                 selectedAddon.name
                                   .replace(/^Add\s/, "")
-                                  .trim() === addon.name
+                                  .trim() === addon.name,
                             );
                             return (
                               <label
@@ -718,7 +718,7 @@ const AdminMenu = ({
                                             (selectedAddon) =>
                                               selectedAddon.name
                                                 .replace(/^Add\s/, "")
-                                                .trim() !== value
+                                                .trim() !== value,
                                           );
                                       return { ...prev, addons: newAddons };
                                     });
@@ -727,7 +727,7 @@ const AdminMenu = ({
                                 {addon.name} (${addon.price})
                               </label>
                             );
-                          }
+                          },
                         );
                       })()}
                     </div>
@@ -853,7 +853,7 @@ const AdminMenu = ({
         </div>
 
         {renderPagination(menuData, (page) =>
-          fetchMenuData(page, searchMenuQuery)
+          fetchMenuData(page, searchMenuQuery),
         )}
       </div>
       {renderMenuModal()}

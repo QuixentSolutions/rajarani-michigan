@@ -144,22 +144,22 @@ router.post("/", async (req, res) => {
     if (savedOrder.orderType === "dinein") {
       const wss = wsServer.getWSS();
 
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(
-          JSON.stringify({
-            type: "new_order",
-            storeId: req.storeId,
-            orderNumber: savedOrder.orderNumber,
-            orderType: savedOrder.orderType,
-            customer: savedOrder.customer,
-            totalAmount: savedOrder.totalAmount,
-            createdAt: savedOrder.createdAt,
-            sentAt: new Date(),
-          }),
-        );
-      }
-    });
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(
+            JSON.stringify({
+              type: "new_order",
+              orderNumber: savedOrder.orderNumber,
+              orderType: savedOrder.orderType,
+              customer: savedOrder.customer,
+              totalAmount: savedOrder.totalAmount,
+              createdAt: savedOrder.createdAt,
+              sentAt: new Date(),
+            }),
+          );
+        }
+      });
+    }
 
     res.status(201).json(savedOrder);
   } catch (err) {

@@ -157,7 +157,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
       async (page = 1, searchQuery = "") => {
         try {
           setError("");
-          const url = `/stores/${storeSlug}/${type}?page=${page}${
+          const url = `/api/${type}?page=${page}${
             searchQuery ? `&search=${searchQuery}` : ""
           }`;
           const data = await fetchData(url, authToken);
@@ -360,7 +360,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
 
   useEffect(() => {
     const loadData = async () => {
-      const dbResponse = await fetch(`/stores/${storeSlug}/settings/latest`, {
+      const dbResponse = await fetch("/api/settings/latest", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -379,14 +379,11 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
   const showBill = async (tableNo) => {
     try {
       setTableNo(tableNo);
-      const response = await fetch(
-        `/stores/${storeSlug}/order/table/${tableNo}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: authToken,
-            "Content-Type": "application/json",
-          },
+      const response = await fetch(`/api/order/table/${tableNo}`, {
+        method: "GET",
+        headers: {
+          Authorization: authToken,
+          "Content-Type": "application/json",
         },
       );
 
@@ -421,7 +418,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
   const handleSaveMenu = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/stores/${storeSlug}/menu`, {
+      const response = await fetch(`/api/menu`, {
         method: "POST",
         headers: {
           Authorization: authToken,
@@ -839,7 +836,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch(`/stores/${storeSlug}/order/settle`, {
+      const dbResponse = await fetch("/api/order/settle", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -882,7 +879,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch(`/stores/${storeSlug}/order/accept`, {
+      const dbResponse = await fetch("/api/order/accept", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -897,7 +894,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
       }
 
       const orderDetailsResponse = await fetch(
-        `/stores/${storeSlug}/order/orderId/${orderNumber}`,
+        `/api/order/orderId/${orderNumber}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -923,7 +920,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch(`/stores/${storeSlug}/order/reject`, {
+      const dbResponse = await fetch("/api/order/reject", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -955,7 +952,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch(`/stores/${storeSlug}/order/settle`, {
+      const dbResponse = await fetch("/api/order/settle", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1010,7 +1007,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     }
 
     try {
-      const dbResponse = await fetch(`/stores/${storeSlug}/settings`, {
+      const dbResponse = await fetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1060,14 +1057,11 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
         <div className="dashboard-header">
           <h1>Raja Rani Admin Dashboard</h1>
           <div className="header-actions">
-            {storeName && (
-              <span className="header-store-label">
-                Store: <strong>{storeName}</strong>
-              </span>
+            {!audioEnabled && (
+              <button onClick={enableAudio} className="logout-btn" style={{ backgroundColor: "#e67e22" }}>
+                🔔 Enable Sound
+              </button>
             )}
-            <button onClick={onSwitchStore} className="logout-btn" style={{ background: "linear-gradient(135deg, #5a6268, #495057)" }}>
-              Switch Store
-            </button>
             <button onClick={handleLogout} className="logout-btn">
               Logout
             </button>

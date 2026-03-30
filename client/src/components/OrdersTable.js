@@ -29,7 +29,7 @@ const OrdersTable = ({ viewOrderDetils }) => {
 
   const fetchOrderReports = useCallback(async () => {
     try {
-      const response = await fetch(`/stores/${storeSlug}/order/all?page=${page}&limit=${limit}`);
+      const response = await fetch(`/api/order/all?page=${page}&limit=${limit}`);
       if (!response.ok) {
         throw new Error(`Server error (${response.status})`);
       }

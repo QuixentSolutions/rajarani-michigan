@@ -208,7 +208,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
 
     try {
       // First process payment
-      const paymentResult = await fetch(`/stores/${storeSlug}/register/payment`, {
+      const paymentResult = await fetch("/api/register/payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -245,7 +245,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
         };
 
         // Save registration to database
-        const dbResponse = await fetch(`/stores/${storeSlug}/register`, {
+        const dbResponse = await fetch("/api/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

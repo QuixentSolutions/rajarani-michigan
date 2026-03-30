@@ -33,7 +33,7 @@ function RegistrationCard() {
 
     try {
       // First, save to database (without email functionality)
-      const dbResponse = await fetch(`/stores/${storeSlug}/register`, {
+      const dbResponse = await fetch("/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

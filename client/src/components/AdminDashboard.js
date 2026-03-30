@@ -146,7 +146,7 @@ const AdminDashboard = ({ onLogout }) => {
       async (page = 1, searchQuery = "") => {
         try {
           setError("");
-          const url = `/${type}?page=${page}${
+          const url = `/api/${type}?page=${page}${
             searchQuery ? `&search=${searchQuery}` : ""
           }`;
           const data = await fetchData(url, authToken);
@@ -327,7 +327,7 @@ const AdminDashboard = ({ onLogout }) => {
 
   useEffect(() => {
     const loadData = async () => {
-      const dbResponse = await fetch("/settings/latest", {
+      const dbResponse = await fetch("/api/settings/latest", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -346,7 +346,7 @@ const AdminDashboard = ({ onLogout }) => {
   const showBill = async (tableNo) => {
     try {
       setTableNo(tableNo);
-      const response = await fetch(`/order/table/${tableNo}`, {
+      const response = await fetch(`/api/order/table/${tableNo}`, {
         method: "GET",
         headers: {
           Authorization: authToken,
@@ -803,7 +803,7 @@ const AdminDashboard = ({ onLogout }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch("/order/settle", {
+      const dbResponse = await fetch("/api/order/settle", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -846,7 +846,7 @@ const AdminDashboard = ({ onLogout }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch("/order/accept", {
+      const dbResponse = await fetch("/api/order/accept", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -861,7 +861,7 @@ const AdminDashboard = ({ onLogout }) => {
       }
 
       const orderDetailsResponse = await fetch(
-        `/order/orderId/${orderNumber}`,
+        `/api/order/orderId/${orderNumber}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -887,7 +887,7 @@ const AdminDashboard = ({ onLogout }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch("/order/reject", {
+      const dbResponse = await fetch("/api/order/reject", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -919,7 +919,7 @@ const AdminDashboard = ({ onLogout }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch("/order/settle", {
+      const dbResponse = await fetch("/api/order/settle", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -974,7 +974,7 @@ const AdminDashboard = ({ onLogout }) => {
     }
 
     try {
-      const dbResponse = await fetch("/settings", {
+      const dbResponse = await fetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -96,7 +96,7 @@ const AdminMenu = ({
         throw new Error("No section selected");
       }
 
-      const url = `menu/category/${selectedSection._id}/item/${itemToUpdate._id}`;
+      const url = `/api/menu/category/${selectedSection._id}/item/${itemToUpdate._id}`;
       const response = await fetch(url, {
         method: "PUT",
         headers: {

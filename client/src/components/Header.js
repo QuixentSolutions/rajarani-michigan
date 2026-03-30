@@ -76,7 +76,7 @@ function Header() {
 
   useEffect(() => {
     const loadData = async () => {
-      const dbResponse = await fetch("/settings/latest", {
+      const dbResponse = await fetch("/api/settings/latest", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -239,7 +239,7 @@ function Header() {
 
     try {
       // First, save order to database
-      const dbResponse = await fetch("/order", {
+      const dbResponse = await fetch("/api/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),

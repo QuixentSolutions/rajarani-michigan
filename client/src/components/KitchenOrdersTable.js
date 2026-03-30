@@ -52,7 +52,7 @@ const KitchenOrdersTable = ({
   const fetchPrinterData = useCallback(async () => {
     try {
       setError("");
-      const response = await fetch(`/printer`, {
+      const response = await fetch(`/api/printer`, {
         headers: {
           Authorization: authToken,
           "Content-Type": "application/json",
@@ -77,7 +77,7 @@ const KitchenOrdersTable = ({
         alert("Please enter a valid printer address");
         return;
       }
-      const response = await fetch(`/printer`, {
+      const response = await fetch(`/api/printer`, {
         method: "POST",
         headers: {
           Authorization: authToken,
@@ -111,7 +111,7 @@ const KitchenOrdersTable = ({
 
   const handlePrintOrder = async (orderId) => {
     try {
-      const orderDetailsResponse = await fetch(`/order/orderId/${orderId}`, {
+      const orderDetailsResponse = await fetch(`/api/order/orderId/${orderId}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -120,7 +120,7 @@ const KitchenOrdersTable = ({
       const print = printOrder(orderDetails);
 
       if (print) {
-        const dbResponse = await fetch(`/order/kitchen/${orderId}`, {
+        const dbResponse = await fetch(`/api/order/kitchen/${orderId}`, {
           method: "PUT",
           headers: {
             Authorization: authToken,

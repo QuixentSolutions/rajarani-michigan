@@ -7,6 +7,7 @@ import "./MenuCards.css";
 function Menu() {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
+  const storeSlug = useSelector((state) => state.store.selectedStore?.slug);
 
   const [notification, setNotification] = useState(null);
   const [menuSections, setMenuSections] = useState([]);

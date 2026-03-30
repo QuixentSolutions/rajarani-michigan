@@ -4,11 +4,19 @@ const cors = require("cors");
 const path = require("path");
 const bodyParser = require("body-parser");
 const healthRoutes = require("./routes/health");
+const storeRoutes = require("./routes/stores");
 const menuRoutes = require("./routes/menu");
 const registerRoutes = require("./routes/register");
 const settingsRoutes = require("./routes/settings");
 const printerRoutes = require("./routes/printer");
 const orderRoutes = require("./routes/orders");
+const invoiceRoutes = require("./routes/invoice");
+const expenseRoutes = require("./routes/expense");
+const cateringRoutes = require("./routes/catering");
+const manualSalesRoutes = require("./routes/manualSales");
+const deliveryPartnerRoutes = require("./routes/deliveryPartner");
+const deliveryPartnerSalesRoutes = require("./routes/deliveryPartnerSales");
+const validateStore = require("./middleware/validateStore");
 const wsServer = require("./ws");
 
 require("dotenv").config();
@@ -32,11 +40,23 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err.message));
 
 app.use("/health", healthRoutes);
-app.use("/menu", menuRoutes);
-app.use("/order", orderRoutes);
-app.use("/register", registerRoutes);
-app.use("/settings", settingsRoutes);
-app.use("/printer", printerRoutes);
+app.use("/stores", storeRoutes);
+
+const storeRouter = express.Router({ mergeParams: true });
+storeRouter.use(validateStore);
+storeRouter.use("/menu", menuRoutes);
+storeRouter.use("/order", orderRoutes);
+storeRouter.use("/register", registerRoutes);
+storeRouter.use("/settings", settingsRoutes);
+storeRouter.use("/printer", printerRoutes);
+storeRouter.use("/invoice", invoiceRoutes);
+storeRouter.use("/expense", expenseRoutes);
+storeRouter.use("/catering", cateringRoutes);
+storeRouter.use("/manual-sales", manualSalesRoutes);
+storeRouter.use("/delivery-partners", deliveryPartnerRoutes);
+storeRouter.use("/delivery-partner-sales", deliveryPartnerSalesRoutes);
+
+app.use("/stores/:storeId", storeRouter);
 
 // Serve React build
 app.use(express.static(path.join(__dirname, "../client/build")));

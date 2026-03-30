@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import "./AnnualDayRegistration.css";
 import { FaTimes } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 function AnnualDayRegistration({ isOpen, onClose }) {
+  const storeSlug = useSelector((state) => state.store.selectedStore?.slug);
   const VEG_PRICE = 8;
   const NON_VEG_PRICE = 9;
   const SALES_TAX_RATE = 0.06; // 6%

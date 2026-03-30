@@ -10,8 +10,8 @@ router.post("/", async (req, res) => {
 
     const bulkOps = records.map((record) => ({
       updateOne: {
-        filter: { _id: record._id },
-        update: { $set: record },
+        filter: { _id: record._id, storeId: req.storeId },
+        update: { $set: { ...record, storeId: req.storeId } },
         upsert: false,
       },
     }));
@@ -38,7 +38,7 @@ router.get("/", async (req, res) => {
     ];
     const today = daysOfWeek[new Date().getDay()];
 
-    const menu = await Menu.find({ days: today });
+    const menu = await Menu.find({ days: today, storeId: req.storeId });
     const result = {
       message: "Today's menu sections retrieved successfully",
       sections: menu,
@@ -53,7 +53,7 @@ router.get("/", async (req, res) => {
 // Return all menu items
 router.get("/all", async (req, res) => {
   try {
-    const menu = await Menu.find();
+    const menu = await Menu.find({ storeId: req.storeId });
     const result = {
       message: "Menu sections retrieved successfully",
       sections: menu,
@@ -69,7 +69,7 @@ router.get("/all", async (req, res) => {
 router.get("/day/:day", async (req, res) => {
   try {
     const { day } = req.params;
-    const menu = await Menu.find({ days: day });
+    const menu = await Menu.find({ days: day, storeId: req.storeId });
     const result = {
       message: `Menu sections for ${day} retrieved successfully`,
       sections: menu,
@@ -96,8 +96,8 @@ router.post("/category/:categoryId/item", async (req, res) => {
 
     // Category ID is manually managed as a String, no ObjectId validation needed.
 
-    const updatedCategory = await Menu.findByIdAndUpdate(
-      categoryId,
+    const updatedCategory = await Menu.findOneAndUpdate(
+      { _id: categoryId, storeId: req.storeId },
       {
         $push: {
           items: {
@@ -138,7 +138,7 @@ router.put("/category/:categoryId/item/:itemId", async (req, res) => {
       });
     }
 
-    const category = await Menu.findById(categoryId);
+    const category = await Menu.findOne({ _id: categoryId, storeId: req.storeId });
     if (!category) {
       // console.log("Category not found for PUT.");
       return res.status(500).json({ message: "Category not found" });
@@ -174,7 +174,7 @@ router.delete("/category/:categoryId/item/:itemId", async (req, res) => {
 
     // Category and Item IDs are manually managed as Strings, no ObjectId validation needed.
 
-    const category = await Menu.findById(categoryId);
+    const category = await Menu.findOne({ _id: categoryId, storeId: req.storeId });
     if (!category) {
       // console.log("Category not found for DELETE.");
       return res.status(500).json({ message: "Category not found" });

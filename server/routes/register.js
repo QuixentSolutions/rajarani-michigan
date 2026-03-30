@@ -5,7 +5,7 @@ const Registration = require("../models/register");
 
 router.post("/", async (req, res) => {
   try {
-    const register = new Registration(req.body);
+    const register = new Registration({ ...req.body, storeId: req.storeId });
     const savedRegistration = await register.save();
 
     // Then send email from frontend using EmailJS
@@ -141,7 +141,7 @@ router.post("/payment", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const orders = await Registration.find().sort({ createdAt: -1 });
+    const orders = await Registration.find({ storeId: req.storeId }).sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) {
     res.status(500).json({ error: err.message });

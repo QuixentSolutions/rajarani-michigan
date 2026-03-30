@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useSelector } from "react-redux";
 import { printOrder } from "../utils/printer";
 const KitchenOrdersTable = ({
   authToken,
@@ -13,6 +14,7 @@ const KitchenOrdersTable = ({
     totalPages: 1,
     currentPage: 1,
   });
+  const storeSlug = useSelector((state) => state.store.selectedStore?.slug);
   const [page, setPage] = useState(1);
   const [printerIp, setPrinterIp] = useState("");
 
@@ -22,7 +24,7 @@ const KitchenOrdersTable = ({
     try {
       setError("");
       const response = await fetch(
-        `/order/kitchen?page=${page}&limit=${limit}`,
+        `/stores/${storeSlug}/order/kitchen?page=${page}&limit=${limit}`,
         {
           headers: {
             Authorization: authToken,

@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
-  orderNumber: { type: String, required: true, unique: true },
+  storeId: { type: String, required: true, index: true },
+  orderNumber: { type: String, required: true },
   customer: {
     name: String,
     phone: String,
@@ -62,5 +63,7 @@ const orderSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
   sentToKitchen: { type: Number, enum: [0, 1], default: 0 },
 });
+
+orderSchema.index({ storeId: 1, orderNumber: 1 }, { unique: true });
 
 module.exports = mongoose.model("Order", orderSchema);

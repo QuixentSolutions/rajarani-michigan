@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const registrationSchema = new mongoose.Schema({
+  storeId: { type: String, required: true, index: true },
   name: {
     type: String,
     required: true,

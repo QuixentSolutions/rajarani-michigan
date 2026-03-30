@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import "./RegistrationCard.css";
+import { useSelector } from "react-redux";
 
 function RegistrationCard() {
+  const storeSlug = useSelector((state) => state.store.selectedStore?.slug);
   const [formData, setFormData] = useState({
     name: "",
     email: "",

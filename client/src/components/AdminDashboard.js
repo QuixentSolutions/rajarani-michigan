@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useSelector } from "react-redux";
 import "./AdminDashboard.css";
 import KitchenOrdersTable from "./KitchenOrdersTable";
 import SuccessPopup from "./SuccessPopup";
@@ -11,9 +12,15 @@ import AdminOrders from "./AdminOrders";
 import AdminMenu from "./AdminMenu";
 import AdminSettings from "./AdminSettings";
 import AdminReports from "./AdminReports";
+import AdminInvoice from "./AdminInvoice";
+import AdminCatering from "./AdminCatering";
+import AdminDineInSales from "./AdminDineInSales";
+import AdminOnlineOrderSales from "./AdminOnlineOrderSales";
 import { printOrder } from "../utils/printer";
 
-const AdminDashboard = ({ onLogout }) => {
+const AdminDashboard = ({ onLogout, onSwitchStore }) => {
+  const storeSlug = useSelector((state) => state.store.selectedStore?.slug);
+  const storeName = useSelector((state) => state.store.selectedStore?.name);
   const [authToken] = useState("Basic " + btoa("admin:password123"));
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -378,7 +385,7 @@ const AdminDashboard = ({ onLogout }) => {
           Authorization: authToken,
           "Content-Type": "application/json",
         },
-      });
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -1071,7 +1078,7 @@ const AdminDashboard = ({ onLogout }) => {
             }`}
             onClick={() => setActiveTab("registrations")}
           >
-            Event Registrations
+            Registrations
           </button>
           <button
             className={`tab-btn ${activeTab === "orders" ? "active" : ""}`}
@@ -1083,7 +1090,7 @@ const AdminDashboard = ({ onLogout }) => {
             className={`tab-btn ${activeTab === "menu" ? "active" : ""}`}
             onClick={() => setActiveTab("menu")}
           >
-            Menu Management
+            Menu
           </button>
           <button
             className={`tab-btn ${activeTab === "settings" ? "active" : ""}`}
@@ -1097,11 +1104,37 @@ const AdminDashboard = ({ onLogout }) => {
           >
             Reports
           </button>
+          {/* Table Orders tab — dine-in order flow disabled
           <button
             className={`tab-btn ${activeTab === "kitchen" ? "active" : ""}`}
             onClick={() => setActiveTab("kitchen")}
           >
             Table Orders
+          </button>
+          */}
+          <button
+            className={`tab-btn ${activeTab === "catering" ? "active" : ""}`}
+            onClick={() => setActiveTab("catering")}
+          >
+            Catering Orders
+          </button>
+          <button
+            className={`tab-btn ${activeTab === "dinein-sales" ? "active" : ""}`}
+            onClick={() => setActiveTab("dinein-sales")}
+          >
+            Dine In Sales
+          </button>
+          <button
+            className={`tab-btn ${activeTab === "online-sales" ? "active" : ""}`}
+            onClick={() => setActiveTab("online-sales")}
+          >
+            Online Order Sales
+          </button>
+          <button
+            className={`tab-btn ${activeTab === "invoice" ? "active" : ""}`}
+            onClick={() => setActiveTab("invoice")}
+          >
+            Expenses
           </button>
         </div>
 
@@ -1160,6 +1193,7 @@ const AdminDashboard = ({ onLogout }) => {
           />
         )}
 
+        {/* Table Orders (dine-in) section — disabled
         {activeTab === "kitchen" && (
           <div className="section-card">
             <KitchenOrdersTable
@@ -1172,6 +1206,15 @@ const AdminDashboard = ({ onLogout }) => {
             />
           </div>
         )}
+        */}
+
+        {activeTab === "catering" && <AdminCatering />}
+
+        {activeTab === "dinein-sales" && <AdminDineInSales />}
+
+        {activeTab === "online-sales" && <AdminOnlineOrderSales />}
+
+        {activeTab === "invoice" && <AdminInvoice />}
 
         {renderModal()}
       </div>

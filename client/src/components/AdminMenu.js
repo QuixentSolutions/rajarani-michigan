@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from "react";
+import { useSelector } from "react-redux";
 import "./AdminMenu.css"; // Import the new CSS file
 
 const spiceLevels = ["Mild", "Medium", "Hot", "Very Mild", "Indian Hot"];
@@ -20,6 +21,7 @@ const AdminMenu = ({
   setError, // Pass setError from AdminDashboard
   setSuccess, // Pass setSuccess from AdminDashboard
 }) => {
+  const storeSlug = useSelector((state) => state.store.selectedStore?.slug);
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("");
   const [selectedSection, setSelectedSection] = useState(null); // Local state for selected section
@@ -805,7 +807,7 @@ const AdminMenu = ({
             alignItems: "center",
           }}
         >
-          <h2 className="section-title">Menu Management</h2>
+          <h2 className="section-title">Menu</h2>
           <button
             className="btn-primary"
             style={{

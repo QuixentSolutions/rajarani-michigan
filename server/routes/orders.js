@@ -1,11 +1,82 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../models/orders");
+const Invoice = require("../models/invoice");
 const emailjs = require("@emailjs/nodejs");
 const axios = require("axios");
 const WebSocket = require("ws");
 const path = require("path");
 const wsServer = require("../ws");
+
+// Build and save an Invoice from one or more Order documents
+async function createInvoiceFromOrders(storeId, orders, paymentMethod) {
+  try {
+    if (!orders || orders.length === 0) return;
+
+    // Merge items from all orders into invoice line items
+    const items = orders.flatMap((o) =>
+      (o.items || []).map((it) => {
+        const addonStr =
+          it.addons && it.addons.length > 0
+            ? ` + ${it.addons.map((a) => a.name).join(", ")}`
+            : "";
+        const spiceStr = it.spiceLevel ? ` (${it.spiceLevel})` : "";
+        return {
+          description: `${(it.name || "").split("_")[0]}${spiceStr}${addonStr}`,
+          qty: it.quantity || 1,
+          unitPrice: parseFloat(it.basePrice) || 0,
+          amount: parseFloat(it.price) || 0,
+        };
+      })
+    );
+
+    const subtotal = orders.reduce((s, o) => s + (o.subTotal || 0), 0);
+    const taxAmt   = orders.reduce((s, o) => s + (o.salesTax || 0), 0);
+    const total    = orders.reduce((s, o) => s + (o.totalAmount || 0), 0);
+    const tips     = orders.reduce((s, o) => s + (o.tips || 0), 0);
+
+    const firstOrder = orders[0];
+    const orderNums  = orders.map((o) => o.orderNumber).join(", ");
+
+    // Build a unique invoice number
+    const invoiceNo = orders.length === 1
+      ? `ORD-${firstOrder.orderNumber}`
+      : `TABLE-${firstOrder.tableNumber || "NA"}-${Date.now()}`;
+
+    const notesParts = [
+      `Order type: ${firstOrder.orderType}`,
+      firstOrder.tableNumber && firstOrder.tableNumber !== "0"
+        ? `Table: ${firstOrder.tableNumber}`
+        : null,
+      `Order #: ${orderNums}`,
+      paymentMethod ? `Payment: ${paymentMethod}` : null,
+      tips > 0 ? `Tips: $${tips.toFixed(2)}` : null,
+    ].filter(Boolean);
+
+    const invoice = new Invoice({
+      storeId,
+      invoiceNo,
+      date: new Date(),
+      customer: {
+        name: firstOrder.customer?.name || "",
+        email: firstOrder.customer?.email || "",
+      },
+      items,
+      subtotal: Math.round(subtotal * 100) / 100,
+      discountPct: 0,
+      discountAmt: 0,
+      taxAmt: Math.round(taxAmt * 100) / 100,
+      total: Math.round((total + tips) * 100) / 100,
+      notes: notesParts.join(" | "),
+      status: "paid",
+    });
+
+    await invoice.save();
+  } catch (err) {
+    // Invoice creation failure must not break the order response
+    console.error("Auto-invoice creation failed:", err.message);
+  }
+}
 
 function buildEmailHTML(items) {
   const rows = items
@@ -66,7 +137,7 @@ function buildEmailHTML(items) {
 
 router.post("/", async (req, res) => {
   try {
-    const order = new Order(req.body);
+    const order = new Order({ ...req.body, storeId: req.storeId });
     const savedOrder = await order.save();
 
     // Only notify for dinein orders here — online orders notify after payment is confirmed
@@ -100,7 +171,7 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const filter = {};
+    const filter = { storeId: req.storeId };
     if (req.query.tableNumber) filter.tableNumber = req.query.tableNumber;
     if (req.query.status) filter.status = req.query.status;
 
@@ -114,6 +185,7 @@ router.get("/", async (req, res) => {
 router.get("/table/:tableno", async (req, res) => {
   try {
     const order = await Order.find({
+      storeId: req.storeId,
       tableNumber: req.params.tableno,
       status: "pending",
     });
@@ -140,7 +212,7 @@ router.get("/table/:tableno", async (req, res) => {
     if (isDineinOrder) {
       // Fetch discount settings to include discount details
       const Settings = require("../models/settings");
-      const settings = await Settings.findOne().sort({ createdAt: -1 });
+      const settings = await Settings.findOne({ storeId: req.storeId }).sort({ createdAt: -1 });
       if (settings?.settings?.discount && settings.settings.discountDetails) {
         const discountDetails = settings.settings.discountDetails;
         const discountPercentage = parseFloat(discountDetails.percentage || 0);
@@ -168,6 +240,7 @@ router.put("/settle", async (req, res) => {
   try {
     req.body.updatedAt = new Date();
     const filter = {
+      storeId: req.storeId,
       orderNumber: { $in: req.body.orderNumbers.split(",") },
       tableNumber: req.body.tableNumber,
     };
@@ -185,6 +258,15 @@ router.put("/settle", async (req, res) => {
 
     const result = await Order.updateMany(filter, update);
     if (!result) return res.status(500).json({ error: "Order not found" });
+
+    // Auto-create invoice from the settled orders
+    const settledOrders = await Order.find({
+      storeId: req.storeId,
+      orderNumber: { $in: req.body.orderNumbers.split(",") },
+      tableNumber: req.body.tableNumber,
+    });
+    await createInvoiceFromOrders(req.storeId, settledOrders, req.body.paymentMethod);
+
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -194,6 +276,7 @@ router.put("/settle", async (req, res) => {
 router.put("/accept", async (req, res) => {
   try {
     const filter = {
+      storeId: req.storeId,
       orderNumber: req.body.orderNumber,
     };
     const order = await Order.findOne(filter);
@@ -217,6 +300,7 @@ router.put("/accept", async (req, res) => {
 router.put("/reject", async (req, res) => {
   try {
     const filter = {
+      storeId: req.storeId,
       orderNumber: req.body.orderNumber,
     };
     const order = await Order.findOne(filter);
@@ -236,9 +320,9 @@ router.put("/reject", async (req, res) => {
 
 router.get("/all", async (req, res) => {
   try {
-    const totalCount = await Order.countDocuments();
+    const totalCount = await Order.countDocuments({ storeId: req.storeId });
     const skip = (req.query.page - 1) * req.query.limit;
-    const orders = await Order.find({})
+    const orders = await Order.find({ storeId: req.storeId })
       .skip(skip)
       .limit(req.query.limit)
       .sort({ createdAt: -1 });
@@ -250,7 +334,7 @@ router.get("/all", async (req, res) => {
 
 router.get("/orderId/:orderId", async (req, res) => {
   try {
-    const order = await Order.findOne({ _id: req.params.orderId });
+    const order = await Order.findOne({ _id: req.params.orderId, storeId: req.storeId });
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
     }
@@ -316,7 +400,7 @@ router.post("/payment", async (req, res) => {
           response.data.transactionResponse?.responseCode === "1" &&
           response.data.messages?.resultCode === "Ok"
         ) {
-          const filter = { orderNumber: orderId };
+          const filter = { storeId: req.storeId, orderNumber: orderId };
           const update = {
             $set: {
               updatedAt: new Date(),
@@ -331,6 +415,9 @@ router.post("/payment", async (req, res) => {
             returnDocument: "after",
           });
 
+          // Auto-create invoice for the paid online order
+          await createInvoiceFromOrders(req.storeId, [order], "online");
+
           const wss = wsServer.getWSS();
 
           wss.clients.forEach((client) => {
@@ -338,6 +425,7 @@ router.post("/payment", async (req, res) => {
               client.send(
                 JSON.stringify({
                   type: "new_order",
+                  storeId: req.storeId,
                   orderNumber: orderId,
                   orderType: "pickup",
                   sentAt: new Date(),
@@ -426,6 +514,7 @@ router.get("/kitchen", async (req, res) => {
     const skip = (page - 1) * limit;
 
     const filter = {
+      storeId: req.storeId,
       orderType: "dinein",
       sentToKitchen: 0,
     };
@@ -444,8 +533,8 @@ router.get("/kitchen", async (req, res) => {
 
 router.put("/kitchen/:id", async (req, res) => {
   try {
-    const result = await Order.findByIdAndUpdate(
-      req.params.id,
+    const result = await Order.findOneAndUpdate(
+      { _id: req.params.id, storeId: req.storeId },
       { sentToKitchen: 1, updatedAt: new Date() },
       { new: true },
     );

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useSelector } from "react-redux";
 
 const OrdersTable = ({ viewOrderDetils }) => {
+  const storeSlug = useSelector((state) => state.store.selectedStore?.slug);
   const [orderReports, setOrderReports] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);

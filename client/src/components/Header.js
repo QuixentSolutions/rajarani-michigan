@@ -27,6 +27,8 @@ function Header() {
   const [isLoading, setIsLoading] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0);
   const [onlinePaymentAmount, setOnlinePaymentAmount] = useState(0);
+  const [tipPercentage, setTipPercentage] = useState(0);
+  const [tipAmount, setTipAmount] = useState(0);
 
   const [finalOrderAmount, setFinalOrderAmount] = useState(0);
   const [discountSettings, setDiscountSettings] = useState(null);
@@ -50,6 +52,8 @@ function Header() {
   }, [localStorageCartItems]);
 
   const dispatch = useDispatch();
+  const selectedStore = useSelector((state) => state.store.selectedStore);
+  const storeSlug = selectedStore?.slug;
 
   const handleCartClick = () => {
     setIsPopupOpen(true);
@@ -90,7 +94,8 @@ function Header() {
       const result = Object.keys(obj).filter((key) => {
         const value = obj[key];
         return (
-          (key === "dinein" || key === "pickup" || key === "delivery") &&
+          // "dinein" order flow is disabled — only pickup and delivery are active
+          (key === "pickup" || key === "delivery") &&
           value === true
         );
       });
@@ -234,6 +239,7 @@ function Header() {
       subTotal: parseFloat(totalAmount.toFixed(2)),
       salesTax: parseFloat(salesTaxAmount.toFixed(2)),
       totalAmount: parseFloat(finalTotalAmount.toFixed(2)),
+      tips: parseFloat(tipAmount.toFixed(2)),
       status: "pending",
     };
 
@@ -252,7 +258,7 @@ function Header() {
       }
 
       if (orderMode !== "dinein") {
-        setOnlinePaymentAmount(parseFloat(finalTotalAmount.toFixed(2)));
+        setOnlinePaymentAmount(parseFloat((finalTotalAmount + tipAmount).toFixed(2)));
         setSuccessOrderId(orderId);
         setIsPaymentPopupOpen(true);
       } else {
@@ -266,6 +272,8 @@ function Header() {
       setEmail("");
       setName("");
       setAddress("");
+      setTipPercentage(0);
+      setTipAmount(0);
 
       // ✅ Clear cart only after successful order
       dispatch(clearCart());
@@ -1134,6 +1142,7 @@ function Header() {
               <br />
               <br />
 
+              {/* Dine-in table selector — disabled (dine-in order flow commented out)
               {orderMode === "dinein" && (
                 <select
                   value={tableNumber}
@@ -1154,6 +1163,7 @@ function Header() {
                   ))}
                 </select>
               )}
+              */}
 
               <div
                 className="option-group"
@@ -1233,6 +1243,49 @@ function Header() {
                   )}
                 </>
               )}
+              {/* Tip selector — shown for pickup/delivery orders */}
+              {orderMode !== "dinein" && (
+                <div style={{ marginTop: "14px", textAlign: "left" }}>
+                  <label style={{ fontWeight: "600", color: "#333", fontSize: "14px" }}>
+                    Add a Tip
+                  </label>
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "6px" }}>
+                    {[0, 10, 15, 18, 20].map((pct) => {
+                      const base = discountSettings
+                        ? (totalAmount - (totalAmount * parseFloat(discountSettings.percentage)) / 100) * 1.06
+                        : totalAmount * 1.06;
+                      return (
+                        <button
+                          key={pct}
+                          type="button"
+                          onClick={() => {
+                            setTipPercentage(pct);
+                            setTipAmount(pct === 0 ? 0 : parseFloat(((base * pct) / 100).toFixed(2)));
+                          }}
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: "20px",
+                            border: "1px solid #ccc",
+                            background: tipPercentage === pct ? "#222" : "white",
+                            color: tipPercentage === pct ? "white" : "#333",
+                            cursor: "pointer",
+                            fontSize: "13px",
+                            fontWeight: "500",
+                          }}
+                        >
+                          {pct === 0 ? "No Tip" : `${pct}%`}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {tipAmount > 0 && (
+                    <p style={{ color: "#28a745", fontSize: "13px", margin: "6px 0 0" }}>
+                      Tip: ${tipAmount.toFixed(2)}
+                    </p>
+                  )}
+                </div>
+              )}
+
               <button
                 onClick={handleOrderNow}
                 disabled={isCartEmpty}

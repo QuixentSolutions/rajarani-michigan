@@ -10,7 +10,12 @@ module.exports = {
       console.log("WebSocket connected");
 
       ws.on("message", (msg) => {
-        console.log("Received:", msg.toString());
+        try {
+          const data = JSON.parse(msg.toString());
+          if (data.type === "ping") {
+            ws.send(JSON.stringify({ type: "pong" }));
+          }
+        } catch (_) {}
       });
 
       ws.on("close", () => {

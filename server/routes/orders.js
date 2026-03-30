@@ -140,7 +140,9 @@ router.post("/", async (req, res) => {
     const order = new Order({ ...req.body, storeId: req.storeId });
     const savedOrder = await order.save();
 
-    const wss = wsServer.getWSS();
+    // Only notify for dinein orders here — online orders notify after payment is confirmed
+    if (savedOrder.orderType === "dinein") {
+      const wss = wsServer.getWSS();
 
     wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {

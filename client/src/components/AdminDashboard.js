@@ -209,7 +209,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     const connectWebSocket = () => {
       if (isUnmounted) return;
 
-      ws = new WebSocket("wss://rajaranimichigan.com/ws");
+      ws = new WebSocket("wss://rajaranieats.com/ws");
       wsRef.current = ws;
 
       ws.onopen = () => {

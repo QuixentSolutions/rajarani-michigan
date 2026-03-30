@@ -31,12 +31,12 @@ mongoose
   .then(() => console.log("MongoDB connected successfully"))
   .catch((err) => console.error("MongoDB connection error:", err.message));
 
-app.use("/api/health", healthRoutes);
-app.use("/api/menu", menuRoutes);
-app.use("/api/order", orderRoutes);
-app.use("/api/register", registerRoutes);
-app.use("/api/settings", settingsRoutes);
-app.use("/api/printer", printerRoutes);
+app.use("/health", healthRoutes);
+app.use("/menu", menuRoutes);
+app.use("/order", orderRoutes);
+app.use("/register", registerRoutes);
+app.use("/settings", settingsRoutes);
+app.use("/printer", printerRoutes);
 
 // Serve React build
 app.use(express.static(path.join(__dirname, "../client/build")));
@@ -48,7 +48,7 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 5001;
 const server = app.listen(PORT, "0.0.0.0", () =>
-  console.log(`Server running on http://0.0.0.0:${PORT}`)
+  console.log(`Server running on http://0.0.0.0:${PORT}`),
 );
 
 wsServer.init(server);

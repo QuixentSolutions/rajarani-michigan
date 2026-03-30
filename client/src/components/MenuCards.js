@@ -23,7 +23,7 @@ function Menu() {
     price,
     basePrice,
     spicelevel,
-    addons
+    addons,
   ) => {
     setMenuSections([]);
     const result = await fetchMenu();
@@ -64,7 +64,7 @@ function Menu() {
         basePrice,
         spiceLevel,
         addons,
-      })
+      }),
     );
 
     if (change === 1) {
@@ -80,7 +80,7 @@ function Menu() {
           <span style={{ fontSize: "0.8em", color: "#555" }}>
             Finalize cart, then place order at cart icon on top
           </span>
-        </>
+        </>,
       );
       setTimeout(() => setNotification(null), 1500);
     }
@@ -112,7 +112,7 @@ function Menu() {
       (prev) =>
         prev.some((a) => a.name === addon.name)
           ? prev.filter((a) => a.name !== addon.name)
-          : [...prev, addon] // ✅ store full object, not just name
+          : [...prev, addon], // ✅ store full object, not just name
     );
   };
   return (
@@ -204,7 +204,7 @@ function Menu() {
                           ? sum + cartItem.quantity
                           : sum;
                       },
-                      0
+                      0,
                     );
 
                     const price = item.newPrice || item.price || 0;
@@ -286,7 +286,7 @@ function Menu() {
                                 basePrice,
                                 item.spicelevel,
                                 item.addons,
-                                e
+                                e,
                               )
                             }
                           />
@@ -386,7 +386,7 @@ function Menu() {
                         type="checkbox"
                         value={addon.name}
                         checked={selectedAddons.some(
-                          (a) => a.name === addon.name
+                          (a) => a.name === addon.name,
                         )}
                         onChange={() => toggleAddon(addon)}
                       />

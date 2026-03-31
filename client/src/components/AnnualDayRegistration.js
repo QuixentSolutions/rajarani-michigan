@@ -855,90 +855,91 @@ function AnnualDayRegistration({ isOpen, onClose }) {
               </button>
             </form>
           </div>
-
-          <style jsx>{`
-            .payment-overlay {
-              position: fixed;
-              top: 0;
-              left: 0;
-              right: 0;
-              bottom: 0;
-              background-color: rgba(0, 0, 0, 0.5);
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              z-index: 2000; /* Higher than main modal */
-            }
-
-            .payment-card {
-              background: linear-gradient(135deg, #ffffff, #f9f9f9);
-              padding: 30px;
-              border-radius: 16px;
-              width: 400px;
-              box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-              text-align: center;
-            }
-
-            .payment-card h2 {
-              margin-bottom: 20px;
-              color: #333;
-            }
-
-            .payment-form {
-              display: flex;
-              flex-direction: column;
-              gap: 15px;
-            }
-
-            .payment-input {
-              padding: 12px 15px;
-              font-size: 16px;
-              border: 1px solid #ddd;
-              border-radius: 8px;
-              outline: none;
-              transition: border 0.3s ease;
-            }
-
-            .payment-input:focus {
-              border-color: #4a90e2;
-            }
-
-            .payment-row {
-              display: flex;
-              gap: 10px;
-              justify-content: flex-start;
-            }
-
-            .payment-input.small-field {
-              width: 6rem;
-              font-size: 14px;
-              padding: 8px 10px;
-            }
-
-            .payment-button {
-              padding: 14px;
-              font-size: 16px;
-              font-weight: bold;
-              color: #fff;
-              background: linear-gradient(90deg, #4a90e2, #357abd);
-              border: none;
-              border-radius: 8px;
-              cursor: pointer;
-              transition:
-                background 0.3s ease,
-                transform 0.1s ease;
-            }
-
-            .payment-button:hover {
-              background: linear-gradient(90deg, #357abd, #2a5d9f);
-            }
-
-            .payment-button:active {
-              transform: scale(0.97);
-            }
-          `}</style>
         </div>
       )}
+
+      <style jsx>{`
+        .payment-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 2000; /* Higher than main modal */
+        }
+
+        .payment-card {
+          background: linear-gradient(135deg, #ffffff, #f9f9f9);
+          padding: 30px;
+          border-radius: 16px;
+          width: 400px;
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+          text-align: center;
+        }
+
+        .payment-card h2 {
+          margin-bottom: 20px;
+          color: #333;
+        }
+
+        .payment-form {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+        }
+
+        .payment-input {
+          padding: 12px 15px;
+          font-size: 16px;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          outline: none;
+          transition: border 0.3s ease;
+        }
+
+        .payment-input:focus {
+          border-color: #4a90e2;
+        }
+
+        .payment-row {
+          display: flex;
+          gap: 10px;
+          justify-content: flex-start;
+        }
+
+        .payment-input.small-field {
+          width: 6rem;
+          font-size: 14px;
+          padding: 8px 10px;
+        }
+
+        .payment-button {
+          padding: 14px;
+          font-size: 16px;
+          font-weight: bold;
+          color: #fff;
+          background: linear-gradient(90deg, #4a90e2, #357abd);
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          transition:
+            background 0.3s ease,
+            transform 0.1s ease;
+        }
+
+        .payment-button:hover {
+          background: linear-gradient(90deg, #357abd, #2a5d9f);
+        }
+
+        .payment-button:active {
+          transform: scale(0.97);
+        }
+      `}</style>
+
       <FancyAlert alert={alertState} onClose={alertState?.onClose} />
     </>
   );

@@ -311,7 +311,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
 
       // First process payment (also race against timeout)
       const paymentResult = await Promise.race([
-        fetch(`/api/register/payment`, {
+        fetch(`/api/stores/register/payment`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

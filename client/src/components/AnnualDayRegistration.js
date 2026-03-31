@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import "./AnnualDayRegistration.css";
 import { FaTimes } from "react-icons/fa";
@@ -113,10 +113,21 @@ function AnnualDayRegistration({ isOpen, onClose }) {
         },
       }),
     );
-  const [cardNumber, setCardNumber] = useState("");
+  const [cardParts, setCardParts] = useState(["", "", "", ""]);
   const [expMonth, setExpMonth] = useState("");
   const [expYear, setExpYear] = useState("");
   const [cvv, setCvv] = useState("");
+  const cardPartRefs = [useRef(), useRef(), useRef(), useRef()];
+
+  const handleCardPartChange = (index, value) => {
+    const digits = value.replace(/\D/g, "").slice(0, 4);
+    const updated = [...cardParts];
+    updated[index] = digits;
+    setCardParts(updated);
+    if (digits.length === 4 && index < 3) {
+      cardPartRefs[index + 1].current.focus();
+    }
+  };
 
   // Calculate totals based on veg/non-veg counts
   const calculateTotals = () => {
@@ -239,7 +250,8 @@ function AnnualDayRegistration({ isOpen, onClose }) {
   const sendPayment = async (e) => {
     e.preventDefault();
 
-    if (!cardNumber) {
+    const cardNumber = cardParts.join("");
+    if (cardNumber.length < 16) {
       await showAlert("Card number cannot be empty", "warning");
       return;
     }
@@ -249,7 +261,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
       return;
     }
 
-    if (expMonth > 12 || expMonth < 1) {
+    if (parseInt(expMonth) > 12 || parseInt(expMonth) < 1) {
       await showAlert("Invalid expiry month", "warning");
       return;
     }
@@ -259,7 +271,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
       return;
     }
 
-    if (expYear < 25) {
+    if (parseInt(expYear) < 26) {
       await showAlert("Invalid expiry year", "warning");
       return;
     }
@@ -374,7 +386,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
           vegCount: "1",
           nonVegCount: "0",
         });
-        setCardNumber("");
+        setCardParts(["", "", "", ""]);
         setExpMonth("");
         setExpYear("");
         setCvv("");
@@ -812,37 +824,52 @@ function AnnualDayRegistration({ isOpen, onClose }) {
             </h2>
 
             <form onSubmit={sendPayment} className="payment-form">
-              <input
-                className="payment-input"
-                value={cardNumber}
-                onChange={(e) => setCardNumber(e.target.value)}
-                placeholder="Card Number"
-                type="number"
-              />
               <div className="payment-row">
-                <input
+                {cardParts.map((part, i) => (
+                  <input
+                    key={i}
+                    ref={cardPartRefs[i]}
+                    className="payment-input card-part"
+                    value={part}
+                    onChange={(e) => handleCardPartChange(i, e.target.value)}
+                    placeholder="0000"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={4}
+                  />
+                ))}
+              </div>
+              <div className="payment-row">
+                <select
                   className="payment-input small-field"
                   value={expMonth}
                   onChange={(e) => setExpMonth(e.target.value)}
-                  placeholder="MM"
-                  type="number"
-                  maxlength="2"
-                />
-                <input
+                >
+                  <option value="">MM</option>
+                  {["01","02","03","04","05","06","07","08","09","10","11","12"].map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+                <select
                   className="payment-input small-field"
                   value={expYear}
                   onChange={(e) => setExpYear(e.target.value)}
-                  placeholder="YY"
-                  type="number"
-                  maxlength="2"
-                />
+                >
+                  <option value="">YY</option>
+                  {Array.from({ length: 30 }, (_, i) => String(26 + i)).map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
                 <input
                   className="payment-input small-field"
                   value={cvv}
-                  onChange={(e) => setCvv(e.target.value)}
+                  onChange={(e) =>
+                    setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))
+                  }
                   placeholder="CVV"
-                  type="number"
-                  maxlength="2"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={3}
                 />
               </div>
 

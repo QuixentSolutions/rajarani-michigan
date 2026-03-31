@@ -340,6 +340,12 @@
 }
 
 /* Responsive Design */
+.payment-input.card-part {
+  width: 5rem;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
 @media (max-width: 768px) {
   .annual-day-modal {
     width: 95%;

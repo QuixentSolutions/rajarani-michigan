@@ -1,10 +1,50 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "./AnnualDayRegistration.css";
 import { FaTimes } from "react-icons/fa";
-import { useSelector } from "react-redux";
+
+
+// ── Fancy Alert ───────────────────────────────────────────────────────────────
+function FancyAlert({ alert, onClose }) {
+  if (!alert) return null;
+  const icons = { success: "✅", error: "❌", warning: "⚠️", info: "ℹ️" };
+  const colors = { success: "#28a745", error: "#dc3545", warning: "#fd7e14", info: "#007bff" };
+  const type = alert.type || "info";
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 9999, padding: 16,
+    }}>
+      <div style={{
+        background: "#fff", borderRadius: 16, padding: "32px 28px",
+        maxWidth: 380, width: "100%", textAlign: "center",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+        animation: "fadeInUp 0.2s ease",
+      }}>
+        <div style={{ fontSize: 52, lineHeight: 1, marginBottom: 14 }}>{icons[type]}</div>
+        {alert.title && (
+          <h3 style={{ margin: "0 0 10px", fontSize: 18, color: "#222" }}>{alert.title}</h3>
+        )}
+        <p style={{ margin: "0 0 24px", fontSize: 14, color: "#555", lineHeight: 1.6 }}>
+          {alert.message}
+        </p>
+        <button
+          onClick={onClose}
+          style={{
+            padding: "10px 32px", borderRadius: 8, border: "none",
+            background: colors[type], color: "#fff", fontWeight: 700,
+            fontSize: 15, cursor: "pointer",
+          }}
+        >
+          {alert.btnText || "OK"}
+        </button>
+      </div>
+      <style>{`@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}`}</style>
+    </div>
+  );
+}
 
 function AnnualDayRegistration({ isOpen, onClose }) {
-  const storeSlug = useSelector((state) => state.store.selectedStore?.slug);
   const VEG_PRICE = 8;
   const NON_VEG_PRICE = 9;
   const SALES_TAX_RATE = 0.06; // 6%
@@ -20,7 +60,15 @@ function AnnualDayRegistration({ isOpen, onClose }) {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [isPaymentPopupOpen, setIsPaymentPopupOpen] = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [successOrderId, setSuccessOrderId] = useState("");
+  const [alertState, setAlertState] = useState(null);
+
+  const showAlert = (message, type = "info", title = "", btnText = "OK") =>
+    new Promise((resolve) =>
+      setAlertState({ message, type, title, btnText, onClose: () => { setAlertState(null); resolve(); } })
+    );
   const [cardNumber, setCardNumber] = useState("");
   const [expMonth, setExpMonth] = useState("");
   const [expYear, setExpYear] = useState("");
@@ -116,7 +164,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
         // Don't close main modal yet - wait until payment is complete
       } catch (err) {
         console.error("Registration process error:", err);
-        alert(`Registration Failed: ${err.message}`);
+        await showAlert(err.message, "error", "Registration Failed");
       } finally {
         setIsLoading(false);
       }
@@ -148,75 +196,85 @@ function AnnualDayRegistration({ isOpen, onClose }) {
     e.preventDefault();
 
     if (!cardNumber) {
-      alert("Card number cannot be empty");
+      await showAlert("Card number cannot be empty", "warning");
       return;
     }
 
     if (!expMonth) {
-      alert("Expiry Month cannot be empty");
+      await showAlert("Expiry month cannot be empty", "warning");
       return;
     }
 
     if (expMonth > 12 || expMonth < 1) {
-      alert("Invalid Expiry Month ");
+      await showAlert("Invalid expiry month", "warning");
       return;
     }
 
     if (!expYear) {
-      alert("Expiry year cannot be empty");
+      await showAlert("Expiry year cannot be empty", "warning");
       return;
     }
 
     if (expYear < 25) {
-      alert("Invalid Expiry year");
+      await showAlert("Invalid expiry year", "warning");
       return;
     }
 
     if (!cvv) {
-      alert("CVV cannot be empty");
+      await showAlert("CVV cannot be empty", "warning");
       return;
     }
-
-    setIsLoading(true);
-    setIsPaymentPopupOpen(false);
-
-    const secureData = {
-      authData: {
-        clientKey:
-          "3p45FqNUmcJ7ch57c4d2qyZ4G4ktE52UN6vL6Rpd7P4j5b3ca3zgw6r6C8LVwfuF", // from sandbox or production
-        apiLoginID: "4nhA365NPUm", // from sandbox or production
-      },
-      cardData: { cardNumber, month: expMonth, year: expYear, cardCode: cvv },
-    };
 
     if (!window.Accept || !window.Accept.dispatchData) {
-      alert("Payment library not loaded");
-      setIsLoading(false);
+      await showAlert("Payment library not loaded. Please refresh the page.", "error");
       return;
     }
 
-    // Wrap dispatchData in a Promise to use async/await
-    const response = await new Promise((resolve, reject) => {
-      window.Accept.dispatchData(secureData, (res) => {
-        if (res.messages.resultCode === "Error") {
-          reject(res.messages.message[0].text);
-        } else {
-          resolve(res);
-        }
-      });
-    });
+    setIsPaymentPopupOpen(false);
+    setIsLoading(true);
+    setPaymentError(null);
+    setPaymentSuccess(false);
+
+    const TIMEOUT_MS = 30000;
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("TIMEOUT")), TIMEOUT_MS)
+    );
 
     try {
-      // First process payment
-      const paymentResult = await fetch("/api/register/payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          opaqueData: response.opaqueData,
-          amount: totalAmount,
-          registrationId: successOrderId,
-        }),
+      const secureData = {
+        authData: {
+          clientKey:
+            "3p45FqNUmcJ7ch57c4d2qyZ4G4ktE52UN6vL6Rpd7P4j5b3ca3zgw6r6C8LVwfuF",
+          apiLoginID: "4nhA365NPUm",
+        },
+        cardData: { cardNumber, month: expMonth, year: expYear, cardCode: cvv },
+      };
+
+      // Wrap dispatchData in a Promise and race against timeout
+      const dispatchPromise = new Promise((resolve, reject) => {
+        window.Accept.dispatchData(secureData, (res) => {
+          if (res.messages.resultCode === "Error") {
+            reject(new Error(res.messages.message[0].text));
+          } else {
+            resolve(res);
+          }
+        });
       });
+      const response = await Promise.race([dispatchPromise, timeoutPromise]);
+
+      // First process payment (also race against timeout)
+      const paymentResult = await Promise.race([
+        fetch("/api/register/payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            opaqueData: response.opaqueData,
+            amount: totalAmount,
+            registrationId: successOrderId,
+          }),
+        }),
+        timeoutPromise,
+      ]);
 
       const paymentData = await paymentResult.json();
 
@@ -247,9 +305,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
         // Save registration to database
         const dbResponse = await fetch("/api/register", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(registrationData),
         });
 
@@ -262,13 +318,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
         }
 
         // Payment and registration successful
-        setIsLoading(false);
-        setIsPaymentPopupOpen(false);
-        alert(
-          "Annual Day Registration successful! Payment completed. Confirmation email sent.",
-        );
-
-        // Reset form and close both modals
+        setPaymentSuccess(true);
         setFormData({
           name: "",
           email: "",
@@ -281,19 +331,20 @@ function AnnualDayRegistration({ isOpen, onClose }) {
         setExpMonth("");
         setExpYear("");
         setCvv("");
-        onClose(); // Close main modal only after payment success
       } else {
-        // Payment failed
-        setIsLoading(false);
+        setPaymentError(paymentData.message || "Payment could not be processed");
         setIsPaymentPopupOpen(false);
-        alert(
-          `Payment Failed: ${paymentData.message || "Payment could not be processed"}`,
-        );
       }
     } catch (error) {
-      setIsLoading(false);
+      const isTimeout = error.message === "TIMEOUT";
+      setPaymentError(
+        isTimeout
+          ? "Payment timed out. Please try again or contact us to complete your booking."
+          : error.message
+      );
       setIsPaymentPopupOpen(false);
-      alert(`Payment Error: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -544,6 +595,97 @@ function AnnualDayRegistration({ isOpen, onClose }) {
         </div>
       </div>
 
+      {/* Payment Loading Screen */}
+      {isLoading && (
+        <div className="payment-overlay">
+          <div className="payment-card" style={{ textAlign: "center", padding: "48px 32px" }}>
+            <div style={{
+              width: 56, height: 56, border: "5px solid #e9ecef",
+              borderTop: "5px solid #4a90e2", borderRadius: "50%",
+              animation: "spin 0.8s linear infinite", margin: "0 auto 20px",
+            }} />
+            <h3 style={{ color: "#333", marginBottom: 8 }}>Processing Payment</h3>
+            <p style={{ color: "#888", fontSize: 14 }}>Please wait, do not close this window…</p>
+            <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Success Screen */}
+      {paymentSuccess && (
+        <div className="payment-overlay">
+          <div className="payment-card" style={{ textAlign: "center", padding: "40px 32px" }}>
+            <div style={{ fontSize: 64, marginBottom: 12 }}>✅</div>
+            <h3 style={{ color: "#28a745", marginBottom: 8, fontSize: 22 }}>Registration Successful!</h3>
+            <p style={{ color: "#555", fontSize: 14, marginBottom: 6 }}>
+              Payment completed for <strong>{successOrderId}</strong>.
+            </p>
+            <p style={{ color: "#555", fontSize: 14, marginBottom: 24 }}>
+              A confirmation email has been sent to you.
+            </p>
+            <button
+              onClick={() => { setPaymentSuccess(false); onClose(); }}
+              style={{
+                padding: "12px 32px", borderRadius: 8, border: "none",
+                background: "#28a745", color: "#fff", fontWeight: 700,
+                fontSize: 16, cursor: "pointer",
+              }}
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Error Screen */}
+      {paymentError && (
+        <div className="payment-overlay">
+          <div className="payment-card" style={{ textAlign: "center", maxWidth: 420 }}>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>⚠️</div>
+            <h3 style={{ color: "#dc3545", marginBottom: 10 }}>Payment Issue</h3>
+            <p style={{ color: "#555", fontSize: 14, marginBottom: 20 }}>{paymentError}</p>
+            <p style={{ fontWeight: 600, marginBottom: 6, fontSize: 15 }}>
+              Please contact us to complete your booking:
+            </p>
+            <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>Dinesh</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
+              <a
+                href="tel:+17327629918"
+                style={{
+                  display: "block", padding: "10px 16px", borderRadius: 8,
+                  background: "#343a40", color: "#fff", textDecoration: "none",
+                  fontWeight: 600, fontSize: 15,
+                }}
+              >
+                📞 Call: +1 (732) 762-9918
+              </a>
+              <a
+                href="https://wa.me/17327629918"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "block", padding: "10px 16px", borderRadius: 8,
+                  background: "#25D366", color: "#fff", textDecoration: "none",
+                  fontWeight: 600, fontSize: 15,
+                }}
+              >
+                💬 WhatsApp: +1 (732) 762-9918
+              </a>
+            </div>
+            <button
+              onClick={() => { setPaymentError(null); setIsPaymentPopupOpen(true); }}
+              style={{
+                marginTop: 16, padding: "8px 20px", borderRadius: 6,
+                border: "1px solid #ccc", background: "#fff",
+                cursor: "pointer", fontSize: 14, fontWeight: 600,
+              }}
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Payment Popup */}
       {isPaymentPopupOpen && (
         <div className="payment-overlay">
@@ -595,8 +737,8 @@ function AnnualDayRegistration({ isOpen, onClose }) {
                 />
               </div>
 
-              <button type="submit" className="payment-button">
-                Pay ${totalAmount.toFixed(2)}
+              <button type="submit" className="payment-button" disabled={isLoading}>
+                {isLoading ? "Processing..." : `Pay $${totalAmount.toFixed(2)}`}
               </button>
             </form>
           </div>
@@ -684,6 +826,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
           `}</style>
         </div>
       )}
+      <FancyAlert alert={alertState} onClose={alertState?.onClose} />
     </>
   );
 }

@@ -157,7 +157,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
       async (page = 1, searchQuery = "") => {
         try {
           setError("");
-          const url = `/api/${type}?page=${page}${
+          const url = `/stores/${storeSlug}/${type}?page=${page}${
             searchQuery ? `&search=${searchQuery}` : ""
           }`;
           const data = await fetchData(url, authToken);
@@ -209,8 +209,14 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     onlineAudioRef.current = new Audio("/new-online-order.mp3");
     dineinAudioRef.current = new Audio("/new-dinein-order.mp3");
     // Play + immediately pause to unlock both audio objects
-    onlineAudioRef.current.play().then(() => onlineAudioRef.current.pause()).catch(() => {});
-    dineinAudioRef.current.play().then(() => dineinAudioRef.current.pause()).catch(() => {});
+    onlineAudioRef.current
+      .play()
+      .then(() => onlineAudioRef.current.pause())
+      .catch(() => {});
+    dineinAudioRef.current
+      .play()
+      .then(() => dineinAudioRef.current.pause())
+      .catch(() => {});
     setAudioEnabled(true);
   };
 
@@ -360,7 +366,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
 
   useEffect(() => {
     const loadData = async () => {
-      const dbResponse = await fetch("/api/settings/latest", {
+      const dbResponse = await fetch(`/stores/${storeSlug}/settings/latest`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -379,11 +385,14 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
   const showBill = async (tableNo) => {
     try {
       setTableNo(tableNo);
-      const response = await fetch(`/api/order/table/${tableNo}`, {
-        method: "GET",
-        headers: {
-          Authorization: authToken,
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `/stores/${storeSlug}/order/table/${tableNo}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: authToken,
+            "Content-Type": "application/json",
+          },
         },
       );
 
@@ -418,7 +427,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
   const handleSaveMenu = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/menu`, {
+      const response = await fetch(`/stores/${storeSlug}/menu`, {
         method: "POST",
         headers: {
           Authorization: authToken,
@@ -836,7 +845,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch("/api/order/settle", {
+      const dbResponse = await fetch(`/stores/${storeSlug}/order/settle`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -879,7 +888,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch("/api/order/accept", {
+      const dbResponse = await fetch(`/stores/${storeSlug}/order/accept`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -894,7 +903,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
       }
 
       const orderDetailsResponse = await fetch(
-        `/api/order/orderId/${orderNumber}`,
+        `/stores/${storeSlug}/order/orderId/${orderNumber}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -920,7 +929,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch("/api/order/reject", {
+      const dbResponse = await fetch(`/stores/${storeSlug}/order/reject`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -952,7 +961,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch("/api/order/settle", {
+      const dbResponse = await fetch(`/stores/${storeSlug}/order/settle`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1007,7 +1016,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     }
 
     try {
-      const dbResponse = await fetch("/api/settings", {
+      const dbResponse = await fetch(`/stores/${storeSlug}/settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1031,12 +1040,6 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     }
   };
 
-  const viewOrderDetils = async (items) => {
-    setSelectedItem(items);
-    setModalType(`view-order-report-details`);
-    setShowModal(true);
-  };
-
   return (
     <>
       {isSuccessPopupOpen && (
@@ -1057,8 +1060,45 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
         <div className="dashboard-header">
           <h1>Raja Rani Admin Dashboard</h1>
           <div className="header-actions">
+            {storeName && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  background: "rgba(255,255,255,0.1)",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  borderRadius: "20px",
+                  padding: "4px 14px",
+                  fontSize: "0.85rem",
+                  color: "#fff",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <span style={{ opacity: 0.7 }}>📍</span>
+                <span style={{ fontWeight: 600 }}>{storeName}</span>
+                <button
+                  onClick={onSwitchStore}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#f5a623",
+                    cursor: "pointer",
+                    fontSize: "0.78rem",
+                    padding: "0 0 0 4px",
+                    fontWeight: 600,
+                  }}
+                >
+                  Switch
+                </button>
+              </div>
+            )}
             {!audioEnabled && (
-              <button onClick={enableAudio} className="logout-btn" style={{ backgroundColor: "#e67e22" }}>
+              <button
+                onClick={enableAudio}
+                className="logout-btn"
+                style={{ backgroundColor: "#e67e22" }}
+              >
                 🔔 Enable Sound
               </button>
             )}
@@ -1102,7 +1142,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
             className={`tab-btn ${activeTab === "reports" ? "active" : ""}`}
             onClick={() => setActiveTab("reports")}
           >
-            Reports
+            Order Reports
           </button>
           {/* Table Orders tab — dine-in order flow disabled
           <button
@@ -1183,15 +1223,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
           />
         )}
 
-        {activeTab === "reports" && (
-          <AdminReports
-            viewOrderDetils={viewOrderDetils}
-            renderPagination={renderPagination}
-            ordersData={orders}
-            fetchOrders={fetchOrders}
-            searchOrderQuery={searchOrderQuery}
-          />
-        )}
+        {activeTab === "reports" && <AdminReports />}
 
         {/* Table Orders (dine-in) section — disabled
         {activeTab === "kitchen" && (

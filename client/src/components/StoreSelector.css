@@ -16,6 +16,26 @@
   width: 100%;
   text-align: center;
   color: #fff;
+  position: relative;
+}
+
+.store-selector-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+
+.store-selector-close:hover {
+  color: #fff;
 }
 
 .store-selector-logo {

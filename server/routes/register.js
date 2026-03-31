@@ -3,10 +3,38 @@ const router = express.Router();
 const emailjs = require("@emailjs/nodejs");
 const Registration = require("../models/register");
 
+function buildRegistrationHTML(body) {
+  const veg = Number(body.vegCount) || 0;
+  const nonVeg = Number(body.nonVegCount) || 0;
+  const total = veg + nonVeg;
+
+  const row = (label, value) =>
+    `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;white-space:nowrap;">${label}</td>` +
+    `<td style="padding:6px 12px;border-bottom:1px solid #eee;">${value}</td></tr>`;
+
+  return (
+    `<table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;font-size:14px;">` +
+    `<thead><tr style="background:#343a40;color:#fff;">` +
+    `<th style="padding:8px 12px;text-align:left;">Detail</th>` +
+    `<th style="padding:8px 12px;text-align:left;">Info</th>` +
+    `</tr></thead><tbody>` +
+    row("Event Name", body.eventName?.trim() || "—") +
+    row("Event Date", body.eventDate?.trim() || "—") +
+    row("Guest Name", body.name?.trim() || "—") +
+    row("Mobile", body.mobile?.trim() || "—") +
+    row("Veg Guests", veg) +
+    row("Non-Veg Guests", nonVeg) +
+    row("Total Guests", `<strong>${total}</strong>`) +
+    `</tbody></table>`
+  );
+}
+
 router.post("/", async (req, res) => {
   try {
     const register = new Registration({ ...req.body, storeId: req.storeId });
     const savedRegistration = await register.save();
+
+    const registrationHTML = buildRegistrationHTML(req.body);
 
     // Then send email from frontend using EmailJS
     const templateParams = {
@@ -15,6 +43,7 @@ router.post("/", async (req, res) => {
       eventDate: req.body.eventDate.trim(),
       eventName: req.body.eventName.trim(),
       mobile: req.body.mobile.trim(),
+      order_details: registrationHTML,
     };
 
     const serviceId = process.env.EMAILJS_SERVICE_ID;

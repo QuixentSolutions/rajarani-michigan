@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Provider, useSelector } from "react-redux";
 import { store } from "./store";
@@ -16,11 +16,10 @@ import StoreSelector from "./components/StoreSelector";
 
 import "./App.css";
 
-// This new component will group all your homepage content
-const HomePage = () => {
+const HomePage = ({ onChangeStore }) => {
   return (
     <>
-      <Header />
+      <Header onChangeStore={onChangeStore} />
       <ReviewBanner />
       <AnnualDayBanner />
       <Hero />
@@ -35,8 +34,20 @@ const HomePage = () => {
 
 function StoreGate({ children }) {
   const selectedStore = useSelector((state) => state.store.selectedStore);
+  const [showChangeStore, setShowChangeStore] = useState(false);
+
   if (!selectedStore) return <StoreSelector />;
-  return children;
+
+  return (
+    <>
+      {showChangeStore && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999 }}>
+          <StoreSelector onCancel={() => setShowChangeStore(false)} />
+        </div>
+      )}
+      {React.cloneElement(children, { onChangeStore: () => setShowChangeStore(true) })}
+    </>
+  );
 }
 
 function App() {
@@ -45,10 +56,7 @@ function App() {
       <Router>
         <div className="whole-container">
           <Routes>
-            {/* Route for your main homepage */}
             <Route path="/" element={<StoreGate><HomePage /></StoreGate>} />
-
-            {/* Route for the admin with authentication */}
             <Route path="/admin" element={<AdminApp />} />
           </Routes>
         </div>

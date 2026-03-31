@@ -1,15 +1,16 @@
 import { SocialIcon } from "react-social-icons";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { clearCart, rehydrateCart } from "../cartSlice";
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
+import "./Header.css";
 // import AnniversaryPopup from "./AnniversaryPopup";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import { View, Text, TouchableOpacity } from "react-native";
 
-function Header() {
+function Header({ onChangeStore }) {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [mobileNumber, setMobileNumber] = useState("+1");
   const [email, setEmail] = useState("");
@@ -23,6 +24,7 @@ function Header() {
   const [address, setAddress] = useState("");
   const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
   const [isPaymentPopupOpen, setIsPaymentPopupOpen] = useState(false);
+  const [paymentErrorMsg, setPaymentErrorMsg] = useState(null);
   const [successOrderId, setSuccessOrderId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0);
@@ -34,7 +36,6 @@ function Header() {
   const [discountSettings, setDiscountSettings] = useState(null);
 
   const [deliveryModes, setDeliveryModes] = useState([
-    "dinein",
     "pickup",
     "delivery",
   ]);
@@ -80,7 +81,7 @@ function Header() {
 
   useEffect(() => {
     const loadData = async () => {
-      const dbResponse = await fetch("/api/settings/latest", {
+      const dbResponse = await fetch(`/stores/${storeSlug}/settings/latest`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -245,7 +246,7 @@ function Header() {
 
     try {
       // First, save order to database
-      const dbResponse = await fetch("/api/order", {
+      const dbResponse = await fetch(`/stores/${storeSlug}/order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),
@@ -356,10 +357,24 @@ function Header() {
   };
 
   const PaymentPopup = () => {
-    const [cardNumber, setCardNumber] = useState("");
+    const [cardParts, setCardParts] = useState(["", "", "", ""]);
     const [expMonth, setExpMonth] = useState("");
     const [expYear, setExpYear] = useState("");
     const [cvv, setCvv] = useState("");
+    const [validationError, setValidationError] = useState("");
+    const cardPartRefs = [useRef(), useRef(), useRef(), useRef()];
+
+    const handleCardPartChange = (index, value) => {
+      const digits = value.replace(/\D/g, "").slice(0, 4);
+      const updated = [...cardParts];
+      updated[index] = digits;
+      setCardParts(updated);
+      if (digits.length === 4 && index < 3) {
+        cardPartRefs[index + 1].current.focus();
+      }
+    };
+
+    const cardNumber = cardParts.join("");
 
     async function fetchWithTimeout(url, options, timeout = 30000) {
       return Promise.race([
@@ -373,38 +388,13 @@ function Header() {
     const sendPayment = async (e) => {
       e.preventDefault();
 
-      if (!cardNumber) {
-        alert("Card number cannot be empty");
-        return;
-      }
-
-      if (!expMonth) {
-        alert("Expiry Month cannot be empty");
-        return;
-      }
-
-      if (expMonth > 12 || expMonth < 1) {
-        alert("Invalid Expiry Month ");
-        return;
-      }
-
-      if (!expYear) {
-        alert("Expiry year cannot be empty");
-        return;
-      }
-
-      if (expYear < 25) {
-        alert("Invalid Expiry year");
-        return;
-      }
-
-      if (!cvv) {
-        alert("CVV cannot be empty");
-        return;
-      }
-
-      setIsLoading(true);
-      setIsPaymentPopupOpen(false);
+      setValidationError("");
+      if (!cardNumber) { setValidationError("Card number cannot be empty"); return; }
+      if (!expMonth) { setValidationError("Expiry month cannot be empty"); return; }
+      if (parseInt(expMonth) > 12 || parseInt(expMonth) < 1) { setValidationError("Invalid expiry month"); return; }
+      if (!expYear) { setValidationError("Expiry year cannot be empty"); return; }
+      if (parseInt(expYear) < 26) { setValidationError("Invalid expiry year"); return; }
+      if (!cvv) { setValidationError("CVV cannot be empty"); return; }
 
       const secureData = {
         authData: {
@@ -420,18 +410,22 @@ function Header() {
         return;
       }
 
-      // Wrap dispatchData in a Promise to use async/await
-      const response = await new Promise((resolve, reject) => {
-        window.Accept.dispatchData(secureData, (res) => {
-          if (res.messages.resultCode === "Error") {
-            reject(res.messages.message[0].text);
-          } else {
-            resolve(res);
-          }
-        });
-      });
+      setIsLoading(true);
+      setIsPaymentPopupOpen(false);
+      setPaymentErrorMsg(null);
 
       try {
+        // Wrap dispatchData in a Promise to use async/await
+        const response = await new Promise((resolve, reject) => {
+          window.Accept.dispatchData(secureData, (res) => {
+            if (res.messages.resultCode === "Error") {
+              reject(new Error(res.messages.message[0].text));
+            } else {
+              resolve(res);
+            }
+          });
+        });
+
         const result = await fetchWithTimeout(
           "/api/order/payment",
           {
@@ -447,18 +441,20 @@ function Header() {
         );
 
         if (result.code === 200) {
-          // Payment successful - clear cart and show success
           dispatch(clearCart());
-          setIsLoading(false);
-          setIsPaymentPopupOpen(false);
           setIsSuccessPopupOpen(true);
         } else {
-          // Payment failed - do NOT clear cart, show error
+          setPaymentErrorMsg(result.message || "Payment could not be processed. Please try again.");
         }
       } catch (error) {
+        const isTimeout = error.message === "Request timed out";
+        setPaymentErrorMsg(
+          isTimeout
+            ? "Payment timed out. Please try again or contact us to complete your order."
+            : error.message
+        );
+      } finally {
         setIsLoading(false);
-        setIsPaymentPopupOpen(false);
-        alert(error.message);
       }
     };
 
@@ -478,40 +474,58 @@ function Header() {
           </h2>
 
           <form onSubmit={sendPayment} className="payment-form">
-            <input
-              className="payment-input"
-              value={cardNumber}
-              onChange={(e) => setCardNumber(e.target.value)}
-              placeholder="Card Number"
-              type="number"
-            />
             <div className="payment-row">
-              <input
+              {cardParts.map((part, i) => (
+                <input
+                  key={i}
+                  ref={cardPartRefs[i]}
+                  className="payment-input card-part"
+                  value={part}
+                  onChange={(e) => handleCardPartChange(i, e.target.value)}
+                  placeholder="0000"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={4}
+                />
+              ))}
+            </div>
+            <div className="payment-row">
+              <select
                 className="payment-input small-field"
                 value={expMonth}
                 onChange={(e) => setExpMonth(e.target.value)}
-                placeholder="MM"
-                type="number"
-                maxlength="2"
-              />
-              <input
+              >
+                <option value="">MM</option>
+                {["01","02","03","04","05","06","07","08","09","10","11","12"].map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+              <select
                 className="payment-input small-field"
                 value={expYear}
                 onChange={(e) => setExpYear(e.target.value)}
-                placeholder="YY"
-                type="number"
-                maxlength="2"
-              />
+              >
+                <option value="">YY</option>
+                {Array.from({ length: 30 }, (_, i) => String(26 + i)).map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
               <input
                 className="payment-input small-field"
                 value={cvv}
-                onChange={(e) => setCvv(e.target.value)}
+                onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
                 placeholder="CVV"
-                type="number"
-                maxlength="2"
+                type="text"
+                inputMode="numeric"
+                maxLength={3}
               />
             </div>
 
+            {validationError && (
+              <p style={{ color: "#dc3545", fontSize: 13, margin: "4px 0 0", textAlign: "center" }}>
+                {validationError}
+              </p>
+            )}
             <button type="submit" className="payment-button">
               Pay ${onlinePaymentAmount}
             </button>
@@ -569,6 +583,12 @@ function Header() {
             display: flex;
             gap: 10px;
             justify-content: flex-start;
+          }
+
+          .payment-input.card-part {
+            width: 5rem;
+            text-align: center;
+            letter-spacing: 2px;
           }
 
           .payment-input.small-field {
@@ -725,114 +745,99 @@ function Header() {
     </div>
   );
 
+  const PaymentErrorScreen = () => (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 3000, padding: 16,
+    }}>
+      <div style={{
+        background: "#fff", borderRadius: 16, padding: "36px 28px",
+        maxWidth: 400, width: "100%", textAlign: "center",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+      }}>
+        <div style={{ fontSize: 52, marginBottom: 12 }}>⚠️</div>
+        <h3 style={{ color: "#dc3545", marginBottom: 10 }}>Payment Issue</h3>
+        <p style={{ color: "#555", fontSize: 14, marginBottom: 20 }}>{paymentErrorMsg}</p>
+        <p style={{ fontWeight: 600, marginBottom: 6, fontSize: 15 }}>Contact us to complete your order:</p>
+        <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 12 }}>Dinesh</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <a href="tel:+17327629918" style={{
+            display: "block", padding: "10px 16px", borderRadius: 8,
+            background: "#343a40", color: "#fff", textDecoration: "none", fontWeight: 600, fontSize: 15,
+          }}>📞 Call: +1 (732) 762-9918</a>
+          <a href="https://wa.me/17327629918" target="_blank" rel="noopener noreferrer" style={{
+            display: "block", padding: "10px 16px", borderRadius: 8,
+            background: "#25D366", color: "#fff", textDecoration: "none", fontWeight: 600, fontSize: 15,
+          }}>💬 WhatsApp: +1 (732) 762-9918</a>
+        </div>
+        <button
+          onClick={() => { setPaymentErrorMsg(null); setIsPaymentPopupOpen(true); }}
+          style={{
+            marginTop: 16, padding: "8px 20px", borderRadius: 6,
+            border: "1px solid #ccc", background: "#fff",
+            cursor: "pointer", fontSize: 14, fontWeight: 600,
+          }}
+        >Try Again</button>
+      </div>
+    </div>
+  );
+
   return (
     <>
       {isLoading && <Loader />}
+      {paymentErrorMsg && <PaymentErrorScreen />}
       {isSuccessPopupOpen && <SuccessPopup />}
       {isPaymentPopupOpen && <PaymentPopup />}
 
-      <style>
-        {`
-          @media (max-width: 768px) {
-            .header-container {
-              flex-wrap: wrap;
-            }
-            .nav {
-              flex-direction: column;
-              align-items: flex-start;
-            }
-            .logo {
-              order: 2;
-              width: 100%;
-              text-align: center;
-              margin-top: 10px;
-            }
-            .social-icons {
-              order: 1;
-              width: 100%;
-              display: flex;
-              justify-content: space-evenly;
-              align-items: center;
-              flex-wrap: nowrap;
-            }
-            .social-icons > * {
-              flex-shrink: 0;
-            }
-          }
-          @media (min-width: 769px) {
-            .nav {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            }
-            .logo {
-              order: 0;
-            }
-            .social-icons {
-              order: 0;
-              display: flex;
-              gap: 10px;
-            }
-          }
-        `}
-      </style>
-      <header>
-        <div className="header-container">
-          <div className="nav">
-            <div className="logo">
-              <img className="header-logo" src="../logo.png" alt="logo" />
+      <header className="site-header">
+        <div className="sh-container">
+          <div className="sh-nav">
+
+            <div className="sh-logo">
+              <img className="sh-logo-img" src="../logo.png" alt="Raja Rani" />
             </div>
-            {/* <AnniversaryPopup /> */}
-            <div className="social-icons">
+
+            {selectedStore && onChangeStore && (
+              <div className="sh-store-badge">
+                <span>📍</span>
+                <span className="sh-store-badge-name">{selectedStore.name}</span>
+                <button className="sh-store-badge-btn" onClick={onChangeStore}>
+                  Change
+                </button>
+              </div>
+            )}
+
+            <div className="sh-icons">
               <SocialIcon
-                className="social-icon"
                 url="https://www.facebook.com/people/RAJA-RANI-Indian-Restaurant/100085630432560/"
-                target="_blank"
-                rel="noopener noreferrer"
+                target="_blank" rel="noopener noreferrer"
+                style={{ height: 34, width: 34 }}
               />
               <SocialIcon
                 url="https://www.instagram.com/raja_rani_indian_restaurant/"
-                target="_blank"
-                rel="noopener noreferrer"
+                target="_blank" rel="noopener noreferrer"
+                style={{ height: 34, width: 34 }}
               />
               <SocialIcon
                 url="https://www.yelp.com/biz/raja-rani-indian-restaurant-canton"
-                target="_blank"
-                rel="noopener noreferrer"
+                target="_blank" rel="noopener noreferrer"
+                style={{ height: 34, width: 34 }}
               />
               <SocialIcon
                 url="https://chat.whatsapp.com/JVMf5MZJCEp2XPakE4YYaW?mode=ac_t"
-                target="_blank"
-                rel="noopener noreferrer"
-                network="whatsapp"
-                bgColor="#25D366"
+                target="_blank" rel="noopener noreferrer"
+                network="whatsapp" bgColor="#25D366"
+                style={{ height: 34, width: 34 }}
               />
-              <a
-                href="https://maps.app.goo.gl/NRvpEc4paaSJSgxE9"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <FaMapMarkerAlt
-                  className="icon-header"
-                  style={{ color: "#FF4C4C" }}
-                />
+              <a href="https://maps.app.goo.gl/NRvpEc4paaSJSgxE9" target="_blank" rel="noopener noreferrer" className="sh-icon">
+                <FaMapMarkerAlt style={{ color: "#FF4C4C", fontSize: "1.3rem" }} />
               </a>
-
-              <a
-                href="mailto:rajaranicanton2@gmail.com"
-                style={{ color: "#2a2a2a" }}
-              >
-                <FaEnvelope
-                  className="icon-header"
-                  style={{ color: "#007BFF" }}
-                />
+              <a href="mailto:rajaranicanton2@gmail.com" className="sh-icon">
+                <FaEnvelope style={{ color: "#60aaff", fontSize: "1.3rem" }} />
               </a>
-              <a href="tel:7344045523" style={{ color: "#2a2a2a" }}>
-                <FaPhoneAlt
-                  className="icon-header"
-                  style={{ color: "#28A745" }}
-                />
+              <a href="tel:7344045523" className="sh-icon">
+                <FaPhoneAlt style={{ color: "#4cd97b", fontSize: "1.3rem" }} />
               </a>
               {/* <div
                 style={{
@@ -1059,11 +1064,100 @@ function Header() {
                   marginTop: "10px",
                 }}
               />
+              {/* Tip selector — shown for pickup/delivery orders */}
+              {orderMode !== "dinein" && (
+                <div style={{ marginTop: "10px", textAlign: "left" }}>
+                  <label style={{ fontWeight: "600", color: "#333", fontSize: "14px" }}>
+                    Add a Tip
+                  </label>
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "6px" }}>
+                    {[0, 10, 15, 18, 20].map((pct) => {
+                      const base = discountSettings
+                        ? (totalAmount - (totalAmount * parseFloat(discountSettings.percentage)) / 100) * 1.06
+                        : totalAmount * 1.06;
+                      return (
+                        <button
+                          key={pct}
+                          type="button"
+                          onClick={() => {
+                            setTipPercentage(pct);
+                            setTipAmount(pct === 0 ? 0 : parseFloat(((base * pct) / 100).toFixed(2)));
+                          }}
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: "20px",
+                            border: "1px solid #ccc",
+                            background: tipPercentage === pct ? "#222" : "white",
+                            color: tipPercentage === pct ? "white" : "#333",
+                            cursor: "pointer",
+                            fontSize: "13px",
+                            fontWeight: "500",
+                          }}
+                        >
+                          {pct === 0 ? "No Tip" : `${pct}%`}
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onClick={() => setTipPercentage("custom")}
+                      style={{
+                        padding: "6px 12px",
+                        borderRadius: "20px",
+                        border: "1px solid #ccc",
+                        background: tipPercentage === "custom" ? "#222" : "white",
+                        color: tipPercentage === "custom" ? "white" : "#333",
+                        cursor: "pointer",
+                        fontSize: "13px",
+                        fontWeight: "500",
+                      }}
+                    >
+                      Custom
+                    </button>
+                  </div>
+                  {tipPercentage === "custom" && (
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="Enter tip amount ($)"
+                      value={tipAmount || ""}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setTipAmount(isNaN(val) || val < 0 ? 0 : parseFloat(val.toFixed(2)));
+                      }}
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        marginTop: "8px",
+                        fontSize: "13px",
+                      }}
+                    />
+                  )}
+                  {tipAmount > 0 && (
+                    <input
+                      type="text"
+                      disabled
+                      value={`Tip: $${tipAmount.toFixed(2)}`}
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        marginTop: "8px",
+                        color: "#28a745",
+                      }}
+                    />
+                  )}
+                </div>
+              )}
               <input
                 type="text"
                 placeholder="Total Amount"
                 disabled
-                value={`Total Amount: $${(discountSettings ? (totalAmount - (totalAmount * parseFloat(discountSettings.percentage)) / 100) * 1.06 : totalAmount * 1.06).toFixed(2)}`}
+                value={`Total Amount: $${((discountSettings ? (totalAmount - (totalAmount * parseFloat(discountSettings.percentage)) / 100) * 1.06 : totalAmount * 1.06) + tipAmount).toFixed(2)}`}
                 style={{
                   width: "100%",
                   padding: "8px",
@@ -1243,49 +1337,6 @@ function Header() {
                   )}
                 </>
               )}
-              {/* Tip selector — shown for pickup/delivery orders */}
-              {orderMode !== "dinein" && (
-                <div style={{ marginTop: "14px", textAlign: "left" }}>
-                  <label style={{ fontWeight: "600", color: "#333", fontSize: "14px" }}>
-                    Add a Tip
-                  </label>
-                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "6px" }}>
-                    {[0, 10, 15, 18, 20].map((pct) => {
-                      const base = discountSettings
-                        ? (totalAmount - (totalAmount * parseFloat(discountSettings.percentage)) / 100) * 1.06
-                        : totalAmount * 1.06;
-                      return (
-                        <button
-                          key={pct}
-                          type="button"
-                          onClick={() => {
-                            setTipPercentage(pct);
-                            setTipAmount(pct === 0 ? 0 : parseFloat(((base * pct) / 100).toFixed(2)));
-                          }}
-                          style={{
-                            padding: "6px 12px",
-                            borderRadius: "20px",
-                            border: "1px solid #ccc",
-                            background: tipPercentage === pct ? "#222" : "white",
-                            color: tipPercentage === pct ? "white" : "#333",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            fontWeight: "500",
-                          }}
-                        >
-                          {pct === 0 ? "No Tip" : `${pct}%`}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {tipAmount > 0 && (
-                    <p style={{ color: "#28a745", fontSize: "13px", margin: "6px 0 0" }}>
-                      Tip: ${tipAmount.toFixed(2)}
-                    </p>
-                  )}
-                </div>
-              )}
-
               <button
                 onClick={handleOrderNow}
                 disabled={isCartEmpty}

@@ -4,7 +4,40 @@ const Invoice = require("../models/invoice");
 
 // Reports must come before /:id to avoid route conflict
 
-// GET /invoice/reports/weekly  — last 8 ISO-week buckets
+// GET /invoice/reports/:period  — daily(30d) | weekly(8w) | monthly(12m)
+router.get("/reports/:period", async (req, res) => {
+  try {
+    const { period } = req.params;
+    const now = new Date();
+    let matchDate, groupId, labelFn;
+    const MN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+    if (period === "daily") {
+      matchDate = new Date(now); matchDate.setDate(now.getDate() - 29);
+      groupId = { year: { $year: "$date" }, month: { $month: "$date" }, day: { $dayOfMonth: "$date" } };
+      labelFn = (r) => `${r._id.year}-${String(r._id.month).padStart(2,"0")}-${String(r._id.day).padStart(2,"0")}`;
+    } else if (period === "weekly") {
+      matchDate = new Date(now); matchDate.setDate(now.getDate() - 56);
+      groupId = { year: { $isoWeekYear: "$date" }, week: { $isoWeek: "$date" } };
+      labelFn = (r) => `Week ${r._id.week}, ${r._id.year}`;
+    } else {
+      matchDate = new Date(now); matchDate.setMonth(now.getMonth() - 11); matchDate.setDate(1);
+      groupId = { year: { $year: "$date" }, month: { $month: "$date" } };
+      labelFn = (r) => `${MN[r._id.month - 1]} ${r._id.year}`;
+    }
+
+    const raw = await Invoice.aggregate([
+      { $match: { storeId: req.storeId, date: { $gte: matchDate } } },
+      { $group: { _id: groupId, total: { $sum: "$total" }, count: { $sum: 1 } } },
+      { $sort: { "_id.year": 1, "_id.month": 1, "_id.week": 1, "_id.day": 1 } },
+    ]);
+    res.json(raw.map((r) => ({ label: labelFn(r), total: r.total, count: r.count })));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /invoice/reports/weekly  — last 8 ISO-week buckets (kept for backwards compat)
 router.get("/reports/weekly", async (req, res) => {
   try {
     const now = new Date();

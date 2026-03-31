@@ -3,7 +3,8 @@ import { useDispatch } from "react-redux";
 import { setSelectedStore } from "../storeSlice";
 import "./StoreSelector.css";
 
-export default function StoreSelector() {
+// onCancel: if provided, shows a close button (modal mode)
+export default function StoreSelector({ onCancel }) {
   const dispatch = useDispatch();
   const [status, setStatus] = useState("detecting"); // detecting | list | error
   const [stores, setStores] = useState([]);
@@ -11,7 +12,7 @@ export default function StoreSelector() {
 
   useEffect(() => {
     if (!navigator.geolocation) {
-      fetchAllStores("Location not supported by your browser.");
+      fetchAllStores("Location not supported by your browser. Please select a store:");
       return;
     }
 
@@ -21,8 +22,13 @@ export default function StoreSelector() {
         try {
           const res = await fetch(`/stores/nearby?lat=${latitude}&lng=${longitude}`);
           const data = await res.json();
-          if (data.length > 0) {
+          if (data.length === 1) {
+            // Exactly one nearby store — auto-select silently
             dispatch(setSelectedStore(data[0]));
+          } else if (data.length > 1) {
+            setStores(data);
+            setMessage("Stores near you (within 250 miles):");
+            setStatus("list");
           } else {
             fetchAllStores("No stores found within 250 miles. Please select a store:");
           }
@@ -50,6 +56,7 @@ export default function StoreSelector() {
 
   function handleSelect(store) {
     dispatch(setSelectedStore(store));
+    if (onCancel) onCancel();
   }
 
   if (status === "detecting") {
@@ -78,6 +85,9 @@ export default function StoreSelector() {
   return (
     <div className="store-selector-page">
       <div className="store-selector-box">
+        {onCancel && (
+          <button className="store-selector-close" onClick={onCancel} aria-label="Close">✕</button>
+        )}
         <div className="store-selector-logo">Raja Rani</div>
         <p className="store-selector-msg">{message}</p>
         <div className="store-selector-list">

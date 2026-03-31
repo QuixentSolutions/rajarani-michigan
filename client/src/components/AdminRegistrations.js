@@ -16,7 +16,6 @@ const AdminRegistrations = ({
           alignItems: "center",
         }}
       >
-        <h2 className="section-title">Registrations</h2>
         <button
           onClick={() =>
             fetchRegistrations(

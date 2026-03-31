@@ -42,7 +42,7 @@ const AdminMenu = ({
     }
 
     try {
-      const url = `/api/menu/category/${selectedSection._id}/item`;
+      const url = `/stores/${storeSlug}/menu/category/${selectedSection._id}/item`;
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -98,7 +98,7 @@ const AdminMenu = ({
         throw new Error("No section selected");
       }
 
-      const url = `/api/menu/category/${selectedSection._id}/item/${itemToUpdate._id}`;
+      const url = `/stores/${storeSlug}/menu/category/${selectedSection._id}/item/${itemToUpdate._id}`;
       const response = await fetch(url, {
         method: "PUT",
         headers: {
@@ -154,7 +154,7 @@ const AdminMenu = ({
         throw new Error("No section selected");
       }
 
-      const url = `/api/menu/category/${selectedSection._id}/item/${itemId}`;
+      const url = `/stores/${storeSlug}/menu/category/${selectedSection._id}/item/${itemId}`;
       const response = await fetch(url, {
         method: "DELETE",
         headers: {
@@ -807,7 +807,6 @@ const AdminMenu = ({
             alignItems: "center",
           }}
         >
-          <h2 className="section-title">Menu</h2>
           <button
             className="btn-primary"
             style={{

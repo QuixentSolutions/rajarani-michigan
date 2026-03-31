@@ -27,7 +27,10 @@
 /* ── Logo ── */
 .site-header .sh-logo {
   flex-shrink: 0;
-  line-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 
 .site-header .sh-logo-img {
@@ -106,13 +109,12 @@
     gap: 0;
   }
 
-  /* Row 1: logo left, store badge right */
+  /* Row 1: logo + store badge stacked */
   .site-header .sh-logo {
     order: 1;
   }
 
   .site-header .sh-store-badge {
-    order: 2;
     font-size: 0.72rem;
     padding: 4px 10px;
   }

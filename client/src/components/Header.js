@@ -796,17 +796,16 @@ function Header({ onChangeStore }) {
 
             <div className="sh-logo">
               <img className="sh-logo-img" src="../logo.png" alt="Raja Rani" />
+              {selectedStore && onChangeStore && (
+                <div className="sh-store-badge">
+                  <span>📍</span>
+                  <span className="sh-store-badge-name">{selectedStore.name}</span>
+                  <button className="sh-store-badge-btn" onClick={onChangeStore}>
+                    Change
+                  </button>
+                </div>
+              )}
             </div>
-
-            {selectedStore && onChangeStore && (
-              <div className="sh-store-badge">
-                <span>📍</span>
-                <span className="sh-store-badge-name">{selectedStore.name}</span>
-                <button className="sh-store-badge-btn" onClick={onChangeStore}>
-                  Change
-                </button>
-              </div>
-            )}
 
             <div className="sh-icons">
               <SocialIcon

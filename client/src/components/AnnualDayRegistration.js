@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import "./AnnualDayRegistration.css";
 import { FaTimes } from "react-icons/fa";
 
@@ -45,6 +46,7 @@ function FancyAlert({ alert, onClose }) {
 }
 
 function AnnualDayRegistration({ isOpen, onClose }) {
+  const storeSlug = useSelector((state) => state.store.selectedStore?.slug);
   const VEG_PRICE = 8;
   const NON_VEG_PRICE = 9;
   const SALES_TAX_RATE = 0.06; // 6%
@@ -264,7 +266,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
 
       // First process payment (also race against timeout)
       const paymentResult = await Promise.race([
-        fetch("/api/register/payment", {
+        fetch(`/stores/${storeSlug}/register/payment`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -303,7 +305,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
         };
 
         // Save registration to database
-        const dbResponse = await fetch("/api/register", {
+        const dbResponse = await fetch(`/stores/${storeSlug}/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(registrationData),

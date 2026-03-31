@@ -27,21 +27,22 @@ async function createInvoiceFromOrders(storeId, orders, paymentMethod) {
           unitPrice: parseFloat(it.basePrice) || 0,
           amount: parseFloat(it.price) || 0,
         };
-      })
+      }),
     );
 
     const subtotal = orders.reduce((s, o) => s + (o.subTotal || 0), 0);
-    const taxAmt   = orders.reduce((s, o) => s + (o.salesTax || 0), 0);
-    const total    = orders.reduce((s, o) => s + (o.totalAmount || 0), 0);
-    const tips     = orders.reduce((s, o) => s + (o.tips || 0), 0);
+    const taxAmt = orders.reduce((s, o) => s + (o.salesTax || 0), 0);
+    const total = orders.reduce((s, o) => s + (o.totalAmount || 0), 0);
+    const tips = orders.reduce((s, o) => s + (o.tips || 0), 0);
 
     const firstOrder = orders[0];
-    const orderNums  = orders.map((o) => o.orderNumber).join(", ");
+    const orderNums = orders.map((o) => o.orderNumber).join(", ");
 
     // Build a unique invoice number
-    const invoiceNo = orders.length === 1
-      ? `ORD-${firstOrder.orderNumber}`
-      : `TABLE-${firstOrder.tableNumber || "NA"}-${Date.now()}`;
+    const invoiceNo =
+      orders.length === 1
+        ? `ORD-${firstOrder.orderNumber}`
+        : `TABLE-${firstOrder.tableNumber || "NA"}-${Date.now()}`;
 
     const notesParts = [
       `Order type: ${firstOrder.orderType}`,
@@ -212,7 +213,9 @@ router.get("/table/:tableno", async (req, res) => {
     if (isDineinOrder) {
       // Fetch discount settings to include discount details
       const Settings = require("../models/settings");
-      const settings = await Settings.findOne({ storeId: req.storeId }).sort({ createdAt: -1 });
+      const settings = await Settings.findOne({ storeId: req.storeId }).sort({
+        createdAt: -1,
+      });
       if (settings?.settings?.discount && settings.settings.discountDetails) {
         const discountDetails = settings.settings.discountDetails;
         const discountPercentage = parseFloat(discountDetails.percentage || 0);
@@ -265,7 +268,11 @@ router.put("/settle", async (req, res) => {
       orderNumber: { $in: req.body.orderNumbers.split(",") },
       tableNumber: req.body.tableNumber,
     });
-    await createInvoiceFromOrders(req.storeId, settledOrders, req.body.paymentMethod);
+    await createInvoiceFromOrders(
+      req.storeId,
+      settledOrders,
+      req.body.paymentMethod,
+    );
 
     res.json(result);
   } catch (err) {
@@ -334,7 +341,10 @@ router.get("/all", async (req, res) => {
 
 router.get("/orderId/:orderId", async (req, res) => {
   try {
-    const order = await Order.findOne({ _id: req.params.orderId, storeId: req.storeId });
+    const order = await Order.findOne({
+      _id: req.params.orderId,
+      storeId: req.storeId,
+    });
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
     }
@@ -454,6 +464,7 @@ router.post("/payment", async (req, res) => {
             order_id: String(order.orderNumber),
             sub_total: order.subTotal.toFixed(2),
             sales_tax: order.salesTax.toFixed(2),
+            tips: order.tips ? order.tips.toFixed(2) : "0.00",
             total_amount: order.totalAmount.toFixed(2),
             address: order.deliveryAddress ? order.deliveryAddress : "N/A",
             preparation_time: order.totalAmount > 80 ? "35" : "25",

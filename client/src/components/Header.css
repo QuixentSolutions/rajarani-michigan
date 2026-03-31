@@ -104,14 +104,17 @@
 @media (max-width: 540px) {
   .site-header .sh-nav {
     flex-wrap: wrap;
+    justify-content: center;
     min-height: unset;
     padding: 8px 0 6px;
     gap: 0;
   }
 
-  /* Row 1: logo + store badge stacked */
+  /* Row 1: logo + store badge centred, full width */
   .site-header .sh-logo {
     order: 1;
+    width: 100%;
+    align-items: center;
   }
 
   .site-header .sh-store-badge {

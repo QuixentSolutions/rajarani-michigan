@@ -1,13 +1,26 @@
 .review-banner {
-   display: flex;
-  justify-content: center;  /* center horizontally */
-  align-items: center;      /* center vertically */
-  height: 300px;            /* set a height */
-  /* border: 1px solid #ccc;   */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 16px;
 }
-
 
 .review-banner a img {
   display: block;
   margin: 0 auto;
+  width: 50%;
+  max-width: 400px;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .review-banner a img {
+    width: 80%;
+  }
+}
+
+@media (max-width: 480px) {
+  .review-banner a img {
+    width: 90%;
+  }
 }

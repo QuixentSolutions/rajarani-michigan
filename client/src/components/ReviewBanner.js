@@ -11,7 +11,6 @@ function ReviewBanner() {
         <img
           src="/Google-Review-Logo.png"
           alt="Google Review"
-          style={{ width: "50%" }}
         />
       </a>
     </div>

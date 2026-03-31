@@ -246,7 +246,7 @@ function Header({ onChangeStore }) {
 
     try {
       // First, save order to database
-      const dbResponse = await fetch(`/api/order`, {
+      const dbResponse = await fetch(`/api/stores/${storeSlug}/order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),
@@ -447,7 +447,7 @@ function Header({ onChangeStore }) {
         });
 
         const result = await fetchWithTimeout(
-          "/api/order/payment",
+          `/api/stores/${storeSlug}/order/payment`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

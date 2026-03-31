@@ -46,7 +46,7 @@ function ExpenseTab({ storeSlug }) {
       return;
     setSaving(true);
     try {
-      await fetch(`/stores/${storeSlug}/expense`, {
+      await fetch(`/api/stores/${storeSlug}/expense`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, amount: parseFloat(form.amount) }),
@@ -60,7 +60,7 @@ function ExpenseTab({ storeSlug }) {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this expense?")) return;
-    await fetch(`/stores/${storeSlug}/expense/${id}`, { method: "DELETE" });
+    await fetch(`/api/stores/${storeSlug}/expense/${id}`, { method: "DELETE" });
     await loadExpenses();
   };
 

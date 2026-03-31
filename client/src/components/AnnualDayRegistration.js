@@ -3,38 +3,71 @@ import { useSelector } from "react-redux";
 import "./AnnualDayRegistration.css";
 import { FaTimes } from "react-icons/fa";
 
-
 // ── Fancy Alert ───────────────────────────────────────────────────────────────
 function FancyAlert({ alert, onClose }) {
   if (!alert) return null;
   const icons = { success: "✅", error: "❌", warning: "⚠️", info: "ℹ️" };
-  const colors = { success: "#28a745", error: "#dc3545", warning: "#fd7e14", info: "#007bff" };
+  const colors = {
+    success: "#28a745",
+    error: "#dc3545",
+    warning: "#fd7e14",
+    info: "#007bff",
+  };
   const type = alert.type || "info";
   return (
-    <div style={{
-      position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      zIndex: 9999, padding: 16,
-    }}>
-      <div style={{
-        background: "#fff", borderRadius: 16, padding: "32px 28px",
-        maxWidth: 380, width: "100%", textAlign: "center",
-        boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
-        animation: "fadeInUp 0.2s ease",
-      }}>
-        <div style={{ fontSize: 52, lineHeight: 1, marginBottom: 14 }}>{icons[type]}</div>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.55)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 9999,
+        padding: 16,
+      }}
+    >
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 16,
+          padding: "32px 28px",
+          maxWidth: 380,
+          width: "100%",
+          textAlign: "center",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+          animation: "fadeInUp 0.2s ease",
+        }}
+      >
+        <div style={{ fontSize: 52, lineHeight: 1, marginBottom: 14 }}>
+          {icons[type]}
+        </div>
         {alert.title && (
-          <h3 style={{ margin: "0 0 10px", fontSize: 18, color: "#222" }}>{alert.title}</h3>
+          <h3 style={{ margin: "0 0 10px", fontSize: 18, color: "#222" }}>
+            {alert.title}
+          </h3>
         )}
-        <p style={{ margin: "0 0 24px", fontSize: 14, color: "#555", lineHeight: 1.6 }}>
+        <p
+          style={{
+            margin: "0 0 24px",
+            fontSize: 14,
+            color: "#555",
+            lineHeight: 1.6,
+          }}
+        >
           {alert.message}
         </p>
         <button
           onClick={onClose}
           style={{
-            padding: "10px 32px", borderRadius: 8, border: "none",
-            background: colors[type], color: "#fff", fontWeight: 700,
-            fontSize: 15, cursor: "pointer",
+            padding: "10px 32px",
+            borderRadius: 8,
+            border: "none",
+            background: colors[type],
+            color: "#fff",
+            fontWeight: 700,
+            fontSize: 15,
+            cursor: "pointer",
           }}
         >
           {alert.btnText || "OK"}
@@ -69,7 +102,16 @@ function AnnualDayRegistration({ isOpen, onClose }) {
 
   const showAlert = (message, type = "info", title = "", btnText = "OK") =>
     new Promise((resolve) =>
-      setAlertState({ message, type, title, btnText, onClose: () => { setAlertState(null); resolve(); } })
+      setAlertState({
+        message,
+        type,
+        title,
+        btnText,
+        onClose: () => {
+          setAlertState(null);
+          resolve();
+        },
+      }),
     );
   const [cardNumber, setCardNumber] = useState("");
   const [expMonth, setExpMonth] = useState("");
@@ -228,7 +270,10 @@ function AnnualDayRegistration({ isOpen, onClose }) {
     }
 
     if (!window.Accept || !window.Accept.dispatchData) {
-      await showAlert("Payment library not loaded. Please refresh the page.", "error");
+      await showAlert(
+        "Payment library not loaded. Please refresh the page.",
+        "error",
+      );
       return;
     }
 
@@ -239,7 +284,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
 
     const TIMEOUT_MS = 30000;
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("TIMEOUT")), TIMEOUT_MS)
+      setTimeout(() => reject(new Error("TIMEOUT")), TIMEOUT_MS),
     );
 
     try {
@@ -266,7 +311,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
 
       // First process payment (also race against timeout)
       const paymentResult = await Promise.race([
-        fetch(`/stores/${storeSlug}/register/payment`, {
+        fetch(`/api/register/payment`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -305,7 +350,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
         };
 
         // Save registration to database
-        const dbResponse = await fetch(`/stores/${storeSlug}/register`, {
+        const dbResponse = await fetch(`/api/stores/${storeSlug}/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(registrationData),
@@ -334,7 +379,9 @@ function AnnualDayRegistration({ isOpen, onClose }) {
         setExpYear("");
         setCvv("");
       } else {
-        setPaymentError(paymentData.message || "Payment could not be processed");
+        setPaymentError(
+          paymentData.message || "Payment could not be processed",
+        );
         setIsPaymentPopupOpen(false);
       }
     } catch (error) {
@@ -342,7 +389,7 @@ function AnnualDayRegistration({ isOpen, onClose }) {
       setPaymentError(
         isTimeout
           ? "Payment timed out. Please try again or contact us to complete your booking."
-          : error.message
+          : error.message,
       );
       setIsPaymentPopupOpen(false);
     } finally {
@@ -600,14 +647,27 @@ function AnnualDayRegistration({ isOpen, onClose }) {
       {/* Payment Loading Screen */}
       {isLoading && (
         <div className="payment-overlay">
-          <div className="payment-card" style={{ textAlign: "center", padding: "48px 32px" }}>
-            <div style={{
-              width: 56, height: 56, border: "5px solid #e9ecef",
-              borderTop: "5px solid #4a90e2", borderRadius: "50%",
-              animation: "spin 0.8s linear infinite", margin: "0 auto 20px",
-            }} />
-            <h3 style={{ color: "#333", marginBottom: 8 }}>Processing Payment</h3>
-            <p style={{ color: "#888", fontSize: 14 }}>Please wait, do not close this window…</p>
+          <div
+            className="payment-card"
+            style={{ textAlign: "center", padding: "48px 32px" }}
+          >
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                border: "5px solid #e9ecef",
+                borderTop: "5px solid #4a90e2",
+                borderRadius: "50%",
+                animation: "spin 0.8s linear infinite",
+                margin: "0 auto 20px",
+              }}
+            />
+            <h3 style={{ color: "#333", marginBottom: 8 }}>
+              Processing Payment
+            </h3>
+            <p style={{ color: "#888", fontSize: 14 }}>
+              Please wait, do not close this window…
+            </p>
             <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
           </div>
         </div>
@@ -616,9 +676,14 @@ function AnnualDayRegistration({ isOpen, onClose }) {
       {/* Payment Success Screen */}
       {paymentSuccess && (
         <div className="payment-overlay">
-          <div className="payment-card" style={{ textAlign: "center", padding: "40px 32px" }}>
+          <div
+            className="payment-card"
+            style={{ textAlign: "center", padding: "40px 32px" }}
+          >
             <div style={{ fontSize: 64, marginBottom: 12 }}>✅</div>
-            <h3 style={{ color: "#28a745", marginBottom: 8, fontSize: 22 }}>Registration Successful!</h3>
+            <h3 style={{ color: "#28a745", marginBottom: 8, fontSize: 22 }}>
+              Registration Successful!
+            </h3>
             <p style={{ color: "#555", fontSize: 14, marginBottom: 6 }}>
               Payment completed for <strong>{successOrderId}</strong>.
             </p>
@@ -626,11 +691,19 @@ function AnnualDayRegistration({ isOpen, onClose }) {
               A confirmation email has been sent to you.
             </p>
             <button
-              onClick={() => { setPaymentSuccess(false); onClose(); }}
+              onClick={() => {
+                setPaymentSuccess(false);
+                onClose();
+              }}
               style={{
-                padding: "12px 32px", borderRadius: 8, border: "none",
-                background: "#28a745", color: "#fff", fontWeight: 700,
-                fontSize: 16, cursor: "pointer",
+                padding: "12px 32px",
+                borderRadius: 8,
+                border: "none",
+                background: "#28a745",
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: 16,
+                cursor: "pointer",
               }}
             >
               Done
@@ -642,21 +715,42 @@ function AnnualDayRegistration({ isOpen, onClose }) {
       {/* Payment Error Screen */}
       {paymentError && (
         <div className="payment-overlay">
-          <div className="payment-card" style={{ textAlign: "center", maxWidth: 420 }}>
+          <div
+            className="payment-card"
+            style={{ textAlign: "center", maxWidth: 420 }}
+          >
             <div style={{ fontSize: 48, marginBottom: 12 }}>⚠️</div>
-            <h3 style={{ color: "#dc3545", marginBottom: 10 }}>Payment Issue</h3>
-            <p style={{ color: "#555", fontSize: 14, marginBottom: 20 }}>{paymentError}</p>
+            <h3 style={{ color: "#dc3545", marginBottom: 10 }}>
+              Payment Issue
+            </h3>
+            <p style={{ color: "#555", fontSize: 14, marginBottom: 20 }}>
+              {paymentError}
+            </p>
             <p style={{ fontWeight: 600, marginBottom: 6, fontSize: 15 }}>
               Please contact us to complete your booking:
             </p>
-            <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>Dinesh</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
+            <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
+              Dinesh
+            </p>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+                marginTop: 12,
+              }}
+            >
               <a
                 href="tel:+17327629918"
                 style={{
-                  display: "block", padding: "10px 16px", borderRadius: 8,
-                  background: "#343a40", color: "#fff", textDecoration: "none",
-                  fontWeight: 600, fontSize: 15,
+                  display: "block",
+                  padding: "10px 16px",
+                  borderRadius: 8,
+                  background: "#343a40",
+                  color: "#fff",
+                  textDecoration: "none",
+                  fontWeight: 600,
+                  fontSize: 15,
                 }}
               >
                 📞 Call: +1 (732) 762-9918
@@ -666,20 +760,33 @@ function AnnualDayRegistration({ isOpen, onClose }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  display: "block", padding: "10px 16px", borderRadius: 8,
-                  background: "#25D366", color: "#fff", textDecoration: "none",
-                  fontWeight: 600, fontSize: 15,
+                  display: "block",
+                  padding: "10px 16px",
+                  borderRadius: 8,
+                  background: "#25D366",
+                  color: "#fff",
+                  textDecoration: "none",
+                  fontWeight: 600,
+                  fontSize: 15,
                 }}
               >
                 💬 WhatsApp: +1 (732) 762-9918
               </a>
             </div>
             <button
-              onClick={() => { setPaymentError(null); setIsPaymentPopupOpen(true); }}
+              onClick={() => {
+                setPaymentError(null);
+                setIsPaymentPopupOpen(true);
+              }}
               style={{
-                marginTop: 16, padding: "8px 20px", borderRadius: 6,
-                border: "1px solid #ccc", background: "#fff",
-                cursor: "pointer", fontSize: 14, fontWeight: 600,
+                marginTop: 16,
+                padding: "8px 20px",
+                borderRadius: 6,
+                border: "1px solid #ccc",
+                background: "#fff",
+                cursor: "pointer",
+                fontSize: 14,
+                fontWeight: 600,
               }}
             >
               Try Again
@@ -739,7 +846,11 @@ function AnnualDayRegistration({ isOpen, onClose }) {
                 />
               </div>
 
-              <button type="submit" className="payment-button" disabled={isLoading}>
+              <button
+                type="submit"
+                className="payment-button"
+                disabled={isLoading}
+              >
                 {isLoading ? "Processing..." : `Pay $${totalAmount.toFixed(2)}`}
               </button>
             </form>

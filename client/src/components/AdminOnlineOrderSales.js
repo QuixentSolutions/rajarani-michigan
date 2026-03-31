@@ -73,7 +73,7 @@ const AdminOnlineOrderSales = () => {
     if (!newPartnerName.trim()) return;
     setPartnerSaving(true);
     try {
-      const res = await fetch(`/stores/${storeSlug}/delivery-partners`, {
+      const res = await fetch(`/api/stores/${storeSlug}/delivery-partners`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newPartnerName.trim() }),
@@ -97,7 +97,7 @@ const AdminOnlineOrderSales = () => {
       )
     )
       return;
-    await fetch(`/stores/${storeSlug}/delivery-partners/${id}`, {
+    await fetch(`/api/stores/${storeSlug}/delivery-partners/${id}`, {
       method: "DELETE",
     });
     await loadPartners();
@@ -126,7 +126,7 @@ const AdminOnlineOrderSales = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this entry?")) return;
-    await fetch(`/stores/${storeSlug}/delivery-partner-sales/${id}`, {
+    await fetch(`/api/stores/${storeSlug}/delivery-partner-sales/${id}`, {
       method: "DELETE",
     });
     await loadEntries();
@@ -166,8 +166,8 @@ const AdminOnlineOrderSales = () => {
 
     try {
       const url = editingId
-        ? `/stores/${storeSlug}/delivery-partner-sales/${editingId}`
-        : `/stores/${storeSlug}/delivery-partner-sales`;
+        ? `/api/stores/${storeSlug}/delivery-partner-sales/${editingId}`
+        : `/api/stores/${storeSlug}/delivery-partner-sales`;
       const method = editingId ? "PUT" : "POST";
       const res = await fetch(url, {
         method,
@@ -223,7 +223,7 @@ const AdminOnlineOrderSales = () => {
     setSettlingSaving(true);
     try {
       const res = await fetch(
-        `/stores/${storeSlug}/delivery-partner-sales/${entry._id}`,
+        `/api/stores/${storeSlug}/delivery-partner-sales/${entry._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

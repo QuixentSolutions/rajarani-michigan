@@ -32,7 +32,7 @@ const AdminDineInSales = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `/stores/${storeSlug}/manual-sales?type=${SALES_TYPE}&limit=100`,
+        `/api/stores/${storeSlug}/manual-sales?type=${SALES_TYPE}&limit=100`,
       );
       const data = await res.json();
       setEntries(data.results || []);
@@ -66,7 +66,7 @@ const AdminDineInSales = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this entry?")) return;
-    await fetch(`/stores/${storeSlug}/manual-sales/${id}`, {
+    await fetch(`/api/stores/${storeSlug}/manual-sales/${id}`, {
       method: "DELETE",
     });
     await loadEntries();
@@ -104,8 +104,8 @@ const AdminDineInSales = () => {
 
     try {
       const url = editingId
-        ? `/stores/${storeSlug}/manual-sales/${editingId}`
-        : `/stores/${storeSlug}/manual-sales`;
+        ? `/api/stores/${storeSlug}/manual-sales/${editingId}`
+        : `/api/stores/${storeSlug}/manual-sales`;
       const method = editingId ? "PUT" : "POST";
       const res = await fetch(url, {
         method,
@@ -159,7 +159,7 @@ const AdminDineInSales = () => {
     setSettlingSaving(true);
     try {
       const res = await fetch(
-        `/stores/${storeSlug}/manual-sales/${entry._id}`,
+        `/api/stores/${storeSlug}/manual-sales/${entry._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

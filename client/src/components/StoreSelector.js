@@ -12,7 +12,9 @@ export default function StoreSelector({ onCancel }) {
 
   useEffect(() => {
     if (!navigator.geolocation) {
-      fetchAllStores("Location not supported by your browser. Please select a store:");
+      fetchAllStores(
+        "Location not supported by your browser. Please select a store:",
+      );
       return;
     }
 
@@ -20,7 +22,9 @@ export default function StoreSelector({ onCancel }) {
       async (pos) => {
         const { latitude, longitude } = pos.coords;
         try {
-          const res = await fetch(`/api/stores/nearby?lat=${latitude}&lng=${longitude}`);
+          const res = await fetch(
+            `/api/stores/nearby?lat=${latitude}&lng=${longitude}`,
+          );
           const data = await res.json();
           if (data.length === 1) {
             // Exactly one nearby store — auto-select silently
@@ -30,15 +34,19 @@ export default function StoreSelector({ onCancel }) {
             setMessage("Stores near you (within 250 miles):");
             setStatus("list");
           } else {
-            fetchAllStores("No stores found within 250 miles. Please select a store:");
+            fetchAllStores(
+              "No stores found within 250 miles. Please select a store:",
+            );
           }
         } catch {
-          fetchAllStores("Could not determine nearby stores. Please select a store:");
+          fetchAllStores(
+            "Could not determine nearby stores. Please select a store:",
+          );
         }
       },
       () => {
         fetchAllStores("Location access denied. Please select a store:");
-      }
+      },
     );
   }, [dispatch]);
 
@@ -76,7 +84,9 @@ export default function StoreSelector({ onCancel }) {
       <div className="store-selector-page">
         <div className="store-selector-box">
           <div className="store-selector-logo">Raja Rani</div>
-          <p className="store-selector-msg">Unable to load stores. Please refresh and try again.</p>
+          <p className="store-selector-msg">
+            Unable to load stores. Please refresh and try again.
+          </p>
         </div>
       </div>
     );
@@ -86,7 +96,13 @@ export default function StoreSelector({ onCancel }) {
     <div className="store-selector-page">
       <div className="store-selector-box">
         {onCancel && (
-          <button className="store-selector-close" onClick={onCancel} aria-label="Close">✕</button>
+          <button
+            className="store-selector-close"
+            onClick={onCancel}
+            aria-label="Close"
+          >
+            ✕
+          </button>
         )}
         <div className="store-selector-logo">Raja Rani</div>
         <p className="store-selector-msg">{message}</p>
@@ -97,7 +113,10 @@ export default function StoreSelector({ onCancel }) {
                 <strong>{s.name}</strong>
                 {s.address && <span>{s.address}</span>}
               </div>
-              <button className="store-card-btn" onClick={() => handleSelect(s)}>
+              <button
+                className="store-card-btn"
+                onClick={() => handleSelect(s)}
+              >
                 Select
               </button>
             </div>

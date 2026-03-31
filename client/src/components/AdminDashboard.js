@@ -157,7 +157,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
       async (page = 1, searchQuery = "") => {
         try {
           setError("");
-          const url = `/stores/${storeSlug}/${type}?page=${page}${
+          const url = `/api/stores/${storeSlug}/${type}?page=${page}${
             searchQuery ? `&search=${searchQuery}` : ""
           }`;
           const data = await fetchData(url, authToken);
@@ -366,10 +366,13 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
 
   useEffect(() => {
     const loadData = async () => {
-      const dbResponse = await fetch(`/api/stores/${storeSlug}/settings/latest`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+      const dbResponse = await fetch(
+        `/api/stores/${storeSlug}/settings/latest`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
       const dbData = await dbResponse.json();
       if (!dbResponse.ok) {
         throw new Error(dbData.message || "Failed to save order.");
@@ -427,7 +430,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
   const handleSaveMenu = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/stores/${storeSlug}/menu`, {
+      const response = await fetch(`/api/stores/${storeSlug}/menu`, {
         method: "POST",
         headers: {
           Authorization: authToken,
@@ -845,7 +848,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch(`/stores/${storeSlug}/order/settle`, {
+      const dbResponse = await fetch(`/api/stores/${storeSlug}/order/settle`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -888,7 +891,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch(`/stores/${storeSlug}/order/accept`, {
+      const dbResponse = await fetch(`/api/stores/${storeSlug}/order/accept`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -903,7 +906,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
       }
 
       const orderDetailsResponse = await fetch(
-        `/stores/${storeSlug}/order/orderId/${orderNumber}`,
+        `/api/stores/${storeSlug}/order/orderId/${orderNumber}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -929,7 +932,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch(`/stores/${storeSlug}/order/reject`, {
+      const dbResponse = await fetch(`/api/stores/${storeSlug}/order/reject`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -961,7 +964,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     setIsLoading(true);
 
     try {
-      const dbResponse = await fetch(`/stores/${storeSlug}/order/settle`, {
+      const dbResponse = await fetch(`/api/stores/${storeSlug}/order/settle`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1016,7 +1019,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     }
 
     try {
-      const dbResponse = await fetch(`/stores/${storeSlug}/settings`, {
+      const dbResponse = await fetch(`/api/stores/${storeSlug}/settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

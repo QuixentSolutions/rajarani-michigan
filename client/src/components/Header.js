@@ -35,10 +35,7 @@ function Header({ onChangeStore }) {
   const [finalOrderAmount, setFinalOrderAmount] = useState(0);
   const [discountSettings, setDiscountSettings] = useState(null);
 
-  const [deliveryModes, setDeliveryModes] = useState([
-    "pickup",
-    "delivery",
-  ]);
+  const [deliveryModes, setDeliveryModes] = useState(["pickup", "delivery"]);
   // const totalItems = useSelector((state) => state.cart.totalItems);
   // const cartItems = useSelector((state) => state.cart.items);
 
@@ -81,10 +78,13 @@ function Header({ onChangeStore }) {
 
   useEffect(() => {
     const loadData = async () => {
-      const dbResponse = await fetch(`/api/stores/${storeSlug}/settings/latest`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+      const dbResponse = await fetch(
+        `/api/stores/${storeSlug}/settings/latest`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
       const dbData = await dbResponse.json();
       if (!dbResponse.ok) {
         throw new Error(dbData.message || "Failed to save order.");
@@ -96,8 +96,7 @@ function Header({ onChangeStore }) {
         const value = obj[key];
         return (
           // "dinein" order flow is disabled — only pickup and delivery are active
-          (key === "pickup" || key === "delivery") &&
-          value === true
+          (key === "pickup" || key === "delivery") && value === true
         );
       });
       setDeliveryModes(result || []);
@@ -242,11 +241,12 @@ function Header({ onChangeStore }) {
       totalAmount: parseFloat(finalTotalAmount.toFixed(2)),
       tips: parseFloat(tipAmount.toFixed(2)),
       status: "pending",
+      storeId: selectedStore ? selectedStore._id : null,
     };
 
     try {
       // First, save order to database
-      const dbResponse = await fetch(`/stores/${storeSlug}/order`, {
+      const dbResponse = await fetch(`/api/order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),
@@ -259,7 +259,9 @@ function Header({ onChangeStore }) {
       }
 
       if (orderMode !== "dinein") {
-        setOnlinePaymentAmount(parseFloat((finalTotalAmount + tipAmount).toFixed(2)));
+        setOnlinePaymentAmount(
+          parseFloat((finalTotalAmount + tipAmount).toFixed(2)),
+        );
         setSuccessOrderId(orderId);
         setIsPaymentPopupOpen(true);
       } else {
@@ -389,12 +391,30 @@ function Header({ onChangeStore }) {
       e.preventDefault();
 
       setValidationError("");
-      if (!cardNumber) { setValidationError("Card number cannot be empty"); return; }
-      if (!expMonth) { setValidationError("Expiry month cannot be empty"); return; }
-      if (parseInt(expMonth) > 12 || parseInt(expMonth) < 1) { setValidationError("Invalid expiry month"); return; }
-      if (!expYear) { setValidationError("Expiry year cannot be empty"); return; }
-      if (parseInt(expYear) < 26) { setValidationError("Invalid expiry year"); return; }
-      if (!cvv) { setValidationError("CVV cannot be empty"); return; }
+      if (!cardNumber) {
+        setValidationError("Card number cannot be empty");
+        return;
+      }
+      if (!expMonth) {
+        setValidationError("Expiry month cannot be empty");
+        return;
+      }
+      if (parseInt(expMonth) > 12 || parseInt(expMonth) < 1) {
+        setValidationError("Invalid expiry month");
+        return;
+      }
+      if (!expYear) {
+        setValidationError("Expiry year cannot be empty");
+        return;
+      }
+      if (parseInt(expYear) < 26) {
+        setValidationError("Invalid expiry year");
+        return;
+      }
+      if (!cvv) {
+        setValidationError("CVV cannot be empty");
+        return;
+      }
 
       const secureData = {
         authData: {
@@ -444,14 +464,17 @@ function Header({ onChangeStore }) {
           dispatch(clearCart());
           setIsSuccessPopupOpen(true);
         } else {
-          setPaymentErrorMsg(result.message || "Payment could not be processed. Please try again.");
+          setPaymentErrorMsg(
+            result.message ||
+              "Payment could not be processed. Please try again.",
+          );
         }
       } catch (error) {
         const isTimeout = error.message === "Request timed out";
         setPaymentErrorMsg(
           isTimeout
             ? "Payment timed out. Please try again or contact us to complete your order."
-            : error.message
+            : error.message,
         );
       } finally {
         setIsLoading(false);
@@ -496,8 +519,23 @@ function Header({ onChangeStore }) {
                 onChange={(e) => setExpMonth(e.target.value)}
               >
                 <option value="">MM</option>
-                {["01","02","03","04","05","06","07","08","09","10","11","12"].map((m) => (
-                  <option key={m} value={m}>{m}</option>
+                {[
+                  "01",
+                  "02",
+                  "03",
+                  "04",
+                  "05",
+                  "06",
+                  "07",
+                  "08",
+                  "09",
+                  "10",
+                  "11",
+                  "12",
+                ].map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
                 ))}
               </select>
               <select
@@ -506,14 +544,20 @@ function Header({ onChangeStore }) {
                 onChange={(e) => setExpYear(e.target.value)}
               >
                 <option value="">YY</option>
-                {Array.from({ length: 30 }, (_, i) => String(26 + i)).map((y) => (
-                  <option key={y} value={y}>{y}</option>
-                ))}
+                {Array.from({ length: 30 }, (_, i) => String(26 + i)).map(
+                  (y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ),
+                )}
               </select>
               <input
                 className="payment-input small-field"
                 value={cvv}
-                onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                onChange={(e) =>
+                  setCvv(e.target.value.replace(/\D/g, "").slice(0, 3))
+                }
                 placeholder="CVV"
                 type="text"
                 inputMode="numeric"
@@ -522,7 +566,14 @@ function Header({ onChangeStore }) {
             </div>
 
             {validationError && (
-              <p style={{ color: "#dc3545", fontSize: 13, margin: "4px 0 0", textAlign: "center" }}>
+              <p
+                style={{
+                  color: "#dc3545",
+                  fontSize: 13,
+                  margin: "4px 0 0",
+                  textAlign: "center",
+                }}
+              >
                 {validationError}
               </p>
             )}
@@ -746,39 +797,92 @@ function Header({ onChangeStore }) {
   );
 
   const PaymentErrorScreen = () => (
-    <div style={{
-      position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      zIndex: 3000, padding: 16,
-    }}>
-      <div style={{
-        background: "#fff", borderRadius: 16, padding: "36px 28px",
-        maxWidth: 400, width: "100%", textAlign: "center",
-        boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
-      }}>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.6)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 3000,
+        padding: 16,
+      }}
+    >
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 16,
+          padding: "36px 28px",
+          maxWidth: 400,
+          width: "100%",
+          textAlign: "center",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+        }}
+      >
         <div style={{ fontSize: 52, marginBottom: 12 }}>⚠️</div>
         <h3 style={{ color: "#dc3545", marginBottom: 10 }}>Payment Issue</h3>
-        <p style={{ color: "#555", fontSize: 14, marginBottom: 20 }}>{paymentErrorMsg}</p>
-        <p style={{ fontWeight: 600, marginBottom: 6, fontSize: 15 }}>Contact us to complete your order:</p>
-        <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 12 }}>Dinesh</p>
+        <p style={{ color: "#555", fontSize: 14, marginBottom: 20 }}>
+          {paymentErrorMsg}
+        </p>
+        <p style={{ fontWeight: 600, marginBottom: 6, fontSize: 15 }}>
+          Contact us to complete your order:
+        </p>
+        <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 12 }}>
+          Dinesh
+        </p>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <a href="tel:+17327629918" style={{
-            display: "block", padding: "10px 16px", borderRadius: 8,
-            background: "#343a40", color: "#fff", textDecoration: "none", fontWeight: 600, fontSize: 15,
-          }}>📞 Call: +1 (732) 762-9918</a>
-          <a href="https://wa.me/17327629918" target="_blank" rel="noopener noreferrer" style={{
-            display: "block", padding: "10px 16px", borderRadius: 8,
-            background: "#25D366", color: "#fff", textDecoration: "none", fontWeight: 600, fontSize: 15,
-          }}>💬 WhatsApp: +1 (732) 762-9918</a>
+          <a
+            href="tel:+17327629918"
+            style={{
+              display: "block",
+              padding: "10px 16px",
+              borderRadius: 8,
+              background: "#343a40",
+              color: "#fff",
+              textDecoration: "none",
+              fontWeight: 600,
+              fontSize: 15,
+            }}
+          >
+            📞 Call: +1 (732) 762-9918
+          </a>
+          <a
+            href="https://wa.me/17327629918"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "block",
+              padding: "10px 16px",
+              borderRadius: 8,
+              background: "#25D366",
+              color: "#fff",
+              textDecoration: "none",
+              fontWeight: 600,
+              fontSize: 15,
+            }}
+          >
+            💬 WhatsApp: +1 (732) 762-9918
+          </a>
         </div>
         <button
-          onClick={() => { setPaymentErrorMsg(null); setIsPaymentPopupOpen(true); }}
-          style={{
-            marginTop: 16, padding: "8px 20px", borderRadius: 6,
-            border: "1px solid #ccc", background: "#fff",
-            cursor: "pointer", fontSize: 14, fontWeight: 600,
+          onClick={() => {
+            setPaymentErrorMsg(null);
+            setIsPaymentPopupOpen(true);
           }}
-        >Try Again</button>
+          style={{
+            marginTop: 16,
+            padding: "8px 20px",
+            borderRadius: 6,
+            border: "1px solid #ccc",
+            background: "#fff",
+            cursor: "pointer",
+            fontSize: 14,
+            fontWeight: 600,
+          }}
+        >
+          Try Again
+        </button>
       </div>
     </div>
   );
@@ -793,14 +897,18 @@ function Header({ onChangeStore }) {
       <header className="site-header">
         <div className="sh-container">
           <div className="sh-nav">
-
             <div className="sh-logo">
               <img className="sh-logo-img" src="../logo.png" alt="Raja Rani" />
               {selectedStore && onChangeStore && (
                 <div className="sh-store-badge">
                   <span>📍</span>
-                  <span className="sh-store-badge-name">{selectedStore.name}</span>
-                  <button className="sh-store-badge-btn" onClick={onChangeStore}>
+                  <span className="sh-store-badge-name">
+                    {selectedStore.name}
+                  </span>
+                  <button
+                    className="sh-store-badge-btn"
+                    onClick={onChangeStore}
+                  >
                     Change
                   </button>
                 </div>
@@ -810,27 +918,39 @@ function Header({ onChangeStore }) {
             <div className="sh-icons">
               <SocialIcon
                 url="https://www.facebook.com/people/RAJA-RANI-Indian-Restaurant/100085630432560/"
-                target="_blank" rel="noopener noreferrer"
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{ height: 34, width: 34 }}
               />
               <SocialIcon
                 url="https://www.instagram.com/raja_rani_indian_restaurant/"
-                target="_blank" rel="noopener noreferrer"
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{ height: 34, width: 34 }}
               />
               <SocialIcon
                 url="https://www.yelp.com/biz/raja-rani-indian-restaurant-canton"
-                target="_blank" rel="noopener noreferrer"
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{ height: 34, width: 34 }}
               />
               <SocialIcon
                 url="https://chat.whatsapp.com/JVMf5MZJCEp2XPakE4YYaW?mode=ac_t"
-                target="_blank" rel="noopener noreferrer"
-                network="whatsapp" bgColor="#25D366"
+                target="_blank"
+                rel="noopener noreferrer"
+                network="whatsapp"
+                bgColor="#25D366"
                 style={{ height: 34, width: 34 }}
               />
-              <a href="https://maps.app.goo.gl/NRvpEc4paaSJSgxE9" target="_blank" rel="noopener noreferrer" className="sh-icon">
-                <FaMapMarkerAlt style={{ color: "#FF4C4C", fontSize: "1.3rem" }} />
+              <a
+                href="https://maps.app.goo.gl/NRvpEc4paaSJSgxE9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="sh-icon"
+              >
+                <FaMapMarkerAlt
+                  style={{ color: "#FF4C4C", fontSize: "1.3rem" }}
+                />
               </a>
               <a href="mailto:rajaranicanton2@gmail.com" className="sh-icon">
                 <FaEnvelope style={{ color: "#60aaff", fontSize: "1.3rem" }} />
@@ -1066,13 +1186,30 @@ function Header({ onChangeStore }) {
               {/* Tip selector — shown for pickup/delivery orders */}
               {orderMode !== "dinein" && (
                 <div style={{ marginTop: "10px", textAlign: "left" }}>
-                  <label style={{ fontWeight: "600", color: "#333", fontSize: "14px" }}>
+                  <label
+                    style={{
+                      fontWeight: "600",
+                      color: "#333",
+                      fontSize: "14px",
+                    }}
+                  >
                     Add a Tip
                   </label>
-                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "6px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      flexWrap: "wrap",
+                      marginTop: "6px",
+                    }}
+                  >
                     {[0, 10, 15, 18, 20].map((pct) => {
                       const base = discountSettings
-                        ? (totalAmount - (totalAmount * parseFloat(discountSettings.percentage)) / 100) * 1.06
+                        ? (totalAmount -
+                            (totalAmount *
+                              parseFloat(discountSettings.percentage)) /
+                              100) *
+                          1.06
                         : totalAmount * 1.06;
                       return (
                         <button
@@ -1080,13 +1217,18 @@ function Header({ onChangeStore }) {
                           type="button"
                           onClick={() => {
                             setTipPercentage(pct);
-                            setTipAmount(pct === 0 ? 0 : parseFloat(((base * pct) / 100).toFixed(2)));
+                            setTipAmount(
+                              pct === 0
+                                ? 0
+                                : parseFloat(((base * pct) / 100).toFixed(2)),
+                            );
                           }}
                           style={{
                             padding: "6px 12px",
                             borderRadius: "20px",
                             border: "1px solid #ccc",
-                            background: tipPercentage === pct ? "#222" : "white",
+                            background:
+                              tipPercentage === pct ? "#222" : "white",
                             color: tipPercentage === pct ? "white" : "#333",
                             cursor: "pointer",
                             fontSize: "13px",
@@ -1104,7 +1246,8 @@ function Header({ onChangeStore }) {
                         padding: "6px 12px",
                         borderRadius: "20px",
                         border: "1px solid #ccc",
-                        background: tipPercentage === "custom" ? "#222" : "white",
+                        background:
+                          tipPercentage === "custom" ? "#222" : "white",
                         color: tipPercentage === "custom" ? "white" : "#333",
                         cursor: "pointer",
                         fontSize: "13px",
@@ -1123,7 +1266,11 @@ function Header({ onChangeStore }) {
                       value={tipAmount || ""}
                       onChange={(e) => {
                         const val = parseFloat(e.target.value);
-                        setTipAmount(isNaN(val) || val < 0 ? 0 : parseFloat(val.toFixed(2)));
+                        setTipAmount(
+                          isNaN(val) || val < 0
+                            ? 0
+                            : parseFloat(val.toFixed(2)),
+                        );
                       }}
                       style={{
                         width: "100%",

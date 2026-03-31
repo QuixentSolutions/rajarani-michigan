@@ -77,27 +77,6 @@ router.post("/payment", async (req, res) => {
     const API_LOGIN_ID = process.env.AUTHORIZE_API_LOGIN_ID?.trim();
     const TRANSACTION_KEY = process.env.AUTHORIZE_TRANSACTION_KEY?.trim();
 
-    // Create payment request to Authorize.net
-    // const paymentData = {
-    //   createTransactionRequest: {
-    //     merchantAuthentication: {
-    //       name: process.env.AUTHORIZE_API_LOGIN_ID,
-    //       transactionKey: process.env.AUTHORIZE_TRANSACTION_KEY,
-    //     },
-    //     refId: registrationId,
-    //     transactionRequest: {
-    //       transactionType: "authCaptureTransaction",
-    //       amount: amount.toString(),
-    //       payment: {
-    //         opaqueData: {
-    //           dataDescriptor: opaqueData.dataDescriptor,
-    //           dataValue: opaqueData.dataValue,
-    //         },
-    //       },
-    //     },
-    //   },
-    // };
-
     if (!API_LOGIN_ID || !TRANSACTION_KEY) {
       return res
         .status(500)
@@ -170,7 +149,9 @@ router.post("/payment", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const orders = await Registration.find({ storeId: req.storeId }).sort({ createdAt: -1 });
+    const orders = await Registration.find({ storeId: req.storeId }).sort({
+      createdAt: -1,
+    });
     res.json(orders);
   } catch (err) {
     res.status(500).json({ error: err.message });

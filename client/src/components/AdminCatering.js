@@ -112,7 +112,9 @@ const AdminCatering = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this catering order?")) return;
-    await fetch(`/stores/${storeSlug}/catering/${id}`, { method: "DELETE" });
+    await fetch(`/api/stores/${storeSlug}/catering/${id}`, {
+      method: "DELETE",
+    });
     await loadOrders();
   };
 
@@ -154,8 +156,8 @@ const AdminCatering = () => {
 
     try {
       const url = editingId
-        ? `/stores/${storeSlug}/catering/${editingId}`
-        : `/stores/${storeSlug}/catering`;
+        ? `/api/stores/${storeSlug}/catering/${editingId}`
+        : `/api/stores/${storeSlug}/catering`;
       const method = editingId ? "PUT" : "POST";
       const res = await fetch(url, {
         method,

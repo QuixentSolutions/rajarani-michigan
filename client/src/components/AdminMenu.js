@@ -42,7 +42,7 @@ const AdminMenu = ({
     }
 
     try {
-      const url = `/stores/${storeSlug}/menu/category/${selectedSection._id}/item`;
+      const url = `/api/stores/${storeSlug}/menu/category/${selectedSection._id}/item`;
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -98,7 +98,7 @@ const AdminMenu = ({
         throw new Error("No section selected");
       }
 
-      const url = `/stores/${storeSlug}/menu/category/${selectedSection._id}/item/${itemToUpdate._id}`;
+      const url = `/api/stores/${storeSlug}/menu/category/${selectedSection._id}/item/${itemToUpdate._id}`;
       const response = await fetch(url, {
         method: "PUT",
         headers: {
@@ -154,7 +154,7 @@ const AdminMenu = ({
         throw new Error("No section selected");
       }
 
-      const url = `/stores/${storeSlug}/menu/category/${selectedSection._id}/item/${itemId}`;
+      const url = `/api/stores/${storeSlug}/menu/category/${selectedSection._id}/item/${itemId}`;
       const response = await fetch(url, {
         method: "DELETE",
         headers: {

@@ -846,8 +846,23 @@ function AnnualDayRegistration({ isOpen, onClose }) {
                   onChange={(e) => setExpMonth(e.target.value)}
                 >
                   <option value="">MM</option>
-                  {["01","02","03","04","05","06","07","08","09","10","11","12"].map((m) => (
-                    <option key={m} value={m}>{m}</option>
+                  {[
+                    "01",
+                    "02",
+                    "03",
+                    "04",
+                    "05",
+                    "06",
+                    "07",
+                    "08",
+                    "09",
+                    "10",
+                    "11",
+                    "12",
+                  ].map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
                   ))}
                 </select>
                 <select
@@ -856,9 +871,13 @@ function AnnualDayRegistration({ isOpen, onClose }) {
                   onChange={(e) => setExpYear(e.target.value)}
                 >
                   <option value="">YY</option>
-                  {Array.from({ length: 30 }, (_, i) => String(26 + i)).map((y) => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
+                  {Array.from({ length: 30 }, (_, i) => String(26 + i)).map(
+                    (y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ),
+                  )}
                 </select>
                 <input
                   className="payment-input small-field"

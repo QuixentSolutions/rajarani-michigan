@@ -135,11 +135,11 @@ const AdminReports = () => {
     setLoading(true);
     try {
       const [invRes, catRes, dineRes, partRes, expRes] = await Promise.all([
-        fetch(`/stores/${storeSlug}/invoice/reports/${period}`),
-        fetch(`/stores/${storeSlug}/catering/reports/${period}`),
-        fetch(`/stores/${storeSlug}/manual-sales/reports/${period}?type=dinein`),
-        fetch(`/stores/${storeSlug}/delivery-partner-sales/reports/${period}`),
-        fetch(`/stores/${storeSlug}/expense/reports/${period}`),
+        fetch(`/api/stores/${storeSlug}/invoice/reports/${period}`),
+        fetch(`/api/stores/${storeSlug}/catering/reports/${period}`),
+        fetch(`/api/stores/${storeSlug}/manual-sales/reports/${period}?type=dinein`),
+        fetch(`/api/stores/${storeSlug}/delivery-partner-sales/reports/${period}`),
+        fetch(`/api/stores/${storeSlug}/expense/reports/${period}`),
       ]);
       const [inv, cat, dine, part, exp] = await Promise.all([
         invRes.json(), catRes.json(), dineRes.json(), partRes.json(), expRes.json(),

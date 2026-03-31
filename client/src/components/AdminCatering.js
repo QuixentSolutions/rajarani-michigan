@@ -45,7 +45,7 @@ const AdminCatering = () => {
   const loadOrders = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/stores/${storeSlug}/catering?limit=100`);
+      const res = await fetch(`/api/stores/${storeSlug}/catering?limit=100`);
       const data = await res.json();
       setOrders(data.results || []);
     } finally {

@@ -24,7 +24,7 @@ const KitchenOrdersTable = ({
     try {
       setError("");
       const response = await fetch(
-        `/stores/${storeSlug}/order/kitchen?page=${page}&limit=${limit}`,
+        `/api/stores/${storeSlug}/order/kitchen?page=${page}&limit=${limit}`,
         {
           headers: {
             Authorization: authToken,
@@ -54,7 +54,7 @@ const KitchenOrdersTable = ({
   const fetchPrinterData = useCallback(async () => {
     try {
       setError("");
-      const response = await fetch(`/stores/${storeSlug}/printer`, {
+      const response = await fetch(`/api/stores/${storeSlug}/printer`, {
         headers: {
           Authorization: authToken,
           "Content-Type": "application/json",
@@ -113,7 +113,7 @@ const KitchenOrdersTable = ({
 
   const handlePrintOrder = async (orderId) => {
     try {
-      const orderDetailsResponse = await fetch(`/stores/${storeSlug}/order/orderId/${orderId}`, {
+      const orderDetailsResponse = await fetch(`/api/stores/${storeSlug}/order/orderId/${orderId}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });

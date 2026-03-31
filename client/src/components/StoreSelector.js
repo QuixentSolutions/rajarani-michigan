@@ -20,7 +20,7 @@ export default function StoreSelector({ onCancel }) {
       async (pos) => {
         const { latitude, longitude } = pos.coords;
         try {
-          const res = await fetch(`/stores/nearby?lat=${latitude}&lng=${longitude}`);
+          const res = await fetch(`/api/stores/nearby?lat=${latitude}&lng=${longitude}`);
           const data = await res.json();
           if (data.length === 1) {
             // Exactly one nearby store — auto-select silently
@@ -45,7 +45,7 @@ export default function StoreSelector({ onCancel }) {
   async function fetchAllStores(msg) {
     setMessage(msg);
     try {
-      const res = await fetch("/stores");
+      const res = await fetch("/api/stores");
       const data = await res.json();
       setStores(data);
       setStatus("list");

@@ -10,7 +10,7 @@ export default function AdminStoreSelector({ onStoreSelected }) {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch("/stores")
+    fetch("/api/stores")
       .then((res) => res.json())
       .then((data) => {
         setStores(data);

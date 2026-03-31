@@ -41,7 +41,7 @@ const AdminOnlineOrderSales = () => {
 
   const loadPartners = useCallback(async () => {
     try {
-      const res = await fetch(`/stores/${storeSlug}/delivery-partners`);
+      const res = await fetch(`/api/stores/${storeSlug}/delivery-partners`);
       const data = await res.json();
       setPartners(Array.isArray(data) ? data : []);
     } catch {
@@ -53,7 +53,7 @@ const AdminOnlineOrderSales = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `/stores/${storeSlug}/delivery-partner-sales?limit=200`,
+        `/api/stores/${storeSlug}/delivery-partner-sales?limit=200`,
       );
       const data = await res.json();
       setEntries(data.results || []);

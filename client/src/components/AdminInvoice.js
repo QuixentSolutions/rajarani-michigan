@@ -29,7 +29,7 @@ function ExpenseTab({ storeSlug }) {
   const loadExpenses = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/stores/${storeSlug}/expense?limit=200`);
+      const res = await fetch(`/api/stores/${storeSlug}/expense?limit=200`);
       const data = await res.json();
       setExpenses(data.results || []);
     } finally {

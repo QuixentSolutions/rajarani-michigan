@@ -366,7 +366,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
 
   useEffect(() => {
     const loadData = async () => {
-      const dbResponse = await fetch(`/stores/${storeSlug}/settings/latest`, {
+      const dbResponse = await fetch(`/api/stores/${storeSlug}/settings/latest`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -386,7 +386,7 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
     try {
       setTableNo(tableNo);
       const response = await fetch(
-        `/stores/${storeSlug}/order/table/${tableNo}`,
+        `/api/stores/${storeSlug}/order/table/${tableNo}`,
         {
           method: "GET",
           headers: {

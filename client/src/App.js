@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Provider, useSelector } from "react-redux";
 import { store } from "./store";
+
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import Discount from "./components/Discount";
@@ -24,7 +25,6 @@ const HomePage = ({ onChangeStore }) => {
       <AnnualDayBanner />
       <Hero />
       <Discount />
-      {/* <RegistrationCard /> */}
       <MenuCards />
       <Footer />
       <WhatsAppFloatingButton />
@@ -45,18 +45,39 @@ function StoreGate({ children }) {
           <StoreSelector onCancel={() => setShowChangeStore(false)} />
         </div>
       )}
-      {React.cloneElement(children, { onChangeStore: () => setShowChangeStore(true) })}
+      {React.cloneElement(children, {
+        onChangeStore: () => setShowChangeStore(true),
+      })}
     </>
   );
 }
 
 function App() {
+  // ✅ PWA Home Screen redirect logic (Option 3)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const source = params.get("source");
+
+    if (source === "admin") {
+      // Clean URL + redirect to /admin
+      window.history.replaceState({}, "", "/admin");
+      window.location.reload();
+    }
+  }, []);
+
   return (
     <Provider store={store}>
       <Router>
         <div className="whole-container">
           <Routes>
-            <Route path="/" element={<StoreGate><HomePage /></StoreGate>} />
+            <Route
+              path="/"
+              element={
+                <StoreGate>
+                  <HomePage />
+                </StoreGate>
+              }
+            />
             <Route path="/admin" element={<AdminApp />} />
           </Routes>
         </div>

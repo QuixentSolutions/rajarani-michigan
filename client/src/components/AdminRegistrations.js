@@ -47,6 +47,7 @@ const AdminRegistrations = ({
               <th>Event Date</th>
               <th>Event Name</th>
               <th>Quantity</th>
+              <th>Created At</th>
               <th>Food Preference</th>
             </tr>
           </thead>
@@ -66,6 +67,11 @@ const AdminRegistrations = ({
                   </td>
                   <td>{reg.eventName}</td>
                   <td>{reg.quantity || "1"}</td>
+                  <td>
+                    {reg.createdAt
+                      ? new Date(reg.createdAt).toLocaleDateString()
+                      : "N/A"}
+                  </td>
                   <td>
                     {(() => {
                       const vegCount = reg.vegCount || 0;

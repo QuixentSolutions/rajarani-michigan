@@ -11,7 +11,7 @@ import MenuCards from "./components/MenuCards";
 import Footer from "./components/Footer";
 import WhatsAppFloatingButton from "./components/WhatsAppFloatingButton";
 import ReviewBanner from "./components/ReviewBanner";
-import AnnualDayBanner from "./components/AnnualDayBanner";
+// import AnnualDayBanner from "./components/AnnualDayBanner";
 import AdminApp from "./components/AdminApp";
 import StoreSelector from "./components/StoreSelector";
 
@@ -22,7 +22,7 @@ const HomePage = ({ onChangeStore }) => {
     <>
       <Header onChangeStore={onChangeStore} />
       <ReviewBanner />
-      <AnnualDayBanner />
+      {/* <AnnualDayBanner /> */}
       <Hero />
       <Discount />
       <MenuCards />

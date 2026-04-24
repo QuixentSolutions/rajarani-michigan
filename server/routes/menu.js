@@ -38,7 +38,9 @@ router.get("/", async (req, res) => {
     ];
     const today = daysOfWeek[new Date().getDay()];
 
-    const menu = await Menu.find({ days: today, storeId: req.storeId });
+    const menu = await Menu.find({ days: today, storeId: req.storeId }).sort({
+      _id: 1,
+    });
     const result = {
       message: "Today's menu sections retrieved successfully",
       sections: menu,
@@ -108,7 +110,7 @@ router.post("/category/:categoryId/item", async (req, res) => {
           },
         },
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updatedCategory) {
@@ -138,7 +140,10 @@ router.put("/category/:categoryId/item/:itemId", async (req, res) => {
       });
     }
 
-    const category = await Menu.findOne({ _id: categoryId, storeId: req.storeId });
+    const category = await Menu.findOne({
+      _id: categoryId,
+      storeId: req.storeId,
+    });
     if (!category) {
       // console.log("Category not found for PUT.");
       return res.status(500).json({ message: "Category not found" });
@@ -174,7 +179,10 @@ router.delete("/category/:categoryId/item/:itemId", async (req, res) => {
 
     // Category and Item IDs are manually managed as Strings, no ObjectId validation needed.
 
-    const category = await Menu.findOne({ _id: categoryId, storeId: req.storeId });
+    const category = await Menu.findOne({
+      _id: categoryId,
+      storeId: req.storeId,
+    });
     if (!category) {
       // console.log("Category not found for DELETE.");
       return res.status(500).json({ message: "Category not found" });

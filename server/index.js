@@ -17,6 +17,7 @@ const manualSalesRoutes = require("./routes/manualSales");
 const deliveryPartnerRoutes = require("./routes/deliveryPartner");
 const deliveryPartnerSalesRoutes = require("./routes/deliveryPartnerSales");
 const validateStore = require("./middleware/validateStore");
+const adminRoutes = require("./routes/admin");
 const wsServer = require("./ws");
 
 require("dotenv").config();
@@ -40,6 +41,7 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err.message));
 
 app.use("/health", healthRoutes);
+app.use("/admin", adminRoutes);
 app.use("/stores", storeRoutes);
 
 const storeRouter = express.Router({ mergeParams: true });

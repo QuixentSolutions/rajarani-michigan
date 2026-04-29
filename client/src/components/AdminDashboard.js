@@ -21,7 +21,7 @@ import { printOrder } from "../utils/printer";
 const AdminDashboard = ({ onLogout, onSwitchStore }) => {
   const storeSlug = useSelector((state) => state.store.selectedStore?.slug);
   const storeName = useSelector((state) => state.store.selectedStore?.name);
-  const [authToken] = useState("Basic " + btoa("admin:password123"));
+  const [authToken] = useState("Bearer " + sessionStorage.getItem("adminToken"));
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [refreshOrders, setRefreshOrders] = useState("");

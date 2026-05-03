@@ -104,42 +104,37 @@ const AdminLogin = ({ onLoginSuccess }) => {
     },
   };
 
-  // Hardcoded credentials validation
-  const validateCredentials = (username, password) => {
-    if (username === "admin" && password === "QuiX3nt!") {
-      const token = "Basic " + btoa(`${username}:${password}`);
-      return { success: true, token };
-    } else {
-      return { success: false, error: "Invalid username or password" };
-    }
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setIsLoading(true);
 
-    // Basic validation
     if (!username.trim() || !password.trim()) {
       setError("Please enter both username and password");
-      setIsLoading(false);
       return;
     }
 
-    // Simulate loading for better UX
-    setTimeout(() => {
-      const result = validateCredentials(username, password);
+    setIsLoading(true);
+    try {
+      const res = await fetch("/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username.trim(), password }),
+      });
 
-      if (result.success) {
-        // Store token in sessionStorage for session persistence
-        sessionStorage.setItem("adminToken", result.token);
-        // Pass token to parent component
-        onLoginSuccess(result.token);
-      } else {
-        setError(result.error);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Invalid credentials");
+        return;
       }
+
+      sessionStorage.setItem("adminToken", data.token);
+      onLoginSuccess(data.token);
+    } catch (err) {
+      setError("Unable to connect to server. Please try again.");
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
   };
 
   const getInputStyle = (inputName) => ({

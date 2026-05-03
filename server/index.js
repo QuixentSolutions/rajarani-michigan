@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -20,8 +22,6 @@ const validateStore = require("./middleware/validateStore");
 const adminRoutes = require("./routes/admin");
 const wsServer = require("./ws");
 
-require("dotenv").config();
-
 const app = express();
 
 app.use((req, res, next) => {
@@ -42,7 +42,8 @@ mongoose
 
 app.use("/health", healthRoutes);
 app.use("/admin", adminRoutes);
-app.use("/stores", storeRoutes);
+app.use("/api/register", registerRoutes);
+app.use("/api/stores", storeRoutes);
 
 const storeRouter = express.Router({ mergeParams: true });
 storeRouter.use(validateStore);
@@ -58,7 +59,7 @@ storeRouter.use("/manual-sales", manualSalesRoutes);
 storeRouter.use("/delivery-partners", deliveryPartnerRoutes);
 storeRouter.use("/delivery-partner-sales", deliveryPartnerSalesRoutes);
 
-app.use("/stores/:storeId", storeRouter);
+app.use("/api/stores/:storeId", storeRouter);
 
 // Serve React build
 app.use(express.static(path.join(__dirname, "../client/build")));

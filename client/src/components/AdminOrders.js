@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { printOrder } from "../utils/printer";
 
 const AdminOrders = ({
   orders,
@@ -105,7 +106,34 @@ const AdminOrders = ({
 
                           <td>{new Date(order.createdAt).toLocaleString()}</td>
                           <td>
-                            {order.status === "pending" && (
+                            <button
+                              onClick={() => printOrder(order)}
+                              style={{
+                                padding: "6px 12px",
+                                backgroundColor: "#10b981",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "6px",
+                                fontSize: "12px",
+                                fontWeight: "500",
+                                cursor: "pointer",
+                                transition: "all 0.2s ease",
+                                boxShadow: "0 1px 3px rgba(16,185,129,0.3)",
+                                marginRight: "6px",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = "#059669";
+                                e.target.style.transform = "translateY(-1px)";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = "#10b981";
+                                e.target.style.transform = "translateY(0)";
+                              }}
+                            >
+                              Print
+                            </button>
+
+                            {/* {order.status === "pending" && (
                               <button
                                 className="view-btn"
                                 style={{
@@ -132,7 +160,7 @@ const AdminOrders = ({
                               >
                                 Reject
                               </button>
-                            )}
+                            )} */}
 
                             {order.status === "accepted" && (
                               <button

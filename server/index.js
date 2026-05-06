@@ -41,7 +41,7 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err.message));
 
 app.use("/health", healthRoutes);
-app.use("/admin", adminRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/register", registerRoutes);
 app.use("/api/stores", storeRoutes);
 

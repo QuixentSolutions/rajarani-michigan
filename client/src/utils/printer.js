@@ -106,8 +106,8 @@ const buildReceiptHtml = (order, orderTypeLabel, formattedDate, formattedTime, c
   </html>
 `;
 
-const sendToPrinter = (html) => {
-  const win = window.open("", "", "width=400,height=700");
+const sendToPrinter = (win, html) => {
+  if (!win) return;
   win.document.write(html);
   win.document.close();
   win.focus();
@@ -179,8 +179,12 @@ export const printOrder = (order) => {
 
   const html = buildReceiptHtml(order, orderTypeLabel, formattedDate, formattedTime, customerInfo, itemsHtml);
 
-  sendToPrinter(html);
-  sendToPrinter(html);
+  // Open both windows immediately while still inside the click handler
+  // so the browser treats both as user-initiated (not blocked as popups)
+  const win1 = window.open("", "", "width=400,height=700");
+  const win2 = window.open("", "", "width=400,height=700");
+  sendToPrinter(win1, html);
+  sendToPrinter(win2, html);
 
   return true;
 };

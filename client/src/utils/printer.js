@@ -106,16 +106,13 @@ const buildReceiptHtml = (order, orderTypeLabel, formattedDate, formattedTime, c
   </html>
 `;
 
-const sendToPrinter = (html, onDone) => {
+const sendToPrinter = (html) => {
   const win = window.open("", "", "width=400,height=700");
   win.document.write(html);
   win.document.close();
   win.focus();
-  win.addEventListener("afterprint", () => {
-    win.close();
-    if (onDone) onDone();
-  });
   win.print();
+  win.close();
 };
 
 export const printOrder = (order) => {
@@ -182,8 +179,8 @@ export const printOrder = (order) => {
 
   const html = buildReceiptHtml(order, orderTypeLabel, formattedDate, formattedTime, customerInfo, itemsHtml);
 
-  // Print copy 1, then copy 2 after the first job finishes
-  sendToPrinter(html, () => sendToPrinter(html));
+  sendToPrinter(html);
+  sendToPrinter(html);
 
   return true;
 };

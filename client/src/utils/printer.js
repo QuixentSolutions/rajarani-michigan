@@ -153,26 +153,47 @@ export const printOrder = (order) => {
             font-weight: bold;
             margin-top: 10px;
           }
+          .page-break {
+            page-break-after: always;
+          }
           @media print {
             body { margin: 0; padding: 4mm; }
           }
         </style>
       </head>
       <body>
-        <div class="order-number">#${order.orderNumber}</div>
-        <div class="order-type">${orderTypeLabel}</div>
-        <hr class="divider" />
-        <div class="info-block">
-          <div class="info-row"><span class="info-label">Date</span><span class="info-value">${formattedDate}</span></div>
-          <div class="info-row"><span class="info-label">Time</span><span class="info-value">${formattedTime}</span></div>
-          ${customerInfo}
+        <div class="page-break">
+          <div class="order-number">#${order.orderNumber}</div>
+          <div class="order-type">${orderTypeLabel}</div>
+          <hr class="divider" />
+          <div class="info-block">
+            <div class="info-row"><span class="info-label">Date</span><span class="info-value">${formattedDate}</span></div>
+            <div class="info-row"><span class="info-label">Time</span><span class="info-value">${formattedTime}</span></div>
+            ${customerInfo}
+          </div>
+          <hr class="divider" />
+          <div class="items-section">
+            ${itemsHtml}
+          </div>
+          <hr class="divider" />
+          <div class="footer">Thank you!</div>
         </div>
-        <hr class="divider" />
-        <div class="items-section">
-          ${itemsHtml}
+        <div>
+          <div class="order-number">#${order.orderNumber}</div>
+          <div class="order-type">${orderTypeLabel}</div>
+          <hr class="divider" />
+          <div class="info-block">
+            <div class="info-row"><span class="info-label">Date</span><span class="info-value">${formattedDate}</span></div>
+            <div class="info-row"><span class="info-label">Time</span><span class="info-value">${formattedTime}</span></div>
+            ${customerInfo}
+          </div>
+          <hr class="divider" />
+          <div class="items-section">
+            ${itemsHtml}
+          </div>
+          <hr class="divider" />
+          <div class="footer">Thank you!</div>
         </div>
-        <hr class="divider" />
-        <div class="footer">Thank you!</div>
       </body>
     </html>
   `;

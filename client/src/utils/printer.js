@@ -78,6 +78,13 @@ const buildReceiptHtml = (order, orderTypeLabel, formattedDate, formattedTime, c
           font-weight: bold;
           margin-top: 10px;
         }
+        .cut-line {
+          text-align: center;
+          font-size: 14px;
+          letter-spacing: 2px;
+          color: #555;
+          margin: 12px 0;
+        }
         @page {
           size: 80mm auto;
           margin: 0;
@@ -102,11 +109,29 @@ const buildReceiptHtml = (order, orderTypeLabel, formattedDate, formattedTime, c
       </div>
       <hr class="divider" />
       <div class="footer">Thank you!</div>
+
+      <div class="cut-line">- - - - - - - - ✂ - - - - - - - -</div>
+
+      <div class="order-number">#${order.orderNumber}</div>
+      <div class="order-type">${orderTypeLabel}</div>
+      <hr class="divider" />
+      <div class="info-block">
+        <div class="info-row"><span class="info-label">Date</span><span class="info-value">${formattedDate}</span></div>
+        <div class="info-row"><span class="info-label">Time</span><span class="info-value">${formattedTime}</span></div>
+        ${customerInfo}
+      </div>
+      <hr class="divider" />
+      <div class="items-section">
+        ${itemsHtml}
+      </div>
+      <hr class="divider" />
+      <div class="footer">Thank you!</div>
     </body>
   </html>
 `;
 
-const sendToPrinter = (win, html) => {
+const sendToPrinter = (html) => {
+  const win = window.open("", "", "width=400,height=700");
   if (!win) return;
   win.document.write(html);
   win.document.close();
@@ -179,12 +204,7 @@ export const printOrder = (order) => {
 
   const html = buildReceiptHtml(order, orderTypeLabel, formattedDate, formattedTime, customerInfo, itemsHtml);
 
-  // Open both windows immediately while still inside the click handler
-  // so the browser treats both as user-initiated (not blocked as popups)
-  const win1 = window.open("", "", "width=400,height=700");
-  const win2 = window.open("", "", "width=400,height=700");
-  sendToPrinter(win1, html);
-  sendToPrinter(win2, html);
+  sendToPrinter(html);
 
   return true;
 };

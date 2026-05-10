@@ -4,11 +4,13 @@ const buildReceiptHtml = (order, orderTypeLabel, formattedDate, formattedTime, c
       <title>Order #${order.orderNumber}</title>
       <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { height: auto; }
         body {
           width: 80mm;
+          height: auto;
           font-family: 'Arial Black', Arial, sans-serif;
           font-size: 18px;
-          padding: 8mm 4mm;
+          padding: 4mm 4mm 0 4mm;
           color: #000;
         }
         .divider {
@@ -77,6 +79,7 @@ const buildReceiptHtml = (order, orderTypeLabel, formattedDate, formattedTime, c
           font-size: 16px;
           font-weight: bold;
           margin-top: 10px;
+          padding-bottom: 6mm;
         }
         .cut-line {
           text-align: center;
@@ -90,7 +93,8 @@ const buildReceiptHtml = (order, orderTypeLabel, formattedDate, formattedTime, c
           margin: 0;
         }
         @media print {
-          body { margin: 0; padding: 4mm; }
+          html, body { margin: 0; padding: 0; height: auto; }
+          body { padding: 4mm 4mm 0 4mm; }
         }
       </style>
     </head>

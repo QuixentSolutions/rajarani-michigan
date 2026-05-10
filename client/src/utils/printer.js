@@ -1,3 +1,120 @@
+const buildReceiptHtml = (order, orderTypeLabel, formattedDate, formattedTime, customerInfo, itemsHtml) => `
+  <html>
+    <head>
+      <title>Order #${order.orderNumber}</title>
+      <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+          width: 80mm;
+          font-family: 'Arial Black', Arial, sans-serif;
+          font-size: 18px;
+          padding: 8mm 4mm;
+          color: #000;
+        }
+        .divider {
+          border: none;
+          border-top: 3px solid #000;
+          margin: 8px 0;
+        }
+        .order-number {
+          font-size: 36px;
+          font-weight: 900;
+          text-align: center;
+          letter-spacing: 2px;
+        }
+        .order-type {
+          font-size: 28px;
+          font-weight: 900;
+          text-align: center;
+          background: #000;
+          color: #fff;
+          padding: 4px 0;
+          margin: 6px 0;
+          letter-spacing: 3px;
+        }
+        .info-block {
+          margin: 6px 0;
+        }
+        .info-row {
+          display: flex;
+          justify-content: space-between;
+          font-size: 16px;
+          font-weight: bold;
+          margin: 3px 0;
+        }
+        .info-label { color: #555; }
+        .info-value { text-align: right; }
+        .items-section { margin: 8px 0; }
+        .item { margin: 10px 0; }
+        .item-main {
+          display: flex;
+          align-items: baseline;
+          gap: 6px;
+        }
+        .item-qty {
+          font-size: 28px;
+          font-weight: 900;
+          min-width: 24px;
+        }
+        .item-x {
+          font-size: 22px;
+          font-weight: 700;
+        }
+        .item-name {
+          font-size: 22px;
+          font-weight: 900;
+          flex: 1;
+        }
+        .detail {
+          font-size: 16px;
+          font-weight: 600;
+          padding-left: 36px;
+          margin-top: 2px;
+          color: #333;
+        }
+        .footer {
+          text-align: center;
+          font-size: 16px;
+          font-weight: bold;
+          margin-top: 10px;
+        }
+        @page {
+          size: 80mm auto;
+          margin: 0;
+        }
+        @media print {
+          body { margin: 0; padding: 4mm; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="order-number">#${order.orderNumber}</div>
+      <div class="order-type">${orderTypeLabel}</div>
+      <hr class="divider" />
+      <div class="info-block">
+        <div class="info-row"><span class="info-label">Date</span><span class="info-value">${formattedDate}</span></div>
+        <div class="info-row"><span class="info-label">Time</span><span class="info-value">${formattedTime}</span></div>
+        ${customerInfo}
+      </div>
+      <hr class="divider" />
+      <div class="items-section">
+        ${itemsHtml}
+      </div>
+      <hr class="divider" />
+      <div class="footer">Thank you!</div>
+    </body>
+  </html>
+`;
+
+const sendToPrinter = (html) => {
+  const win = window.open("", "", "width=400,height=700");
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  win.print();
+  win.close();
+};
+
 export const printOrder = (order) => {
   if (!order) return;
 
@@ -60,153 +177,11 @@ export const printOrder = (order) => {
     `;
   });
 
-  const html = `
-    <html>
-      <head>
-        <title>Order #${order.orderNumber}</title>
-        <style>
-          * { box-sizing: border-box; margin: 0; padding: 0; }
-          body {
-            width: 80mm;
-            font-family: 'Arial Black', Arial, sans-serif;
-            font-size: 18px;
-            padding: 8mm 4mm;
-            color: #000;
-          }
-          .divider {
-            border: none;
-            border-top: 3px solid #000;
-            margin: 8px 0;
-          }
-          .divider-thin {
-            border: none;
-            border-top: 1px dashed #000;
-            margin: 6px 0;
-          }
-          .order-number {
-            font-size: 36px;
-            font-weight: 900;
-            text-align: center;
-            letter-spacing: 2px;
-          }
-          .order-type {
-            font-size: 28px;
-            font-weight: 900;
-            text-align: center;
-            background: #000;
-            color: #fff;
-            padding: 4px 0;
-            margin: 6px 0;
-            letter-spacing: 3px;
-          }
-          .info-block {
-            margin: 6px 0;
-          }
-          .info-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 16px;
-            font-weight: bold;
-            margin: 3px 0;
-          }
-          .info-label {
-            color: #555;
-          }
-          .info-value {
-            text-align: right;
-          }
-          .items-section {
-            margin: 8px 0;
-          }
-          .item {
-            margin: 10px 0;
-          }
-          .item-main {
-            display: flex;
-            align-items: baseline;
-            gap: 6px;
-          }
-          .item-qty {
-            font-size: 28px;
-            font-weight: 900;
-            min-width: 24px;
-          }
-          .item-x {
-            font-size: 22px;
-            font-weight: 700;
-          }
-          .item-name {
-            font-size: 22px;
-            font-weight: 900;
-            flex: 1;
-          }
-          .detail {
-            font-size: 16px;
-            font-weight: 600;
-            padding-left: 36px;
-            margin-top: 2px;
-            color: #333;
-          }
-          .footer {
-            text-align: center;
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: 10px;
-          }
-          .page-break {
-            page-break-after: always;
-          }
-          @page {
-            size: 80mm auto;
-            margin: 0;
-          }
-          @media print {
-            body { margin: 0; padding: 4mm; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="page-break">
-          <div class="order-number">#${order.orderNumber}</div>
-          <div class="order-type">${orderTypeLabel}</div>
-          <hr class="divider" />
-          <div class="info-block">
-            <div class="info-row"><span class="info-label">Date</span><span class="info-value">${formattedDate}</span></div>
-            <div class="info-row"><span class="info-label">Time</span><span class="info-value">${formattedTime}</span></div>
-            ${customerInfo}
-          </div>
-          <hr class="divider" />
-          <div class="items-section">
-            ${itemsHtml}
-          </div>
-          <hr class="divider" />
-          <div class="footer">Thank you!</div>
-        </div>
-        <div>
-          <div class="order-number">#${order.orderNumber}</div>
-          <div class="order-type">${orderTypeLabel}</div>
-          <hr class="divider" />
-          <div class="info-block">
-            <div class="info-row"><span class="info-label">Date</span><span class="info-value">${formattedDate}</span></div>
-            <div class="info-row"><span class="info-label">Time</span><span class="info-value">${formattedTime}</span></div>
-            ${customerInfo}
-          </div>
-          <hr class="divider" />
-          <div class="items-section">
-            ${itemsHtml}
-          </div>
-          <hr class="divider" />
-          <div class="footer">Thank you!</div>
-        </div>
-      </body>
-    </html>
-  `;
+  const html = buildReceiptHtml(order, orderTypeLabel, formattedDate, formattedTime, customerInfo, itemsHtml);
 
-  const printWindow = window.open("", "", "width=400,height=700");
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.focus();
-  printWindow.print();
-  printWindow.close();
+  // Print copy 1 immediately, copy 2 after printer finishes the first job
+  sendToPrinter(html);
+  setTimeout(() => sendToPrinter(html), 1000);
+
   return true;
 };

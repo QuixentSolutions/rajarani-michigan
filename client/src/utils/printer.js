@@ -156,6 +156,10 @@ export const printOrder = (order) => {
           .page-break {
             page-break-after: always;
           }
+          @page {
+            size: 80mm auto;
+            margin: 0;
+          }
           @media print {
             body { margin: 0; padding: 4mm; }
           }

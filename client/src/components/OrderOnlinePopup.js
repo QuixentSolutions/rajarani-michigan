@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./OrderOnlinePopup.css";
+import banner from "./online-banner.jpg";
 
 export default function OrderOnlinePopup() {
   const [visible, setVisible] = useState(false);
@@ -25,13 +26,12 @@ export default function OrderOnlinePopup() {
     <div className="oo-overlay" onClick={close}>
       <div className="oo-card" onClick={(e) => e.stopPropagation()}>
         <button className="oo-close" onClick={close}>✕</button>
-        <div className="oo-icon">🍛</div>
-        <h2 className="oo-title">Welcome to Raja Rani!</h2>
-        <hr className="oo-divider" />
-        <p className="oo-sub">Authentic South Indian flavors —<br />freshly crafted for you.</p>
-        <button className="oo-btn" onClick={handleOrder}>
-          🍽️ &nbsp;Order Online
-        </button>
+        <img
+          src={banner}
+          alt="Order Online"
+          className="oo-banner-img"
+          onClick={handleOrder}
+        />
       </div>
     </div>
   );

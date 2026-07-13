@@ -172,12 +172,32 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const filter = { storeId: req.storeId };
-    if (req.query.tableNumber) filter.tableNumber = req.query.tableNumber;
-    if (req.query.status) filter.status = req.query.status;
+    const { page = 1, limit = 10, search = "", tableNumber, status } = req.query;
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.max(1, parseInt(limit));
 
-    const orders = await Order.find(filter).sort({ createdAt: -1 });
-    res.json(orders);
+    const filter = { storeId: req.storeId };
+    if (tableNumber) filter.tableNumber = tableNumber;
+    if (status) filter.status = status;
+    if (search) {
+      filter.$or = [
+        { orderNumber: { $regex: search, $options: "i" } },
+        { "customer.name": { $regex: search, $options: "i" } },
+        { "customer.email": { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const totalCount = await Order.countDocuments(filter);
+    const orders = await Order.find(filter)
+      .sort({ createdAt: -1 })
+      .skip((pageNum - 1) * limitNum)
+      .limit(limitNum);
+
+    res.json({
+      items: orders,
+      totalPages: Math.ceil(totalCount / limitNum),
+      currentPage: pageNum,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

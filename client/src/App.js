@@ -11,6 +11,7 @@ import MenuCards from "./components/MenuCards";
 import Footer from "./components/Footer";
 import WhatsAppFloatingButton from "./components/WhatsAppFloatingButton";
 import ReviewBanner from "./components/ReviewBanner";
+import OrderOnlinePopup from "./components/OrderOnlinePopup";
 // import AnnualDayBanner from "./components/AnnualDayBanner";
 import AdminApp from "./components/AdminApp";
 import StoreSelector from "./components/StoreSelector";
@@ -20,6 +21,7 @@ import "./App.css";
 const HomePage = ({ onChangeStore }) => {
   return (
     <>
+      <OrderOnlinePopup />
       <Header onChangeStore={onChangeStore} />
       <ReviewBanner />
       {/* <AnnualDayBanner /> */}

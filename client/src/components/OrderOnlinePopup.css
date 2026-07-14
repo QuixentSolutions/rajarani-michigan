@@ -1,0 +1,61 @@
+.oo-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(3px);
+  animation: oo-fade-in 0.4s ease;
+}
+
+.oo-card {
+  position: relative;
+  animation: oo-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-width: 520px;
+  width: 92%;
+}
+
+.oo-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  background: #fff;
+  border: none;
+  color: #333;
+  font-size: 1rem;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  z-index: 1;
+  transition: background 0.2s, color 0.2s;
+}
+.oo-close:hover {
+  background: #222;
+  color: #fff;
+}
+
+.oo-banner-img {
+  width: 100%;
+  border-radius: 16px;
+  display: block;
+  cursor: pointer;
+  box-shadow: 0 12px 50px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes oo-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes oo-pop {
+  0%   { transform: scale(0.75); opacity: 0; }
+  100% { transform: scale(1);    opacity: 1; }
+}

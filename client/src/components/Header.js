@@ -9,6 +9,7 @@ import "./Header.css";
 // import AnniversaryPopup from "./AnniversaryPopup";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import { View, Text, TouchableOpacity } from "react-native";
+import { getStoreOpenState } from "../utils/storeHours";
 
 function Header({ onChangeStore }) {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -36,6 +37,10 @@ function Header({ onChangeStore }) {
   const [discountSettings, setDiscountSettings] = useState(null);
 
   const [deliveryModes, setDeliveryModes] = useState(["pickup", "delivery"]);
+  const [storeOpenState, setStoreOpenState] = useState({
+    open: true,
+    reason: "",
+  });
   // const totalItems = useSelector((state) => state.cart.totalItems);
   // const cartItems = useSelector((state) => state.cart.items);
 
@@ -108,6 +113,33 @@ function Header({ onChangeStore }) {
     loadData();
   }, [isPopupOpen]);
 
+  // Fetch fresh store working hours and evaluate open/closed state.
+  // Re-checked whenever the cart popup is opened and every minute while open.
+  useEffect(() => {
+    if (!storeSlug) return;
+    let intervalId;
+
+    const evaluate = (store) => setStoreOpenState(getStoreOpenState(store));
+
+    const loadStore = async () => {
+      try {
+        const res = await fetch(`/api/stores/${storeSlug}`);
+        const store = await res.json();
+        if (!res.ok) return;
+        evaluate(store);
+        // Keep status current while the popup stays open (crossing open/close time).
+        if (isPopupOpen) {
+          intervalId = setInterval(() => evaluate(store), 60000);
+        }
+      } catch (e) {
+        // Never block ordering on a fetch failure — backend re-validates.
+      }
+    };
+
+    loadStore();
+    return () => intervalId && clearInterval(intervalId);
+  }, [storeSlug, isPopupOpen]);
+
   const handleChange = (e) => {
     const input = e.target.value;
     if (!input.startsWith("+1")) {
@@ -148,6 +180,17 @@ function Header({ onChangeStore }) {
     setIsLoading(true);
     setIsPopupOpen(false);
     e.preventDefault();
+
+    // Online orders (pickup/delivery) are only accepted during working hours.
+    // Uses the freshly-fetched store status; the backend re-validates on submit.
+    if (orderMode !== "dinein" && !storeOpenState.open) {
+      setIsLoading(false);
+      setIsPopupOpen(true);
+      alert(
+        `Sorry, we are not accepting online orders right now.\n${storeOpenState.reason}`,
+      );
+      return;
+    }
 
     // Validate mobile number for non-dine-in orders
     const mobileRegex = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}$/;
@@ -1483,22 +1526,50 @@ function Header({ onChangeStore }) {
                   )}
                 </>
               )}
-              <button
-                onClick={handleOrderNow}
-                disabled={isCartEmpty}
-                style={{
-                  backgroundColor: isCartEmpty ? "#aaa" : "black",
-                  color: "#fff",
-                  border: "none",
-                  padding: "10px 20px",
-                  borderRadius: "4px",
-                  cursor: isCartEmpty ? "not-allowed" : "pointer",
-                  marginRight: "10px",
-                  marginTop: "10px",
-                }}
-              >
-                {isCartEmpty ? `Add items to cart` : `Order Now`}
-              </button>
+              {orderMode !== "dinein" && !storeOpenState.open && (
+                <div
+                  style={{
+                    background: "#fdecea",
+                    color: "#c0392b",
+                    border: "1px solid #f5c6cb",
+                    borderRadius: "6px",
+                    padding: "10px 14px",
+                    marginTop: "12px",
+                    fontWeight: 600,
+                    fontSize: "14px",
+                  }}
+                >
+                  🕒 We're currently closed for online orders.
+                  {storeOpenState.reason ? ` ${storeOpenState.reason}` : ""}
+                </div>
+              )}
+              {(() => {
+                const closedForOnline =
+                  orderMode !== "dinein" && !storeOpenState.open;
+                const disabled = isCartEmpty || closedForOnline;
+                return (
+                  <button
+                    onClick={handleOrderNow}
+                    disabled={disabled}
+                    style={{
+                      backgroundColor: disabled ? "#aaa" : "black",
+                      color: "#fff",
+                      border: "none",
+                      padding: "10px 20px",
+                      borderRadius: "4px",
+                      cursor: disabled ? "not-allowed" : "pointer",
+                      marginRight: "10px",
+                      marginTop: "10px",
+                    }}
+                  >
+                    {isCartEmpty
+                      ? `Add items to cart`
+                      : closedForOnline
+                        ? `Currently Closed`
+                        : `Order Now`}
+                  </button>
+                );
+              })()}
               <button
                 onClick={() => setIsPopupOpen(false)}
                 style={{

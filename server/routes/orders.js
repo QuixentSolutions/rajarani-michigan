@@ -7,6 +7,7 @@ const axios = require("axios");
 const WebSocket = require("ws");
 const path = require("path");
 const wsServer = require("../ws");
+const { getStoreOpenState } = require("../utils/storeHours");
 
 // Build and save an Invoice from one or more Order documents
 async function createInvoiceFromOrders(storeId, orders, paymentMethod) {
@@ -138,6 +139,16 @@ function buildEmailHTML(items) {
 
 router.post("/", async (req, res) => {
   try {
+    // Gate online orders (pickup/delivery) by the store's working hours.
+    // Dine-in orders are placed in-store by staff and are not gated.
+    if (req.body.orderType && req.body.orderType !== "dinein") {
+      const { open, reason } = getStoreOpenState(req.store);
+      if (!open) {
+        const message = `Sorry, we are not accepting online orders right now. ${reason}`;
+        return res.status(409).json({ error: message, message });
+      }
+    }
+
     const order = new Order({ ...req.body, storeId: req.storeId });
     const savedOrder = await order.save();
 

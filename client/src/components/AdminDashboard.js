@@ -11,6 +11,7 @@ import AdminRegistrations from "./AdminRegistrations";
 import AdminOrders from "./AdminOrders";
 import AdminMenu from "./AdminMenu";
 import AdminSettings from "./AdminSettings";
+import AdminWorkingHours from "./AdminWorkingHours";
 import AdminReports from "./AdminReports";
 import AdminInvoice from "./AdminInvoice";
 import AdminCatering from "./AdminCatering";
@@ -1142,6 +1143,14 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
             Settings
           </button>
           <button
+            className={`tab-btn ${
+              activeTab === "working-hours" ? "active" : ""
+            }`}
+            onClick={() => setActiveTab("working-hours")}
+          >
+            Working Hours
+          </button>
+          <button
             className={`tab-btn ${activeTab === "reports" ? "active" : ""}`}
             onClick={() => setActiveTab("reports")}
           >
@@ -1225,6 +1234,8 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
             saveSettings={saveSettings}
           />
         )}
+
+        {activeTab === "working-hours" && <AdminWorkingHours />}
 
         {activeTab === "reports" && <AdminReports />}
 

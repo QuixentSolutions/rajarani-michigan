@@ -51,10 +51,16 @@ export default function StoreSelector({ onCancel }) {
   }, [dispatch]);
 
   async function fetchAllStores(msg) {
-    setMessage(msg);
     try {
       const res = await fetch("/api/stores");
       const data = await res.json();
+      if (data.length === 1) {
+        // Only one store exists — auto-select silently instead of
+        // gating all content behind a manual click.
+        dispatch(setSelectedStore(data[0]));
+        return;
+      }
+      setMessage(msg);
       setStores(data);
       setStatus("list");
     } catch {

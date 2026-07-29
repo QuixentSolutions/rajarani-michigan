@@ -50,7 +50,10 @@ function Hero() {
               textAlign: "center",
             }}
           >
-            <img src="/halal_food.png" alt="Halal" />
+            <img
+              src="/halal_food.png"
+              alt="100% Halal certified meat served at Raja Rani Indian Restaurant"
+            />
           </div>
           <p
             style={{
@@ -83,7 +86,7 @@ function Hero() {
               <div key={index}>
                 <img
                   src={image}
-                  alt={`Gallery View ${index + 1}`}
+                  alt={`Authentic South Indian dishes and dining at Raja Rani Indian Restaurant in Canton, MI ${index + 1}`}
                   className="carousel-image"
                   onError={() => handleImageError(index)}
                 />

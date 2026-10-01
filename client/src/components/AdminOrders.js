@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { FaEye } from "react-icons/fa";
 import { printOrder } from "../utils/printer";
 
 const AdminOrders = ({
@@ -106,6 +107,40 @@ const AdminOrders = ({
 
                           <td>{new Date(order.createdAt).toLocaleString()}</td>
                           <td>
+                            <button
+                              onClick={() => handleView(order, "order-details")}
+                              title="View order details"
+                              aria-label="View order details"
+                              style={{
+                                padding: "6px 10px",
+                                backgroundColor: "#3b82f6",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "6px",
+                                fontSize: "14px",
+                                lineHeight: 1,
+                                verticalAlign: "middle",
+                                cursor: "pointer",
+                                transition: "all 0.2s ease",
+                                boxShadow: "0 1px 3px rgba(59,130,246,0.3)",
+                                marginRight: "6px",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor =
+                                  "#2563eb";
+                                e.currentTarget.style.transform =
+                                  "translateY(-1px)";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor =
+                                  "#3b82f6";
+                                e.currentTarget.style.transform =
+                                  "translateY(0)";
+                              }}
+                            >
+                              <FaEye />
+                            </button>
+
                             <button
                               onClick={() => printOrder(order)}
                               style={{

@@ -557,7 +557,9 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
               </div>
             )}
 
-            {modalType === "view-orders" && selectedItem && (
+            {(modalType === "view-orders" ||
+              modalType === "view-order-details") &&
+              selectedItem && (
               <div className="view-details">
                 <div
                   style={{
@@ -670,25 +672,27 @@ const AdminDashboard = ({ onLogout, onSwitchStore }) => {
                     </tbody>
                   </table>
 
-                  <div style={{ textAlign: "center", marginTop: "20px" }}>
-                    <button
-                      onClick={() =>
-                        handleSettleOnlineorders(selectedItem.orderNumber)
-                      }
-                      style={{
-                        padding: "10px 20px",
-                        backgroundColor: "#007bff",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        fontSize: "16px",
-                      }}
-                      className="settle-btn"
-                    >
-                      Settle
-                    </button>
-                  </div>
+                  {modalType === "view-orders" && (
+                    <div style={{ textAlign: "center", marginTop: "20px" }}>
+                      <button
+                        onClick={() =>
+                          handleSettleOnlineorders(selectedItem.orderNumber)
+                        }
+                        style={{
+                          padding: "10px 20px",
+                          backgroundColor: "#007bff",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                          fontSize: "16px",
+                        }}
+                        className="settle-btn"
+                      >
+                        Settle
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <table className="order-table">

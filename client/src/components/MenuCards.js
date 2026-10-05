@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { FaCartPlus } from "react-icons/fa";
 import { updateQuantity, rehydrateCart } from "../cartSlice";
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import "./MenuCards.css";
 
 function Menu() {
@@ -115,8 +116,37 @@ function Menu() {
           : [...prev, addon], // ✅ store full object, not just name
     );
   };
+  const menuSchema =
+    menuSections.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Menu",
+          name: "Raja Rani Indian Restaurant Menu",
+          hasMenuSection: menuSections.map((section) => ({
+            "@type": "MenuSection",
+            name: section.title,
+            hasMenuItem: section.items.map((item) => ({
+              "@type": "MenuItem",
+              name: item.name,
+              offers: {
+                "@type": "Offer",
+                price: String(item.newPrice || item.price || ""),
+                priceCurrency: "USD",
+              },
+            })),
+          })),
+        }
+      : null;
+
   return (
     <>
+      {menuSchema && (
+        <Helmet>
+          <script type="application/ld+json">
+            {JSON.stringify(menuSchema)}
+          </script>
+        </Helmet>
+      )}
       <div className="menu-container" id="menu">
         {notification && (
           <div className="item-added-notification">{notification}</div>

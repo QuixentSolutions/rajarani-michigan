@@ -9,6 +9,15 @@ const path = require("path");
 const wsServer = require("../ws");
 const { getStoreOpenState } = require("../utils/storeHours");
 
+// Unit price shown to customers = item base price + selected addons
+function unitPriceWithAddons({ basePrice, addons }) {
+  const addonsTotal = (addons || []).reduce(
+    (sum, a) => sum + (parseFloat(a.price) || 0),
+    0,
+  );
+  return (parseFloat(basePrice) || 0) + addonsTotal;
+}
+
 // Build and save an Invoice from one or more Order documents
 async function createInvoiceFromOrders(storeId, orders, paymentMethod) {
   try {
@@ -25,7 +34,7 @@ async function createInvoiceFromOrders(storeId, orders, paymentMethod) {
         return {
           description: `${(it.name || "").split("_")[0]}${spiceStr}${addonStr}`,
           qty: it.quantity || 1,
-          unitPrice: parseFloat(it.basePrice) || 0,
+          unitPrice: unitPriceWithAddons(it),
           amount: parseFloat(it.price) || 0,
         };
       }),
@@ -83,7 +92,7 @@ async function createInvoiceFromOrders(storeId, orders, paymentMethod) {
 function buildEmailHTML(items) {
   const rows = items
     .map(({ name, quantity, basePrice, price, spiceLevel, addons }) => {
-      const unitPrice = parseFloat(basePrice);
+      const unitPrice = unitPriceWithAddons({ basePrice, addons });
       const lineTotal = parseFloat(price);
 
       return `

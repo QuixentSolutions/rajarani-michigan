@@ -735,7 +735,15 @@ function Header({ onChangeStore }) {
   };
 
   const CartItem = ({ itemKey, item }) => {
-    const basePrice = parseFloat(item.basePrice || item.price);
+    // Unit price must include addons (e.g. "Add Veggies +$1"), otherwise
+    // changing quantity in the cart silently drops the addon charge.
+    const addonsTotal = (item.addons || []).reduce(
+      (sum, addon) => sum + (parseFloat(addon.price) || 0),
+      0,
+    );
+    const unitPrice = item.basePrice
+      ? parseFloat(item.basePrice) + addonsTotal
+      : parseFloat(item.price) / (item.quantity || 1); // legacy: price is line total incl. addons
     const [quantity, setQuantity] = useState(item.quantity);
 
     const updateCart = async (newQuantity) => {
@@ -747,8 +755,8 @@ function Header({ onChangeStore }) {
             delete cart[itemKey];
           } else {
             cart[itemKey].quantity = newQuantity;
-            cart[itemKey].basePrice = basePrice.toFixed(2); // unit price
-            cart[itemKey].price = (newQuantity * basePrice).toFixed(2); // total price
+            // basePrice stays as the item's price without addons (unchanged)
+            cart[itemKey].price = (newQuantity * unitPrice).toFixed(2); // line total incl. addons
           }
         }
 
